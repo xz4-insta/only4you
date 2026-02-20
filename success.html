@@ -198,10 +198,11 @@ document.getElementById("reactBtn").onclick = async () => {
   document.getElementById("reactBtn").disabled = true;
 };
 
-/* 💕 OWNER MODE */
+// 💕 OWNER MODE
 if (isOwner) {
 
   const shareSection = document.createElement("div");
+
   shareSection.style.marginTop = "60px";
   shareSection.style.padding = "30px";
   shareSection.style.background = "rgba(255,255,255,0.2)";
@@ -209,55 +210,84 @@ if (isOwner) {
   shareSection.style.borderRadius = "25px";
   shareSection.style.maxWidth = "450px";
   shareSection.style.marginInline = "auto";
+  shareSection.style.textAlign = "center";
+  shareSection.style.boxShadow = "0 10px 40px rgba(0,0,0,0.2)";
 
-  const cleanLink = window.location.origin +
-                    window.location.pathname +
-                    "?id=" + id;
+  const cleanLink =
+    window.location.origin +
+    window.location.pathname +
+    "?id=" + id;
 
   shareSection.innerHTML = `
-  <h3>Share This Surprise 💕</h3>
-  <p style="word-break:break-all;font-size:14px;">
-  ${cleanLink}
-  </p>
-  <p style="font-size:13px;">
-  Opened ${data.views || 0} times
-  </p>
-  <button id="copyBtn"
-  style="margin-top:15px;
-  padding:10px 20px;
-  border:none;
-  border-radius:20px;
-  background:#ff69b4;
-  color:white;
-  cursor:pointer;">
-  Copy Link
-  </button>
-  <div id="qrcode" style="margin-top:25px;"></div>
+    <h3 style="margin-bottom:15px;">Share This Surprise 💕</h3>
+
+    <p style="word-break:break-all;font-size:14px;margin-bottom:10px;">
+      ${cleanLink}
+    </p>
+
+    <p style="font-size:13px;margin-bottom:20px;">
+      Opened ${data.views || 0} times
+    </p>
+
+    <button id="copyBtn"
+      style="
+      padding:10px 25px;
+      border:none;
+      border-radius:25px;
+      background:#ff69b4;
+      color:white;
+      cursor:pointer;
+      transition:0.3s;
+      ">
+      Copy Link 💖
+    </button>
+
+    <div id="qrcode" style="
+      margin-top:30px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+    "></div>
   `;
 
   document.body.appendChild(shareSection);
 
+  // Copy Button
   document.getElementById("copyBtn").onclick = () => {
     navigator.clipboard.writeText(cleanLink);
+
     const btn = document.getElementById("copyBtn");
-    btn.innerText = "Copied 💖";
+    btn.innerText = "Copied 💕";
     btn.style.background = "#32CD32";
-    setTimeout(()=>{
-      btn.innerText="Copy Link";
-      btn.style.background="#ff69b4";
-    },2000);
+
+    setTimeout(() => {
+      btn.innerText = "Copy Link 💖";
+      btn.style.background = "#ff69b4";
+    }, 2000);
   };
 
-  const qrScript=document.createElement("script");
-  qrScript.src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
+  // Load QR Library
+  const qrScript = document.createElement("script");
+  qrScript.src =
+    "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
+
   document.head.appendChild(qrScript);
 
-  qrScript.onload=()=>{
-    new QRCode(document.getElementById("qrcode"),{
-      text:cleanLink,
-      width:120,
-      height:120
+  qrScript.onload = () => {
+
+    new QRCode(document.getElementById("qrcode"), {
+      text: cleanLink,
+      width: 140,
+      height: 140
     });
+
+    // Add glow to QR
+    const qrCanvas = document.querySelector("#qrcode canvas");
+    if (qrCanvas) {
+      qrCanvas.style.borderRadius = "15px";
+      qrCanvas.style.boxShadow =
+        "0 15px 35px rgba(0,0,0,0.3)";
+    }
   };
 }
 
