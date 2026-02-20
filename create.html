@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <!DOCTYPE html>
 <html>
 <head>
@@ -50,6 +49,10 @@ input,textarea,select{
   transition:0.3s;
 }
 
+input:hover, textarea:hover, select:hover{
+  transform:scale(1.02);
+}
+
 input:focus, textarea:focus, select:focus{
   outline:none;
   box-shadow:0 0 10px #ff99cc;
@@ -72,6 +75,11 @@ button:hover{
   background:#ff3385;
 }
 
+/* Hide default radio */
+input[type="radio"]{
+  display:none;
+}
+
 .plan-box{
   background:white;
   padding:15px;
@@ -88,7 +96,12 @@ button:hover{
   box-shadow:0 10px 20px rgba(0,0,0,0.2);
 }
 
-/* 🐱 Pink Cat */
+/* Selected plan highlight */
+.plan-box.selected{
+  border:2px solid #E75480;
+  box-shadow:0 0 20px rgba(231,84,128,0.4);
+}
+
 #pinkCat{
   position:fixed;
   font-size:40px;
@@ -96,7 +109,6 @@ button:hover{
   pointer-events:none;
 }
 
-/* Floating Hearts */
 .heart{
   position:fixed;
   font-size:20px;
@@ -108,7 +120,6 @@ button:hover{
   100%{ transform:translateY(-100vh); opacity:0; }
 }
 
-/* Sparkles */
 .sparkle{
   position:fixed;
   font-size:18px;
@@ -118,6 +129,16 @@ button:hover{
 @keyframes twinkle{
   from{ opacity:0.4; transform:scale(1); }
   to{ opacity:1; transform:scale(1.3); }
+}
+
+@keyframes shake {
+  0%,100% { transform:translateX(0); }
+  25% { transform:translateX(-5px); }
+  75% { transform:translateX(5px); }
+}
+
+.shake{
+  animation:shake 0.3s;
 }
 
 @media(max-width:600px){
@@ -143,28 +164,28 @@ button:hover{
 
 <h3>Select Your Plan 💎</h3>
 
-<div class="plan-box">
+<div class="plan-box selected" onclick="selectPlan(this)">
   <label>
     <input type="radio" name="plan" value="48" checked>
     💌 Mini Surprise – ₹48
   </label>
 </div>
 
-<div class="plan-box">
+<div class="plan-box" onclick="selectPlan(this)">
   <label>
     <input type="radio" name="plan" value="89">
     💖 Romantic Deluxe – ₹89
   </label>
 </div>
 
-<div class="plan-box">
+<div class="plan-box" onclick="selectPlan(this)">
   <label>
     <input type="radio" name="plan" value="169">
     👑 Premium Love – ₹169
   </label>
 </div>
 
-<div class="plan-box">
+<div class="plan-box" onclick="selectPlan(this)">
   <label>
     <input type="radio" name="plan" value="299">
     💍 Forever Custom – ₹299
@@ -175,12 +196,16 @@ button:hover{
 
 </div>
 
-<!-- Pink Cat -->
 <div id="pinkCat">🐱</div>
 
 <script>
 
-/* 🐱 Random Moving Cat */
+function selectPlan(element){
+  document.querySelectorAll(".plan-box").forEach(box=>box.classList.remove("selected"));
+  element.classList.add("selected");
+  element.querySelector("input").checked = true;
+}
+
 const cat = document.getElementById("pinkCat");
 function moveCat(){
   const x = Math.random() * (window.innerWidth - 50);
@@ -192,7 +217,6 @@ function moveCat(){
 setInterval(moveCat,2000);
 moveCat();
 
-/* 💕 Floating Hearts */
 for(let i=0;i<10;i++){
   const heart=document.createElement("div");
   heart.className="heart";
@@ -203,7 +227,6 @@ for(let i=0;i<10;i++){
   document.body.appendChild(heart);
 }
 
-/* ✨ Sparkles */
 for(let i=0;i<15;i++){
   const spark=document.createElement("div");
   spark.className="sparkle";
@@ -213,31 +236,34 @@ for(let i=0;i<15;i++){
   document.body.appendChild(spark);
 }
 
-/* Redirect Logic */
 function goToPreview(){
 
   const btn = document.getElementById("previewBtn");
-  btn.innerText = "Preparing Preview... 💕";
-  btn.disabled = true;
+  const sender = document.getElementById("sender");
+  const receiver = document.getElementById("receiver");
+  const message = document.getElementById("message");
 
-  const sender = document.getElementById("sender").value.trim();
-  const receiver = document.getElementById("receiver").value.trim();
-  const message = document.getElementById("message").value.trim();
-  const template = document.getElementById("template").value;
-  const plan = document.querySelector('input[name="plan"]:checked').value;
-
-  if(!sender || !receiver || !message){
-    alert("Fill all fields 💗");
-    btn.innerText = "Preview 💕";
-    btn.disabled = false;
+  if(!sender.value || !receiver.value || !message.value){
+    [sender,receiver,message].forEach(el=>{
+      if(!el.value){
+        el.classList.add("shake");
+        setTimeout(()=>el.classList.remove("shake"),300);
+      }
+    });
     return;
   }
 
+  btn.innerText = "Preparing Preview... 💕";
+  btn.disabled = true;
+
+  const template = document.getElementById("template").value;
+  const plan = document.querySelector('input[name="plan"]:checked').value;
+
   setTimeout(()=>{
     window.location.href =
-      "preview.html?sender=" + encodeURIComponent(sender) +
-      "&receiver=" + encodeURIComponent(receiver) +
-      "&message=" + encodeURIComponent(message) +
+      "preview.html?sender=" + encodeURIComponent(sender.value) +
+      "&receiver=" + encodeURIComponent(receiver.value) +
+      "&message=" + encodeURIComponent(message.value) +
       "&template=" + template +
       "&plan=" + plan;
   },800);
@@ -245,252 +271,4 @@ function goToPreview(){
 </script>
 
 </body>
-=======
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Create 💗</title>
-
-<style>
-body{
-  font-family:Arial;
-  background:linear-gradient(135deg,#FFF6EC,#FFD6E8);
-  text-align:center;
-  padding:50px 20px;
-  overflow-x:hidden;
-  animation: fadeIn 1s ease;
-}
-
-@keyframes fadeIn {
-  from {opacity:0;}
-  to {opacity:1;}
-}
-
-.container{
-  background:rgba(255,255,255,0.6);
-  backdrop-filter:blur(15px);
-  padding:30px;
-  border-radius:30px;
-  max-width:450px;
-  margin:auto;
-  box-shadow:0 15px 40px rgba(231,84,128,0.25);
-}
-
-h2{
-  color:#E75480;
-  animation: glow 2s infinite alternate;
-}
-
-@keyframes glow{
-  from { text-shadow:0 0 5px #ff99cc; }
-  to { text-shadow:0 0 20px #ff3399; }
-}
-
-input,textarea,select{
-  width:90%;
-  padding:12px;
-  margin:10px;
-  border-radius:20px;
-  border:1px solid #FFB6C1;
-  transition:0.3s;
-}
-
-input:focus, textarea:focus, select:focus{
-  outline:none;
-  box-shadow:0 0 10px #ff99cc;
-}
-
-button{
-  padding:14px 30px;
-  border:none;
-  border-radius:30px;
-  background:#E75480;
-  color:white;
-  cursor:pointer;
-  margin-top:25px;
-  font-size:16px;
-  transition:0.3s;
-}
-
-button:hover{
-  transform:scale(1.1);
-  background:#ff3385;
-}
-
-.plan-box{
-  background:white;
-  padding:15px;
-  border-radius:20px;
-  width:90%;
-  margin:10px auto;
-  box-shadow:0 5px 15px rgba(0,0,0,0.1);
-  cursor:pointer;
-  transition:0.3s;
-}
-
-.plan-box:hover{
-  transform:scale(1.05);
-  box-shadow:0 10px 20px rgba(0,0,0,0.2);
-}
-
-/* 🐱 Pink Cat */
-#pinkCat{
-  position:fixed;
-  font-size:40px;
-  z-index:999;
-  pointer-events:none;
-}
-
-/* Floating Hearts */
-.heart{
-  position:fixed;
-  font-size:20px;
-  animation: floatHeart 6s linear infinite;
-}
-
-@keyframes floatHeart{
-  0%{ transform:translateY(0); opacity:1; }
-  100%{ transform:translateY(-100vh); opacity:0; }
-}
-
-/* Sparkles */
-.sparkle{
-  position:fixed;
-  font-size:18px;
-  animation: twinkle 2s infinite alternate;
-}
-
-@keyframes twinkle{
-  from{ opacity:0.4; transform:scale(1); }
-  to{ opacity:1; transform:scale(1.3); }
-}
-
-@media(max-width:600px){
-  body{ padding:30px 10px; }
-}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-
-<h2>Create Your Love Surprise 💕</h2>
-
-<input id="sender" placeholder="Your Name 💌"><br>
-<input id="receiver" placeholder="Their Name 💖"><br>
-<textarea id="message" placeholder="Write your sweet message 💞"></textarea><br>
-
-<select id="template">
-  <option value="pink">Cream & Pink 💗</option>
-  <option value="dark">Dark Romantic 🖤</option>
-</select><br>
-
-<h3>Select Your Plan 💎</h3>
-
-<div class="plan-box">
-  <label>
-    <input type="radio" name="plan" value="48" checked>
-    💌 Mini Surprise – ₹48
-  </label>
-</div>
-
-<div class="plan-box">
-  <label>
-    <input type="radio" name="plan" value="89">
-    💖 Romantic Deluxe – ₹89
-  </label>
-</div>
-
-<div class="plan-box">
-  <label>
-    <input type="radio" name="plan" value="169">
-    👑 Premium Love – ₹169
-  </label>
-</div>
-
-<div class="plan-box">
-  <label>
-    <input type="radio" name="plan" value="299">
-    💍 Forever Custom – ₹299
-  </label>
-</div>
-
-<button id="previewBtn" onclick="goToPreview()">Preview 💕</button>
-
-</div>
-
-<!-- Pink Cat -->
-<div id="pinkCat">🐱</div>
-
-<script>
-
-/* 🐱 Random Moving Cat */
-const cat = document.getElementById("pinkCat");
-function moveCat(){
-  const x = Math.random() * (window.innerWidth - 50);
-  const y = Math.random() * (window.innerHeight - 50);
-  cat.style.transition = "all 2s ease";
-  cat.style.left = x + "px";
-  cat.style.top = y + "px";
-}
-setInterval(moveCat,2000);
-moveCat();
-
-/* 💕 Floating Hearts */
-for(let i=0;i<10;i++){
-  const heart=document.createElement("div");
-  heart.className="heart";
-  heart.innerHTML="💖";
-  heart.style.left=Math.random()*100+"%";
-  heart.style.bottom="-20px";
-  heart.style.animationDuration=(5+Math.random()*5)+"s";
-  document.body.appendChild(heart);
-}
-
-/* ✨ Sparkles */
-for(let i=0;i<15;i++){
-  const spark=document.createElement("div");
-  spark.className="sparkle";
-  spark.innerHTML="✨";
-  spark.style.left=Math.random()*100+"%";
-  spark.style.top=Math.random()*100+"%";
-  document.body.appendChild(spark);
-}
-
-/* Redirect Logic */
-function goToPreview(){
-
-  const btn = document.getElementById("previewBtn");
-  btn.innerText = "Preparing Preview... 💕";
-  btn.disabled = true;
-
-  const sender = document.getElementById("sender").value.trim();
-  const receiver = document.getElementById("receiver").value.trim();
-  const message = document.getElementById("message").value.trim();
-  const template = document.getElementById("template").value;
-  const plan = document.querySelector('input[name="plan"]:checked').value;
-
-  if(!sender || !receiver || !message){
-    alert("Fill all fields 💗");
-    btn.innerText = "Preview 💕";
-    btn.disabled = false;
-    return;
-  }
-
-  setTimeout(()=>{
-    window.location.href =
-      "preview.html?sender=" + encodeURIComponent(sender) +
-      "&receiver=" + encodeURIComponent(receiver) +
-      "&message=" + encodeURIComponent(message) +
-      "&template=" + template +
-      "&plan=" + plan;
-  },800);
-}
-</script>
-
-</body>
->>>>>>> 2a469b46a2bde9af3411a2b36072d9c03711fad4
 </html>

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <!DOCTYPE html>
 <html>
 <head>
@@ -12,6 +11,12 @@ body{
   background:linear-gradient(135deg,#FFF6EC,#FFD6E8);
   text-align:center;
   padding:60px 20px;
+  animation:fadeIn 0.8s ease;
+}
+
+@keyframes fadeIn{
+  from{opacity:0;}
+  to{opacity:1;}
 }
 
 .preview-box{
@@ -22,6 +27,12 @@ body{
   max-width:400px;
   margin:30px auto;
   position:relative;
+  transition:0.3s;
+}
+
+.preview-box:hover{
+  transform:translateY(-5px);
+  box-shadow:0 15px 40px rgba(231,84,128,0.3);
 }
 
 h2{
@@ -48,6 +59,11 @@ h2{
 
 #payBtn:hover{
   transform:scale(1.1);
+}
+
+#payBtn:disabled{
+  opacity:0.6;
+  cursor:not-allowed;
 }
 
 /* Loading Overlay */
@@ -79,6 +95,7 @@ h2{
 }
 </style>
 </head>
+
 <body>
 
 <div class="preview-box">
@@ -88,7 +105,6 @@ h2{
   <button id="payBtn">Pay & Unlock 💕</button>
 </div>
 
-<!-- Processing Overlay -->
 <div id="overlay">
   <div class="spinner"></div>
   <p style="margin-top:15px;color:#C2185B;">Securing your surprise... 💖</p>
@@ -187,6 +203,8 @@ document.getElementById("planInfo").innerText = "Selected Plan: " + planText;
 document.getElementById("payBtn").onclick = function(){
 
   const overlay = document.getElementById("overlay");
+  const payBtn = document.getElementById("payBtn");
+  payBtn.disabled = true;
 
   const amountMap = {
     "48": 4800,
@@ -219,226 +237,4 @@ document.getElementById("payBtn").onclick = function(){
 </script>
 
 </body>
-=======
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Preview 💕</title>
-
-<style>
-body{
-  font-family:'Segoe UI',sans-serif;
-  background:linear-gradient(135deg,#FFF6EC,#FFD6E8);
-  text-align:center;
-  padding:60px 20px;
-}
-
-.preview-box{
-  background:white;
-  padding:30px;
-  border-radius:25px;
-  box-shadow:0 10px 30px rgba(231,84,128,0.2);
-  max-width:400px;
-  margin:30px auto;
-  position:relative;
-}
-
-h2{
-  color:#E75480;
-}
-
-#planInfo{
-  margin-top:15px;
-  font-weight:bold;
-  color:#C2185B;
-}
-
-#payBtn{
-  padding:14px 35px;
-  border:none;
-  border-radius:30px;
-  background:#E75480;
-  color:white;
-  cursor:pointer;
-  margin-top:25px;
-  font-size:16px;
-  transition:0.3s;
-}
-
-#payBtn:hover{
-  transform:scale(1.1);
-}
-
-/* Loading Overlay */
-#overlay{
-  display:none;
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(255,255,255,0.9);
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-  z-index:9999;
-}
-
-.spinner{
-  width:40px;
-  height:40px;
-  border:4px solid #FFD6E8;
-  border-top:4px solid #E75480;
-  border-radius:50%;
-  animation:spin 1s linear infinite;
-}
-
-@keyframes spin{
-  to{ transform:rotate(360deg); }
-}
-</style>
-</head>
-<body>
-
-<div class="preview-box">
-  <h2 id="title"></h2>
-  <p id="msg"></p>
-  <div id="planInfo"></div>
-  <button id="payBtn">Pay & Unlock 💕</button>
-</div>
-
-<!-- Processing Overlay -->
-<div id="overlay">
-  <div class="spinner"></div>
-  <p style="margin-top:15px;color:#C2185B;">Securing your surprise... 💖</p>
-</div>
-
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBdp7U014kNZzYB4MD9Sqn7MuuCjLWcdxI",
-  authDomain: "only4you-55c34.firebaseapp.com",
-  projectId: "only4you-55c34",
-  storageBucket: "only4you-55c34.appspot.com",
-  messagingSenderId: "1051434083700",
-  appId: "1:1051434083700:web:95d52d9fc79ccdba983821"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-const params = new URLSearchParams(window.location.search);
-const isPaid = params.get("paid");
-
-// ================= AFTER PAYMENT =================
-if (isPaid === "true") {
-
-  const stored = JSON.parse(localStorage.getItem("surpriseData"));
-
-  if (!stored) {
-    document.body.innerHTML = "<h2>Session expired. Please try again.</h2>";
-    throw new Error("No stored data");
-  }
-
-  try {
-
-    let expiryTime = Date.now() + 24 * 60 * 60 * 1000;
-    if (stored.plan === "299") expiryTime = null;
-
-    const docRef = await addDoc(collection(db, "surprises"), {
-      sender: stored.sender,
-      receiver: stored.receiver,
-      message: stored.message,
-      template: stored.template,
-      plan: stored.plan,
-      createdAt: Date.now(),
-      expiresAt: expiryTime,
-      views: 0
-    });
-
-    localStorage.removeItem("surpriseData");
-    window.location.href = "success.html?id=" + docRef.id + "&owner=true";
-
-  } catch (err) {
-    console.error(err);
-    alert("Error saving surprise");
-  }
-
-  throw new Error("Paid mode handled");
-}
-
-// ================= BEFORE PAYMENT =================
-
-const sender = params.get("sender");
-const receiver = params.get("receiver");
-const message = params.get("message");
-const template = params.get("template");
-const plan = params.get("plan") || "48";
-
-if (!sender || !receiver || !message || !template) {
-  document.body.innerHTML = "<h2>Invalid Preview Data</h2>";
-  throw new Error("Missing parameters");
-}
-
-localStorage.setItem("surpriseData", JSON.stringify({
-  sender, receiver, message, template, plan
-}));
-
-document.getElementById("title").innerText = "For " + receiver;
-document.getElementById("msg").innerText = message;
-
-const planText = {
-  "48": "💌 Mini Surprise – ₹48",
-  "89": "💖 Romantic Deluxe – ₹89",
-  "169": "👑 Premium Love – ₹169",
-  "299": "💍 Forever Custom – ₹299"
-}[plan];
-
-document.getElementById("planInfo").innerText = "Selected Plan: " + planText;
-
-// ================= DYNAMIC RAZORPAY =================
-
-document.getElementById("payBtn").onclick = function(){
-
-  const overlay = document.getElementById("overlay");
-
-  const amountMap = {
-    "48": 4800,
-    "89": 8900,
-    "169": 16900,
-    "299": 29900
-  };
-
-  var options = {
-    key: "rzp_test_SHVFTNzBwF1sz0",
-    amount: amountMap[plan],
-    currency: "INR",
-    name: "Only4You 💕",
-    description: "Romantic Surprise",
-    handler: function () {
-      overlay.style.display = "flex";
-      setTimeout(() => {
-        window.location.href = "preview.html?paid=true";
-      }, 1500);
-    },
-    theme: {
-      color: "#E75480"
-    }
-  };
-
-  var rzp = new Razorpay(options);
-  rzp.open();
-};
-
-</script>
-
-</body>
->>>>>>> 2a469b46a2bde9af3411a2b36072d9c03711fad4
 </html>
