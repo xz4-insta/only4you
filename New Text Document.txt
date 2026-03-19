@@ -1,5 +1,0 @@
-<<<<<<< HEAD
-npx http-server
-=======
-npx http-server
->>>>>>> 2a469b46a2bde9af3411a2b36072d9c03711fad4

@@ -1,0 +1,14 @@
+// Allow update for:
+// 1. Public (only views & reactions)
+// 2. Admin (full edit access)
+
+allow update: if
+  (
+    request.resource.data.diff(resource.data).changedKeys()
+      .hasOnly(["views", "reactions"])
+  )
+  ||
+  (
+    request.auth != null &&
+    request.auth.uid == "Uwtpy28RdRXyOoKbU08485YmjIn2"
+  );

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Surprise 💛</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #1a1a1a, #2b2b2b);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
+      padding: 30px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 420px;
+      box-shadow: 0 0 30px rgba(255,215,0,0.2);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: gold;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: gold;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .locked {
+      text-align: center;
+      color: #ff4d4d;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2>Forever Edit 💛</h2>
+
+  <div id="formSection" style="display:none;">
+    <input type="text" id="receiverName" placeholder="Receiver Name">
+    <textarea id="message" rows="4" placeholder="Your Message"></textarea>
+    <input type="text" id="music" placeholder="Music URL (optional)">
+    <button id="saveBtn">Save Changes</button>
+  </div>
+
+  <div id="lockedSection" class="locked" style="display:none;">
+    Editing is available only for Forever Premium ✨
+  </div>
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* ===========================
+   🔥 YOUR FIREBASE CONFIG
+   =========================== */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_BUCKET",
+  messagingSenderId: "YOUR_MSG_ID",
+  appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* ===========================
+   GET SURPRISE ID
+   =========================== */
+const params = new URLSearchParams(window.location.search);
+const surpriseId = params.get("id");
+
+if (!surpriseId) {
+  alert("Invalid link.");
+  window.location.href = "/";
+}
+
+/* ===========================
+   AUTH CHECK
+   =========================== */
+onAuthStateChanged(auth, async (user) => {
+
+  if (!user) {
+    alert("Login required.");
+    window.location.href = "/";
+    return;
+  }
+
+  const surpriseRef = doc(db, "surprises", surpriseId);
+  const snap = await getDoc(surpriseRef);
+
+  if (!snap.exists()) {
+    alert("Surprise not found.");
+    return;
+  }
+
+  const data = snap.data();
+
+  /* ===========================
+     OWNER OR ADMIN CHECK
+     =========================== */
+  const isAdmin = user.uid === "Uwtpy28RdRXyOoKbU08485YmjIn2";
+  const isOwner = user.uid === data.ownerUid;
+
+  if (!isAdmin && !isOwner) {
+    alert("Unauthorized access.");
+    window.location.href = "/";
+    return;
+  }
+
+  /* ===========================
+     PLAN GATING
+     =========================== */
+  if (data.plan !== "forever") {
+    document.getElementById("lockedSection").style.display = "block";
+    return;
+  }
+
+  /* ===========================
+     LOAD DATA
+     =========================== */
+  document.getElementById("formSection").style.display = "block";
+  document.getElementById("receiverName").value = data.receiverName || "";
+  document.getElementById("message").value = data.message || "";
+  document.getElementById("music").value = data.music || "";
+
+  /* ===========================
+     SAVE CHANGES
+     =========================== */
+  document.getElementById("saveBtn").addEventListener("click", async () => {
+
+    const updatedData = {
+      receiverName: document.getElementById("receiverName").value,
+      message: document.getElementById("message").value,
+      music: document.getElementById("music").value,
+      isEdited: true
+    };
+
+    try {
+      await updateDoc(surpriseRef, updatedData);
+      alert("Updated successfully 💛");
+    } catch (error) {
+      console.error(error);
+      alert("Update failed.");
+    }
+
+  });
+
+});
+
+</script>
+
+</body>
+</html>

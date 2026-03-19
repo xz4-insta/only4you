@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Epic Journey 💍</title>
+<link rel="stylesheet" href="epic-style.css">
+
+<!-- 🔥 Cloudinary Upload Widget (REQUIRED) -->
+<script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>✨ Epic Love Story Journey ✨</h1>
+<p class="subtitle">299 Exclusive Experience</p>
+
+<div class="upload-section">
+  <h3>Upload Memories (Min 3 • Max 9)</h3>
+  <button id="imageInput" class="upload-btn">Upload Images 💕</button>
+  <div id="imagePreview"></div>
+</div>
+
+<div class="upload-section">
+  <h3>Optional Voice Message 🎤</h3>
+  <button id="voiceInput" class="upload-btn">Upload Voice 🎵</button>
+  <div id="voicePreview"></div>
+</div>
+
+<div class="upload-section">
+  <h3>Final Question</h3>
+  <input type="text" id="finalQuestion" placeholder="Will you be mine forever? 💖">
+</div>
+<div class="upload-section">
+<h3>💞 Couple Quiz (3 Questions)</h3>
+
+<div class="quiz-create">
+
+<input type="text" id="q1" placeholder="Question 1">
+<input type="text" id="q1a" placeholder="Option A">
+<input type="text" id="q1b" placeholder="Option B">
+<input type="text" id="q1c" placeholder="Option C">
+
+<input type="text" id="q2" placeholder="Question 2">
+<input type="text" id="q2a" placeholder="Option A">
+<input type="text" id="q2b" placeholder="Option B">
+<input type="text" id="q2c" placeholder="Option C">
+
+<input type="text" id="q3" placeholder="Question 3">
+<input type="text" id="q3a" placeholder="Option A">
+<input type="text" id="q3b" placeholder="Option B">
+<input type="text" id="q3c" placeholder="Option C">
+
+</div>
+</div>
+<button id="createBtn" disabled>Create Epic Journey 💕</button>
+<div id="status"></div>
+
+</div>
+
+<!-- 🔥 Your JS Modules -->
+<script type="module" src="epic-upload.js"></script>
+<script type="module" src="epic-logic.js"></script>
+
+</body>
+</html>

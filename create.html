@@ -75,7 +75,6 @@ button:hover{
   background:#ff3385;
 }
 
-/* Hide default radio */
 input[type="radio"]{
   display:none;
 }
@@ -96,11 +95,61 @@ input[type="radio"]{
   box-shadow:0 10px 20px rgba(0,0,0,0.2);
 }
 
-/* Selected plan highlight */
 .plan-box.selected{
   border:2px solid #E75480;
   box-shadow:0 0 20px rgba(231,84,128,0.4);
 }
+
+/* ===== LOCK SYSTEM ===== */
+
+.upload-section{
+  position:relative;
+  transition:all 0.5s ease;
+  overflow:hidden;
+}
+
+.section-hidden{
+  max-height:0;
+  opacity:0;
+  transform:translateY(-20px);
+  pointer-events:none;
+}
+
+.section-visible{
+  max-height:1000px;
+  opacity:1;
+  transform:translateY(0);
+}
+
+.lock-overlay{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  backdrop-filter:blur(5px);
+  border-radius:20px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  color:white;
+  font-weight:600;
+  z-index:5;
+  text-align:center;
+  padding:20px;
+}
+
+.lock-overlay button{
+  margin-top:15px;
+  padding:8px 18px;
+  border:none;
+  border-radius:20px;
+  background:linear-gradient(90deg,#ff4d6d,#ff8fab);
+  color:white;
+  cursor:pointer;
+  font-size:14px;
+}
+
+/* Animations */
 
 #pinkCat{
   position:fixed;
@@ -131,65 +180,83 @@ input[type="radio"]{
   to{ opacity:1; transform:scale(1.3); }
 }
 
-@keyframes shake {
-  0%,100% { transform:translateX(0); }
-  25% { transform:translateX(-5px); }
-  75% { transform:translateX(5px); }
-}
-
-.shake{
-  animation:shake 0.3s;
-}
-
-@media(max-width:600px){
-  body{ padding:30px 10px; }
-}
 </style>
 </head>
 
 <body>
-
+ 
 <div class="container">
 
 <h2>Create Your Love Surprise 💕</h2>
+<input id="sender" placeholder="Your Name 💌">
+<input id="receiver" placeholder="Their Name 💖">
+<textarea id="message" placeholder="Write your sweet message 💞"></textarea>
+<!-- ===== SECTIONS ===== -->
 
-<input id="sender" placeholder="Your Name 💌"><br>
-<input id="receiver" placeholder="Their Name 💖"><br>
-<textarea id="message" placeholder="Write your sweet message 💞"></textarea><br>
+<div class="upload-section section-visible" id="imageSection">
+  <h3>Upload Memories (Min 3 • Max 9)</h3>
+  <button id="imageInput">Upload Images 💕</button>
+  <div id="imagePreview"></div>
+</div>
+
+<div class="upload-section section-visible" id="voiceSection">
+  <h3>Optional Voice Message 🎤</h3>
+  <button id="voiceInput">Upload Voice 🎵</button>
+  <div id="voicePreview"></div>
+</div>
+
+<div class="upload-section section-visible" id="questionSection">
+  <h3>Final Question</h3>
+  <input type="text" id="finalQuestion" placeholder="Will you be mine forever? 💖">
+</div>
+
+<div class="upload-section section-visible" id="quizSection">
+<h3>💞 Couple Quiz (3 Questions)</h3>
+
+<input type="text" id="q1" placeholder="Question 1">
+<input type="text" id="q1a" placeholder="Option A">
+<input type="text" id="q1b" placeholder="Option B">
+<input type="text" id="q1c" placeholder="Option C">
+
+<input type="text" id="q2" placeholder="Question 2">
+<input type="text" id="q2a" placeholder="Option A">
+<input type="text" id="q2b" placeholder="Option B">
+<input type="text" id="q2c" placeholder="Option C">
+
+<input type="text" id="q3" placeholder="Question 3">
+<input type="text" id="q3a" placeholder="Option A">
+<input type="text" id="q3b" placeholder="Option B">
+<input type="text" id="q3c" placeholder="Option C">
+</div>
 
 <select id="template">
-  <option value="pink">Cream & Pink 💗</option>
-  <option value="dark">Dark Romantic 🖤</option>
-</select><br>
+  <option value="valentine">Valentine 💗</option>
+  <option value="forgiveness">Forgiveness 💛</option>
+  <option value="epic">Epic Love Story 💍</option>
+  <option value="anniversary">Anniversary 🥂</option>
+  <option value="birthday">Birthday 🎂</option>
+</select>
 
 <h3>Select Your Plan 💎</h3>
 
 <div class="plan-box selected" onclick="selectPlan(this)">
-  <label>
-    <input type="radio" name="plan" value="48" checked>
-    💌 Mini Surprise – ₹48
-  </label>
+  <input type="radio" name="plan" value="48" checked>
+  💌 Mini Surprise – ₹48
 </div>
 
 <div class="plan-box" onclick="selectPlan(this)">
-  <label>
-    <input type="radio" name="plan" value="89">
-    💖 Romantic Deluxe – ₹89
-  </label>
+  <input type="radio" name="plan" value="89">
+  💖 Romantic Deluxe – ₹89
 </div>
 
 <div class="plan-box" onclick="selectPlan(this)">
-  <label>
-    <input type="radio" name="plan" value="169">
-    👑 Premium Love – ₹169
-  </label>
+  <input type="radio" name="plan" value="169">
+  👑 Premium Love – ₹169
 </div>
 
 <div class="plan-box" onclick="selectPlan(this)">
-  <label>
-    <input type="radio" name="plan" value="299">
-    💍 Forever Custom – ₹299
-  </label>
+  <input type="radio" name="plan" value="299">
+  💍 Forever Custom – ₹299
 </div>
 
 <button id="previewBtn" onclick="goToPreview()">Preview 💕</button>
@@ -199,76 +266,159 @@ input[type="radio"]{
 <div id="pinkCat">🐱</div>
 
 <script>
+/* ===== PREVIEW FUNCTION ===== */
+
+function goToPreview(){
+
+  const sender = document.getElementById("sender").value;
+  const receiver = document.getElementById("receiver").value;
+  const message = document.getElementById("message").value;
+  const template = document.getElementById("template").value;
+  let finalQuestion = document.getElementById("finalQuestion").value;
+
+  if(!sender || !receiver || !message){
+    alert("Please fill all required fields 💕");
+    return;
+  }
+
+  if(!finalQuestion){
+    if(template === "valentine") finalQuestion = "Will you be my valentine? 💖";
+    else if(template === "forgiveness") finalQuestion = "Can you find it in your heart to forgive me? 💛";
+    else if(template === "anniversary") finalQuestion = "Will you spend forever with me? 💍";
+    else if(template === "birthday") finalQuestion = "Did you love your surprise? 🎁";
+    else finalQuestion = "Will you be mine forever? 💍";
+  }
+
+  const plan = document.querySelector('input[name="plan"]:checked').value;
+
+  window.location.href =
+    "preview.html?sender=" + encodeURIComponent(sender) +
+    "&receiver=" + encodeURIComponent(receiver) +
+    "&message=" + encodeURIComponent(message) +
+    "&template=" + template +
+    "&plan=" + plan +
+    "&finalQuestion=" + encodeURIComponent(finalQuestion);
+
+}
+
+document.getElementById("template").addEventListener("change", (e) => {
+  const fq = document.getElementById("finalQuestion");
+  if(e.target.value === "valentine"){
+    fq.placeholder = "Will you be my valentine? 💖";
+  } else if(e.target.value === "forgiveness"){
+    fq.placeholder = "Can you find it in your heart to forgive me? 💛";
+  } else if(e.target.value === "anniversary"){
+    fq.placeholder = "Will you spend forever with me? 💍";
+  } else if(e.target.value === "birthday"){
+    fq.placeholder = "Did you love your surprise? 🎁";
+  } else {
+    fq.placeholder = "Will you be mine forever? 💍";
+  }
+});
+/* ===== PLAN SELECT ===== */
 
 function selectPlan(element){
   document.querySelectorAll(".plan-box").forEach(box=>box.classList.remove("selected"));
   element.classList.add("selected");
   element.querySelector("input").checked = true;
+  applyStageLock();
 }
+
+/* ===== LOCK SYSTEM ===== */
+
+const imageSection    = document.getElementById("imageSection");
+const voiceSection    = document.getElementById("voiceSection");
+const questionSection = document.getElementById("questionSection");
+const quizSection     = document.getElementById("quizSection");
+
+function hide(section){
+  section.classList.add("section-hidden");
+}
+
+function show(section){
+  section.classList.remove("section-hidden");
+  removeLock(section);
+}
+
+function addLock(section, price){
+  if(section.querySelector(".lock-overlay")) return;
+
+  const overlay = document.createElement("div");
+  overlay.className = "lock-overlay";
+  overlay.innerHTML = `
+    🔒 Unlock in ₹${price} Plan
+    <button onclick="autoUpgrade('${price}')">Upgrade 💎</button>
+  `;
+  section.appendChild(overlay);
+}
+
+function removeLock(section){
+  const lock = section.querySelector(".lock-overlay");
+  if(lock) lock.remove();
+}
+
+window.autoUpgrade = function(price){
+  const radio = document.querySelector(`input[name="plan"][value="${price}"]`);
+  if(radio){
+    radio.checked = true;
+    selectPlan(radio.closest(".plan-box"));
+  }
+};
+
+function applyStageLock(){
+
+  const plan = document.querySelector('input[name="plan"]:checked').value;
+
+  hide(imageSection);
+  hide(voiceSection);
+  hide(questionSection);
+  hide(quizSection);
+
+  if(plan === "48"){
+  show(questionSection);   // allow final question
+  addLock(imageSection,"89");
+  addLock(voiceSection,"169");
+  addLock(quizSection,"299");
+}
+
+if(plan === "89"){
+  show(imageSection);
+  show(questionSection);   // ✅ unlock final question
+  addLock(voiceSection,"169");
+  addLock(quizSection,"299");
+}
+
+  if(plan === "169"){
+    show(imageSection);
+    show(voiceSection);
+  show(questionSection);
+    addLock(quizSection,"299");
+  }
+
+  if(plan === "299"){
+    show(imageSection);
+    show(voiceSection);
+    show(questionSection);
+    show(quizSection);
+  }
+}
+
+applyStageLock();
+
+/* ===== CAT + EFFECTS ===== */
 
 const cat = document.getElementById("pinkCat");
 function moveCat(){
-  const x = Math.random() * (window.innerWidth - 50);
-  const y = Math.random() * (window.innerHeight - 50);
-  cat.style.transition = "all 2s ease";
-  cat.style.left = x + "px";
-  cat.style.top = y + "px";
+  cat.style.left = Math.random()*90+"vw";
+  cat.style.top  = Math.random()*90+"vh";
 }
 setInterval(moveCat,2000);
 moveCat();
 
-for(let i=0;i<10;i++){
-  const heart=document.createElement("div");
-  heart.className="heart";
-  heart.innerHTML="💖";
-  heart.style.left=Math.random()*100+"%";
-  heart.style.bottom="-20px";
-  heart.style.animationDuration=(5+Math.random()*5)+"s";
-  document.body.appendChild(heart);
-}
-
-for(let i=0;i<15;i++){
-  const spark=document.createElement("div");
-  spark.className="sparkle";
-  spark.innerHTML="✨";
-  spark.style.left=Math.random()*100+"%";
-  spark.style.top=Math.random()*100+"%";
-  document.body.appendChild(spark);
-}
-
-function goToPreview(){
-
-  const btn = document.getElementById("previewBtn");
-  const sender = document.getElementById("sender");
-  const receiver = document.getElementById("receiver");
-  const message = document.getElementById("message");
-
-  if(!sender.value || !receiver.value || !message.value){
-    [sender,receiver,message].forEach(el=>{
-      if(!el.value){
-        el.classList.add("shake");
-        setTimeout(()=>el.classList.remove("shake"),300);
-      }
-    });
-    return;
-  }
-
-  btn.innerText = "Preparing Preview... 💕";
-  btn.disabled = true;
-
-  const template = document.getElementById("template").value;
-  const plan = document.querySelector('input[name="plan"]:checked').value;
-
-  setTimeout(()=>{
-    window.location.href =
-      "preview.html?sender=" + encodeURIComponent(sender.value) +
-      "&receiver=" + encodeURIComponent(receiver.value) +
-      "&message=" + encodeURIComponent(message.value) +
-      "&template=" + template +
-      "&plan=" + plan;
-  },800);
-}
 </script>
+ <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
+<script type="module" src="js/uploadEngine.js"></script>
+
 
 </body>
 </html>

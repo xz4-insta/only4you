@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Epic Love Story 💍</title>
+
+<script src="https://cdn.jsdelivr.net/npm/fireworks-js@2/dist/index.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+
+body{
+margin:0;
+overflow:hidden;
+font-family:'Segoe UI',sans-serif;
+background:linear-gradient(135deg,#fff6ec,#ffd6e8);
+}
+
+/* ===== STAGE BASE ===== */
+
+.stage{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100vh;
+background:linear-gradient(135deg,#fff6ec,#ffd6e8);
+z-index:1000;
+padding:20px;
+box-sizing:border-box;
+justify-content:center;
+align-items:center;
+text-align:center;
+flex-direction:column;
+}
+
+.stage.active{
+display:flex;
+}
+
+.card{
+background:rgba(255,255,255,0.95);
+backdrop-filter:blur(10px);
+padding:30px 25px 40px;
+border-radius:28px;
+box-shadow:0 25px 80px rgba(255,77,109,.25);
+max-width:420px;
+width:100%;
+text-align:center;
+animation:fadeUp .6s ease;
+}
+
+@keyframes fadeUp{
+from{transform:translateY(30px);opacity:0;}
+to{transform:translateY(0);opacity:1;}
+}
+
+/* ===== BUTTON ===== */
+
+button{
+padding:12px 28px;
+border:none;
+border-radius:30px;
+margin-top:20px;
+font-size:15px;
+cursor:pointer;
+background:linear-gradient(90deg,#ff4d6d,#ff758f);
+color:white;
+box-shadow:0 10px 25px rgba(255,77,109,.3);
+transition:.3s ease;
+}
+
+button:hover{
+transform:translateY(-3px);
+box-shadow:0 15px 30px rgba(255,77,109,.4);
+}
+
+/* ===== ENVELOPE ===== */
+
+.envelope{
+width:220px;
+height:150px;
+background:linear-gradient(135deg,#ff4d6d,#ff758f);
+margin:25px auto;
+position:relative;
+border-radius:14px;
+box-shadow:0 15px 40px rgba(255,77,109,.35);
+cursor:pointer;
+overflow:hidden;
+transition:transform .3s ease;
+}
+
+.envelope:hover{
+transform:scale(1.05);
+}
+
+.flap{
+position:absolute;
+width:100%;
+height:100%;
+background:linear-gradient(135deg,#ff758f,#ff4d6d);
+clip-path:polygon(0 0,100% 0,50% 60%);
+transition:.8s ease;
+transform-origin:top;
+}
+
+.letter{
+position:absolute;
+bottom:-100%;
+left:0;
+background:white;
+width:100%;
+height:100%;
+padding:18px;
+box-sizing:border-box;
+transition:.8s ease;
+font-size:15px;
+line-height:1.4;
+border-radius:10px;
+}
+/* ===== LOVE METER ===== */
+
+.loveLevelTag{
+display:inline-block;
+background:linear-gradient(90deg,#ff4d6d,#ff8fab);
+color:white;
+padding:6px 14px;
+border-radius:20px;
+font-size:12px;
+margin:10px 0;
+}
+
+.lovePulse{
+animation:pulseLove .3s ease;
+}
+
+@keyframes pulseLove{
+0%{transform:scale(1)}
+50%{transform:scale(1.15)}
+100%{transform:scale(1)}
+}
+
+.loveBar{
+width:320px;
+height:18px;
+background:#f3d6e0;
+border-radius:20px;
+margin:15px auto;
+position:relative;
+overflow:hidden;
+}
+
+#loveFill{
+height:100%;
+width:0%;
+min-width:10px;
+background:linear-gradient(90deg,#ff4d6d,#ff8fab);
+border-radius:20px;
+transition:width .35s ease;
+}
+
+.loveMarkers{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+display:flex;
+justify-content:space-between;
+}
+
+
+.loveBig{
+font-size:60px;
+font-weight:800;
+margin-top:10px;
+color:#ff4d6d;
+letter-spacing:2px;
+text-shadow:
+0 0 8px rgba(255,77,109,.5),
+0 0 16px rgba(255,77,109,.3);
+transition:all .3s ease;
+}
+
+.loveSub{
+opacity:.7;
+margin-bottom:10px;
+}
+
+/* Glow levels */
+
+.glow500{
+box-shadow:0 0 20px rgba(255,77,109,.9);
+}
+
+.glowMax{
+box-shadow:0 0 35px gold;
+}
+
+/* Button Shake */
+
+.shake{
+animation:shake .3s;
+}
+
+@keyframes shake{
+0%{transform:translateX(0)}
+25%{transform:translateX(-3px)}
+50%{transform:translateX(3px)}
+75%{transform:translateX(-3px)}
+100%{transform:translateX(0)}
+}
+
+/* Floating Hearts */
+
+.floatHeart{
+position:fixed;
+font-size:22px;
+pointer-events:none;
+animation:heartFloat 1s forwards;
+}
+
+@keyframes heartFloat{
+0%{opacity:1;transform:translateY(0) scale(1);}
+100%{opacity:0;transform:translateY(-80px) scale(1.8);}
+}
+#tvScreen img{
+width:100%;
+height:100%;
+object-fit:cover;
+border-radius:20px;
+}
+/* Progress Dots */
+
+.progress-dots{
+position:fixed;
+bottom:25px;
+left:50%;
+transform:translateX(-50%);
+display:flex;
+gap:10px;
+}
+
+.dot{
+width:8px;
+height:8px;
+border-radius:50%;
+background:#ffd6e8;
+transition:.3s ease;
+}
+
+.dot.active{
+background:#ff4d6d;
+transform:scale(1.5);
+}
+.voice-container{
+display:flex;
+flex-direction:column;
+gap:15px;
+margin-top:25px;
+}
+
+.voiceBtn{
+padding:12px 25px;
+border-radius:25px;
+border:none;
+background:linear-gradient(90deg,#ff4d6d,#ff758f);
+color:white;
+cursor:pointer;
+font-size:15px;
+box-shadow:0 10px 25px rgba(255,77,109,.3);
+}
+
+/* YES Button */
+
+.yes{
+background:linear-gradient(90deg,#ff4d6d,#ff758f);
+color:white;
+animation:glowPulse 2s infinite;
+}
+
+@keyframes glowPulse{
+0%{box-shadow:0 0 20px rgba(255,77,109,.6);}
+50%{box-shadow:0 0 40px rgba(255,77,109,1);}
+100%{box-shadow:0 0 20px rgba(255,77,109,.6);}
+}
+
+.ring{
+font-size:60px;
+opacity:0;
+transition:.6s;
+}
+
+.ring.show{
+opacity:1;
+transform:scale(2);
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- STAGE 1 -->
+
+<div class="stage active" id="stage1">
+<div class="card">
+
+<h2>💌 Tap to Open</h2>
+
+<div class="envelope" onclick="openLetter()">
+<div class="flap"></div>
+<div class="letter" id="letterContent">{{message}}</div>
+</div>
+
+<button onclick="nextStage()">Begin Journey</button>
+
+</div>
+</div>
+
+<!-- STAGE 2 -->
+
+<div class="stage" id="stage2">
+
+<h2>Do You Love Me? 💕</h2>
+<p style="opacity:.7">Tap repeatedly to fill the love meter!</p>
+
+<div class="loveLevelTag" id="loveLevelTag">WARMING UP 💗</div>
+
+<div class="loveBar">
+<div id="loveFill"></div>
+</div>
+
+<div class="loveBig" id="loveBig">0%</div>
+
+<p class="loveSub" id="loveSub">It's starting...</p>
+
+<button class="loveBtn" onclick="increaseLove()">💖 Tap for Love</button>
+
+<button id="continueBtn" onclick="nextStage()" style="display:none">
+Continue →
+</button>
+
+</div>
+
+<!-- STAGE 3 MEMORIES -->
+
+<div class="stage" id="stage3">
+
+<h2>Our Memories 📸</h2>
+
+<div id="tvScreen" style="
+width:320px;
+height:200px;
+overflow:hidden;
+border-radius:20px;
+box-shadow:0 20px 40px rgba(0,0,0,.3);
+margin-top:20px;
+"></div>
+
+<div style="margin-top:20px;">
+<button onclick="prevMemory()">⬅ Previous</button>
+<button onclick="nextMemory()">Next ➡</button>
+</div>
+
+<button onclick="nextStage()">Continue 💖</button>
+
+</div>
+
+<!-- STAGE 4 VOICE MEMORIES -->
+
+<div class="stage" id="stage4">
+
+<h2>Hear My Heart 🎧</h2>
+
+<p style="opacity:.7">Tap to listen to special voice messages</p>
+
+<div id="voiceContainer" class="voice-container"></div>
+
+<button onclick="nextStage()">Continue 💖</button>
+
+</div>
+<!-- STAGE 6 FINAL -->
+
+<div class="stage" id="stage6">
+<div class="card">
+
+<h2 id="finalQuestion"></h2>
+
+<div class="ring" id="ring">💍</div>
+
+<button class="yes" id="yesBtn" onclick="celebrate()">YES 💖</button>
+<button class="no" id="noBtn">NO 😅</button>
+
+</div>
+</div>
+
+<div class="progress-dots" id="progressDots"></div>
+<script type="module">
+import { initEpicInteractions } from "./stageEngine.js";
+
+document.addEventListener("DOMContentLoaded",()=>{
+
+const saved = JSON.parse(localStorage.getItem("only4you_story")) || {};
+
+initEpicInteractions({
+
+message:"You changed my life ❤️",
+
+images: saved.images || [],
+
+voices: saved.voices || [],
+
+finalQuestion:"Will you marry me? 💍"
+
+})
+
+})
+</script>
+<script>
+
+document.addEventListener("DOMContentLoaded",()=>{
+
+initEpicInteractions({
+message:"You changed my life ❤️",
+images:[
+"/uploads/img1.jpg",
+"/uploads/img2.jpg"
+],
+voices:[
+"/uploads/voice1.mp3",
+"/uploads/voice2.mp3"
+],
+finalQuestion:"Will you marry me? 💍"
+})
+
+})
+
+</script>
+</body>
+</html>

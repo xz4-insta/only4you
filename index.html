@@ -213,7 +213,48 @@ body{
   z-index:999;
   pointer-events:none;
 }
+/* ================= EPIC PREMIUM CARD ================= */
 
+.epic-card{
+  position:relative;
+  transform:scale(1.05);
+  border:2px solid gold;
+  box-shadow:0 0 40px rgba(255,215,0,0.4);
+}
+
+.epic-card:hover{
+  transform:scale(1.1);
+  box-shadow:0 0 60px rgba(255,215,0,0.7);
+}
+
+.epic-badge{
+  position:absolute;
+  top:-15px;
+  right:-15px;
+  background:linear-gradient(45deg,gold,#fff2a8);
+  color:#000;
+  padding:6px 14px;
+  border-radius:20px;
+  font-size:0.8rem;
+  font-weight:bold;
+  box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+
+.epic-btn{
+  margin-top:15px;
+  padding:10px 20px;
+  border:none;
+  border-radius:25px;
+  background:linear-gradient(90deg,#ff4d6d,#ff8fab);
+  color:white;
+  cursor:pointer;
+  font-weight:bold;
+  transition:0.3s;
+}
+
+.epic-btn:hover{
+  transform:scale(1.1);
+}
 /* ================= MOBILE ================= */
 @media(max-width:768px){
   .nav-links{ display:none; }
@@ -255,30 +296,58 @@ body{
 <div class="hero">
   <h1>Create Magical Love Surprises 💖</h1>
   <p>Design. Personalize. Surprise. Make their heart melt.</p>
-  <button onclick="goToCreate()">Start Creating 💕</button>
+  <button onclick="goEpic()">Start Your Epic Love Story 💍</button>
 </div>
 
 <div class="section" id="templates">
   <h2>Explore Templates ✨</h2>
   <div class="templates">
-    <div class="template-card" onclick="selectTemplate('pink')">
-      <h3>Pink Fairy 💗</h3>
-      <p>Soft & magical vibes</p>
-    </div>
-    <div class="template-card" onclick="selectTemplate('dark')">
-      <h3>Dark Romance 🖤</h3>
-      <p>Elegant emotional feel</p>
-    </div>
+
+  <!-- Pink -->
+  <div class="template-card" onclick="selectTemplate('pink')">
+    <h3>Pink Fairy 💗</h3>
+    <p>Soft & magical vibes</p>
   </div>
+
+  <!-- Dark -->
+  <div class="template-card" onclick="selectTemplate('dark')">
+    <h3>Dark Romance 🖤</h3>
+    <p>Elegant emotional feel</p>
+  </div>
+
+  <!-- Epic -->
+  <div class="template-card epic-card"
+       onclick="selectEpicTemplate()">
+
+    <div class="epic-badge">PREMIUM 💎</div>
+
+    <h3>Epic Love Story 💍</h3>
+    <p>Multi-Stage Cinematic Journey</p>
+
+    <div style="margin-top:10px;font-size:0.85rem;opacity:0.8;">
+      6 Interactive Stages ✨ <br>
+      Voice • Quiz • Memories • Proposal
+    </div>
+
+    <button class="epic-btn">Start Epic ✨</button>
+
+  </div>
+
 </div>
 
+</div>
 <div class="section" id="pricing">
   <h2>Choose Your Plan 💎</h2>
   <div class="pricing">
     <div class="price-card"><h3>₹48</h3><p>Mini Surprise</p></div>
     <div class="price-card"><h3>₹89</h3><p>Romantic Deluxe</p></div>
     <div class="price-card"><h3>₹169</h3><p>Premium Love</p></div>
-    <div class="price-card"><h3>₹299</h3><p>Forever Custom</p></div>
+    <div class="price-card epic-card" onclick="window.location.href='create.html?template=epic&plan=299'">
+  <div class="epic-badge">MOST POPULAR 💎</div>
+  <h3>₹299</h3>
+  <p>Epic Love Story Journey 💍</p>
+  <button class="epic-btn">Start Epic Journey ✨</button>
+</div>
   </div>
 </div>
 
@@ -295,6 +364,9 @@ body{
 <div id="pinkCat">🐱</div>
 
 <script>
+function goEpic(){
+  window.location.href="create.html?template=epic";
+}
 function toggleMenu(el){
   const menu=document.getElementById("mobileMenu");
   menu.style.display = menu.style.display==="flex" ? "none" : "flex";
@@ -308,7 +380,18 @@ function goToCreate(){
 function selectTemplate(t){
   window.location.href="create.html?template="+t;
 }
+function selectEpicTemplate(){
 
+  // If user previously selected a plan, keep it
+  const urlParams = new URLSearchParams(window.location.search);
+  const plan = urlParams.get("plan");
+
+  if(plan){
+    window.location.href = "create.html?template=epic&plan=" + plan;
+  }else{
+    window.location.href = "create.html?template=epic";
+  }
+}
 const cat=document.getElementById("pinkCat");
 function moveCat(){
   const x=Math.random()*(window.innerWidth-50);
@@ -338,6 +421,21 @@ for(let i=0;i<20;i++){
   spark.style.top=Math.random()*100+"%";
   document.body.appendChild(spark);
 }
+let tapCount = 0;
+
+document.querySelector(".logo").addEventListener("click", () => {
+
+  tapCount++;
+
+  if (tapCount === 10) {
+    window.location.href = "admin.html";
+  }
+
+  setTimeout(() => {
+    tapCount = 0;
+  }, 2000);
+
+});
 </script>
 
 </body>

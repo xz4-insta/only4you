@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday 🎂</title>
+
+<script src="https://cdn.jsdelivr.net/npm/fireworks-js@2/dist/index.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+body {
+  margin: 0;
+  overflow: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* Pastel Rainbow */
+  background: linear-gradient(135deg, #ffb3ba, #ffdfba, #ffffba, #baffc9, #bae1ff);
+  background-size: 300% 300%;
+  animation: gradientMove 12s ease infinite;
+  font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+  color: #333;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ===== STAGE BASE ===== */
+.stage {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 1000;
+  padding: 20px;
+  box-sizing: border-box;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  flex-direction: column;
+}
+
+.stage.active {
+  display: flex;
+}
+
+/* Card */
+.card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(15px);
+  border-radius: 40px;
+  padding: 50px 30px;
+  width: 450px;
+  max-width: 90%;
+  text-align: center;
+  color: #444;
+  position: relative;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+  animation: bounceIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease;
+  border: 4px solid #fff;
+}
+
+@keyframes bounceIn {
+  from { opacity: 0; transform: scale(0.6); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+h2, h1 {
+  font-size: 40px;
+  margin-top: 0;
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 0px #fffdf0;
+}
+
+h2 b, h1 b {
+  font-weight: bold;
+  color: #ff6b81;
+}
+
+/* ===== BUTTON ===== */
+button {
+  padding: 14px 35px;
+  border: none;
+  border-radius: 40px;
+  margin-top: 25px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  background: linear-gradient(90deg, #ffb3ba, #bae1ff);
+  color: #444;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  transition: .4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  letter-spacing: 1px;
+}
+
+button:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+  background: linear-gradient(90deg, #ffdfba, #baffc9);
+}
+
+/* ===== ENVELOPE ===== */
+.envelope {
+  width: 260px;
+  height: 180px;
+  background: linear-gradient(135deg, #ffdfba, #baffc9);
+  margin: 30px auto;
+  position: relative;
+  border-radius: 10px;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform .4s ease;
+  border: 3px dashed #fff;
+}
+
+.envelope:hover {
+  transform: scale(1.05) rotate(2deg);
+}
+
+.flap {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #baffc9, #bae1ff);
+  clip-path: polygon(0 0, 100% 0, 50% 60%);
+  transition: .8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-origin: top;
+  z-index: 2;
+}
+
+.letter {
+  position: absolute;
+  bottom: -100%;
+  left: 0;
+  background: #fff;
+  color: #ff6b81;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  transition: .8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  font-size: 18px;
+  line-height: 1.5;
+  border-radius: 8px;
+  z-index: 1;
+  font-weight: bold;
+}
+
+/* ===== METER ===== */
+.loveLevelTag {
+  display: inline-block;
+  background: #ffb3ba;
+  color: #fff;
+  font-weight: bold;
+  padding: 8px 18px;
+  border-radius: 30px;
+  font-size: 14px;
+  margin: 10px 0;
+}
+
+.lovePulse {
+  animation: pulseLove .3s ease;
+}
+
+@keyframes pulseLove {
+  0% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.2) rotate(5deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+.loveBar {
+  width: 300px;
+  height: 24px;
+  background: #eee;
+  border-radius: 20px;
+  margin: 20px auto;
+  position: relative;
+  overflow: hidden;
+  border: 3px solid #fff;
+}
+
+#loveFill {
+  height: 100%;
+  width: 0%;
+  min-width: 10px;
+  background: linear-gradient(90deg, #ffdfba, #ffb3ba);
+  border-radius: 20px;
+  transition: width .4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.loveBig {
+  font-size: 65px;
+  font-weight: bold;
+  margin-top: 10px;
+  color: #ff6b81;
+  text-shadow: 2px 2px 0px #fff;
+  transition: all .3s ease;
+}
+
+.loveSub {
+  opacity: 0.8;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+/* Button Shake */
+.shake {
+  animation: shake .3s;
+}
+
+@keyframes shake {
+  0%{transform:translateX(0)}
+  25%{transform:translateX(-8px) rotate(-3deg)}
+  50%{transform:translateX(8px) rotate(3deg)}
+  75%{transform:translateX(-8px) rotate(-3deg)}
+  100%{transform:translateX(0)}
+}
+
+/* Floating Balloons */
+.floatHeart {
+  position: absolute;
+  font-size: 30px;
+  pointer-events: none;
+  animation: heartFloat 1.5s ease-in forwards;
+}
+
+@keyframes heartFloat {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-150px) scale(1.8); }
+}
+
+#tvScreen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 15px;
+}
+
+/* Progress Dots */
+.progress-dots {
+  position: fixed;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.5);
+  transition: .3s ease;
+}
+
+.dot.active {
+  background: #fff;
+  transform: scale(1.4);
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.voice-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 25px;
+  width: 80%;
+  margin-inline: auto;
+}
+
+.voiceBtn {
+  padding: 15px 25px;
+  border-radius: 30px;
+  border: none;
+  background: #bae1ff;
+  color: #444;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 15px;
+  transition: .3s;
+}
+
+.voiceBtn:hover {
+  background: #ffb3ba;
+  color: white;
+}
+
+/* YES Button */
+.yes {
+  background: #ffb3ba;
+  color: white;
+  animation: pulseBtn 1s infinite alternate;
+  font-weight: bold;
+}
+
+@keyframes pulseBtn {
+  0%{transform: scale(1);}
+  100%{transform: scale(1.05);}
+}
+
+.no {
+  background: #eeeeee !important;
+  color: #999 !important;
+}
+
+.ring {
+  font-size: 80px;
+  opacity: 0;
+  transition: .6s;
+  margin: 20px 0;
+}
+
+.ring.show {
+  opacity: 1;
+  transform: scale(1.4) rotate(5deg);
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- STAGE 1 -->
+<div class="stage active" id="stage1">
+  <div class="card" style="padding-top:60px;">
+    <h1>Happy <br><b>Birthday</b> 🎂</h1>
+    <div class="envelope" onclick="openLetter()">
+      <div class="flap"></div>
+      <div class="letter" id="letterContent">{{message}}</div>
+    </div>
+    <button onclick="nextStage()">Unwrap It! 🎁</button>
+  </div>
+</div>
+
+<!-- STAGE 2 -->
+<div class="stage" id="stage2">
+  <div class="card">
+    <h2>Are You <br><b>Ready?!</b></h2>
+    <p style="opacity:.8; font-size:16px; margin-bottom:30px;">Tap fast to build hype! 🎈</p>
+    <div class="loveLevelTag" id="loveLevelTag">GETTING READY 🎈</div>
+    <div class="loveBar">
+      <div id="loveFill"></div>
+    </div>
+    <div class="loveBig" id="loveBig">0%</div>
+    <p class="loveSub" id="loveSub">...</p>
+    <button class="loveBtn" onclick="increaseLove()" style="font-size:20px;">🎊 Tap Here</button>
+    <button id="continueBtn" onclick="nextStage()" style="display:none">Let's Go! →</button>
+  </div>
+</div>
+
+<!-- STAGE 3 MEMORIES -->
+<div class="stage" id="stage3">
+  <div class="card">
+    <h2>Fun <br><b>Memories</b> 📸</h2>
+    <div id="tvScreen" style="width:100%; height:200px; overflow:hidden; border-radius:15px; background:#eee; margin-top:20px; border:3px solid #fff;"></div>
+    <div style="margin-top:25px; display:flex; gap:15px; justify-content:center;">
+      <button onclick="prevMemory()" style="background:#ffdfba;">⬅</button>
+      <button onclick="nextMemory()" style="background:#ffdfba;">➡</button>
+    </div>
+    <button onclick="nextStage()" style="width:100%; margin-top:15px;">Next Surprise ✨</button>
+  </div>
+</div>
+
+<!-- STAGE 4 VOICE MEMORIES -->
+<div class="stage" id="stage4">
+  <div class="card">
+    <h2>Secret <br><b>Wishes</b> 🎤</h2>
+    <p style="opacity:.8; font-size:16px;">Listen to your special messages!</p>
+    <div id="voiceContainer" class="voice-container"></div>
+    <button onclick="nextStage()" style="width:100%;">Continue 🎉</button>
+  </div>
+</div>
+
+<!-- STAGE 6 FINAL -->
+<div class="stage" id="stage6">
+  <div class="card" style="padding:60px 40px;">
+    <h2 id="finalQuestion" style="font-weight:normal;"></h2>
+    <div class="ring" id="ring">🎁🎊</div>
+    <div style="display:flex; gap:15px; justify-content:center; margin-top:30px;">
+      <button class="yes" id="yesBtn" onclick="celebrate()">YES! 💖</button>
+      <button class="no" id="noBtn">Umm... 😅</button>
+    </div>
+  </div>
+</div>
+
+<div class="progress-dots" id="progressDots"></div>
+
+<script type="module">
+import { initEpicInteractions } from "../js/stageEngine.js";
+
+document.addEventListener("DOMContentLoaded",()=>{
+  const saved = JSON.parse(localStorage.getItem("only4you_story")) || {};
+  if (window.location.search.includes("preview")) return;
+
+  initEpicInteractions({
+    message:"Wishing you the happiest birthday ever! 🎂🎈",
+    images: saved.images || [],
+    voices: saved.voices || [],
+    finalQuestion:"Did you like your surprise? 🎁"
+  });
+});
+</script>
+
+</body>
+</html>

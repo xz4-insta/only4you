@@ -93,6 +93,7 @@ h2{
 @keyframes spin{
   to{ transform:rotate(360deg); }
 }
+
 </style>
 </head>
 
@@ -144,8 +145,15 @@ if (isPaid === "true") {
 
   try {
 
-    let expiryTime = Date.now() + 24 * 60 * 60 * 1000;
-    if (stored.plan === "299") expiryTime = null;
+    let expiryTime = null;
+
+    if(stored.plan === "48" || stored.plan === "89"){
+      expiryTime = Date.now() + 24 * 60 * 60 * 1000;
+    }
+
+    if(stored.plan === "169"){
+      expiryTime = Date.now() + 3 * 24 * 60 * 60 * 1000;
+    }
 
     const docRef = await addDoc(collection(db, "surprises"), {
       sender: stored.sender,
@@ -153,21 +161,22 @@ if (isPaid === "true") {
       message: stored.message,
       template: stored.template,
       plan: stored.plan,
+      finalQuestion: stored.finalQuestion || "",
+      images: stored.images || [],
+      voices: stored.voice ? [stored.voice] : [],
       createdAt: Date.now(),
       expiresAt: expiryTime,
-      views: 0
+      views: 0,
+      reactions: 0
     });
-
-    localStorage.removeItem("surpriseData");
-    window.location.href = "success.html?id=" + docRef.id + "&owner=true";
-
-  } catch (err) {
+localStorage.removeItem("only4you_story");
+   window.location.href = "share.html?id=" + docRef.id;
+  } catch(err) {
     console.error(err);
-    alert("Error saving surprise");
   }
 
-  throw new Error("Paid mode handled");
 }
+
 
 // ================= BEFORE PAYMENT =================
 
@@ -182,8 +191,24 @@ if (!sender || !receiver || !message || !template) {
   throw new Error("Missing parameters");
 }
 
+const existingEpicData = JSON.parse(localStorage.getItem("epicData") || "{}");
+const uploadData = JSON.parse(localStorage.getItem("only4you_story") || "{}");
+console.log("UPLOAD DATA:", uploadData);
+const finalQuestion = params.get("finalQuestion");
+
+/* attach uploaded media */
+existingEpicData.images = uploadData?.images || [];
+existingEpicData.voice  = uploadData?.voices?.[0] || "";
+
+/* save combined data */
 localStorage.setItem("surpriseData", JSON.stringify({
-  sender, receiver, message, template, plan
+  sender,
+  receiver,
+  message,
+  template,
+  plan,
+  finalQuestion,
+  ...existingEpicData
 }));
 
 document.getElementById("title").innerText = "For " + receiver;
@@ -222,7 +247,7 @@ document.getElementById("payBtn").onclick = function(){
     handler: function () {
       overlay.style.display = "flex";
       setTimeout(() => {
-        window.location.href = "preview.html?paid=true";
+      window.location.href = "preview.html?paid=true";
       }, 1500);
     },
     theme: {
@@ -233,6 +258,7 @@ document.getElementById("payBtn").onclick = function(){
   var rzp = new Razorpay(options);
   rzp.open();
 };
+  
 
 </script>
 

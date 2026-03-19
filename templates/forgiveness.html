@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forever Yours 🖤</title>
+
+<script src="https://cdn.jsdelivr.net/npm/fireworks-js@2/dist/index.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+body {
+  margin: 0;
+  overflow: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #fff9e6, #ffe6eb);
+  background-size: 200% 200%;
+  animation: gradientMove 10s ease infinite;
+  font-family: Arial, sans-serif;
+  color: #444;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ===== STAGE BASE ===== */
+.stage {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 1000;
+  padding: 20px;
+  box-sizing: border-box;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  flex-direction: column;
+}
+
+.stage.active {
+  display: flex;
+}
+
+/* Card */
+.card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(15px);
+  border-radius: 30px;
+  padding: 50px 30px;
+  width: 450px;
+  max-width: 90%;
+  text-align: center;
+  color: #444;
+  position: relative;
+  box-shadow: 0 15px 40px rgba(255, 182, 193, 0.4);
+  animation: fadeUp 1s ease forwards, subtleGlow 4s infinite alternate;
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+@keyframes subtleGlow {
+  from { box-shadow: 0 15px 40px rgba(255, 182, 193, 0.4); }
+  to { box-shadow: 0 20px 60px rgba(255, 215, 0, 0.3); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+h2, h1 {
+  font-size: 38px;
+  margin-top: 0;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+  font-weight: 300;
+}
+
+h2 b, h1 b {
+  font-weight: 700;
+  color: #ff69b4;
+}
+
+/* ===== BUTTON ===== */
+button {
+  padding: 14px 35px;
+  border: none;
+  border-radius: 30px;
+  margin-top: 25px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(90deg, #ffd700, #ffb6c1);
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 20px rgba(255, 105, 180, 0.3);
+  transition: .3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(255, 105, 180, 0.5);
+  background: linear-gradient(90deg, #ffca28, #ff9eaf);
+}
+
+/* ===== ENVELOPE ===== */
+.envelope {
+  width: 260px;
+  height: 180px;
+  background: linear-gradient(135deg, #ffd700, #ffb6c1);
+  margin: 30px auto;
+  position: relative;
+  border-radius: 10px;
+  box-shadow: 0 15px 30px rgba(255, 105, 180, 0.3);
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform .4s ease;
+  border: 1px solid rgba(255,255,255,0.4);
+}
+
+.envelope:hover {
+  transform: scale(1.05);
+}
+
+.flap {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #ffb6c1, #ffd700);
+  clip-path: polygon(0 0, 100% 0, 50% 60%);
+  transition: .8s ease;
+  transform-origin: top;
+  z-index: 2;
+}
+
+.letter {
+  position: absolute;
+  bottom: -100%;
+  left: 0;
+  background: #fff;
+  color: #ff69b4;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  transition: .8s ease;
+  font-size: 16px;
+  line-height: 1.6;
+  border-radius: 8px;
+  z-index: 1;
+  font-weight: 600;
+}
+
+/* ===== LOVE METER ===== */
+.loveLevelTag {
+  display: inline-block;
+  background: rgba(255, 215, 0, 0.3);
+  color: #444;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 30px;
+  font-size: 13px;
+  letter-spacing: 1px;
+  margin: 10px 0;
+  text-transform: uppercase;
+}
+
+.lovePulse {
+  animation: pulseLove .3s ease;
+}
+
+@keyframes pulseLove {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.loveBar {
+  width: 300px;
+  height: 16px;
+  background: rgba(0,0,0,0.05);
+  border-radius: 20px;
+  margin: 20px auto;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255,105,180,0.2);
+}
+
+#loveFill {
+  height: 100%;
+  width: 0%;
+  min-width: 10px;
+  background: linear-gradient(90deg, #ffd700, #ff69b4);
+  border-radius: 20px;
+  transition: width .35s ease;
+  box-shadow: 0 0 15px rgba(255, 105, 180, 0.5);
+}
+
+.loveBig {
+  font-size: 60px;
+  font-weight: bold;
+  margin-top: 10px;
+  color: #ff69b4;
+  text-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: all .3s ease;
+}
+
+.loveSub {
+  opacity: 0.8;
+  margin-bottom: 20px;
+  font-size: 15px;
+}
+
+/* Button Shake */
+.shake {
+  animation: shake .3s;
+}
+
+@keyframes shake {
+  0%{transform:translateX(0)}
+  25%{transform:translateX(-4px)}
+  50%{transform:translateX(4px)}
+  75%{transform:translateX(-4px)}
+  100%{transform:translateX(0)}
+}
+
+/* Floating Hearts (Stars for Dark theme) */
+.floatHeart {
+  position: absolute;
+  font-size: 20px;
+  pointer-events: none;
+  animation: heartFloat 1.2s forwards;
+  color: #ffd700;
+  text-shadow: 0 0 10px #ff69b4;
+}
+
+@keyframes heartFloat {
+  0% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+  100% { opacity: 0; transform: translateY(-120px) scale(1.5) rotate(45deg); }
+}
+
+#tvScreen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 15px;
+}
+
+/* Progress Dots */
+.progress-dots {
+  position: fixed;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 105, 180, 0.3);
+  transition: .3s ease;
+}
+
+.dot.active {
+  background: #ff69b4;
+  box-shadow: 0 0 8px #ff69b4;
+}
+
+.voice-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 25px;
+  width: 80%;
+  margin-inline: auto;
+}
+
+.voiceBtn {
+  padding: 15px 25px;
+  border-radius: 30px;
+  border: 1px solid #ffb6c1;
+  background: rgba(255, 215, 0, 0.3);
+  color: #444;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 15px;
+  transition: .3s;
+}
+
+.voiceBtn:hover {
+  background: rgba(255, 215, 0, 0.6);
+}
+
+/* YES Button */
+.yes {
+  background: #ff69b4;
+  color: white;
+  animation: subtleGlowBtn 2s infinite;
+  font-weight: bold;
+}
+
+@keyframes subtleGlowBtn {
+  0%{box-shadow:0 0 15px rgba(255,105,180,.3);}
+  50%{box-shadow:0 0 30px rgba(255,105,180,.7);}
+  100%{box-shadow:0 0 15px rgba(255,105,180,.3);}
+}
+
+.no {
+  background: rgba(255, 215, 0, 0.3) !important;
+  color: #444 !important;
+  border: 1px solid #ffb6c1 !important;
+}
+
+.ring {
+  font-size: 70px;
+  opacity: 0;
+  transition: .6s;
+  margin: 20px 0;
+}
+
+.ring.show {
+  opacity: 1;
+  transform: scale(1.2);
+}
+</style>
+</head>
+
+<body>
+
+<!-- STAGE 1 -->
+<div class="stage active" id="stage1">
+  <div class="card" style="padding-top:60px;">
+    <h1>Please <br><b>Forgive Me</b> 💛</h1>
+    <div class="envelope" onclick="openLetter()">
+      <div class="flap"></div>
+      <div class="letter" id="letterContent">{{message}}</div>
+    </div>
+    <button onclick="nextStage()">Open Message</button>
+  </div>
+</div>
+
+<!-- STAGE 2 -->
+<div class="stage" id="stage2">
+  <div class="card">
+    <h2>Can We <br><b>Start Over?</b></h2>
+    <p style="opacity:.6; font-size:14px; margin-bottom:30px;">Tap repeatedly to reach my heart...</p>
+    <div class="loveLevelTag" id="loveLevelTag">Awaiting Connection ⚡</div>
+    <div class="loveBar">
+      <div id="loveFill"></div>
+    </div>
+    <div class="loveBig" id="loveBig">0%</div>
+    <p class="loveSub" id="loveSub">...</p>
+    <button class="loveBtn" onclick="increaseLove()" style="font-size:18px;">✨ Tap Here</button>
+    <button id="continueBtn" onclick="nextStage()" style="display:none">Continue →</button>
+  </div>
+</div>
+
+<!-- STAGE 3 MEMORIES -->
+<div class="stage" id="stage3">
+  <div class="card">
+    <h2>Our <br><b>Memories</b></h2>
+    <div id="tvScreen" style="width:100%; height:200px; overflow:hidden; border-radius:15px; background:rgba(0,0,0,0.5); margin-top:20px;"></div>
+    <div style="margin-top:25px; display:flex; gap:15px; justify-content:center;">
+      <button onclick="prevMemory()" style="background:rgba(255, 192, 203, 0.5); border:1px solid #ffd700; color:#444;">⬅</button>
+      <button onclick="nextMemory()" style="background:rgba(255, 192, 203, 0.5); border:1px solid #ffd700; color:#444;">➡</button>
+    </div>
+    <button onclick="nextStage()" style="width:100%; margin-top:15px;">Continue</button>
+  </div>
+</div>
+
+<!-- STAGE 4 VOICE MEMORIES -->
+<div class="stage" id="stage4">
+  <div class="card">
+    <h2>Hear My <br><b>Voice</b> 🎧</h2>
+    <p style="opacity:.6; font-size:14px;">A message just for you</p>
+    <div id="voiceContainer" class="voice-container"></div>
+    <button onclick="nextStage()" style="width:100%;">Continue</button>
+  </div>
+</div>
+
+<!-- STAGE 6 FINAL -->
+<div class="stage" id="stage6">
+  <div class="card" style="padding:60px 40px;">
+    <h2 id="finalQuestion" style="font-weight:normal;"></h2>
+    <div class="ring" id="ring">🥺💛</div>
+    <div style="display:flex; gap:15px; justify-content:center; margin-top:30px;">
+      <button class="yes" id="yesBtn" onclick="celebrate()">YES</button>
+      <button class="no" id="noBtn">NO</button>
+    </div>
+  </div>
+</div>
+
+<div class="progress-dots" id="progressDots"></div>
+
+<script type="module">
+import { initEpicInteractions } from "../js/stageEngine.js";
+
+document.addEventListener("DOMContentLoaded",()=>{
+  const saved = JSON.parse(localStorage.getItem("only4you_story")) || {};
+  if (window.location.search.includes("preview")) return;
+
+  initEpicInteractions({
+    message:"I'm so sorry, please forgive me 💛",
+    images: saved.images || [],
+    voices: saved.voices || [],
+    finalQuestion:"Can you find it in your heart to forgive me? 💛"
+  });
+});
+</script>
+
+</body>
+</html>

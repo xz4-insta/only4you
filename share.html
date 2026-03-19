@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D Shareable QR Generator 💖</title>
+
+<!-- Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/qrious/dist/qrious.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<!-- Vanilla-tilt for 3D effect -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+
+<style>
+  :root {
+    --primary: #ff4d88;
+    --secondary: #ff1f5a;
+    --dark: #0f0f13;
+    --glass: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at center, #1a0b16 0%, var(--dark) 100%);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: white;
+    padding: 2rem;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  /* Animated background elements */
+  .bg-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    z-index: -1;
+    animation: float 10s ease-in-out infinite;
+  }
+  .bg-orb-1 {
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 77, 136, 0.15);
+    top: 10%;
+    left: 10%;
+  }
+  .bg-orb-2 {
+    width: 400px;
+    height: 400px;
+    background: rgba(255, 31, 90, 0.1);
+    bottom: 10%;
+    right: 10%;
+    animation-delay: -5s;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-30px) scale(1.1); }
+  }
+
+
+  /* 3D Card */
+  .card-container {
+    perspective: 1000px;
+    z-index: 10;
+  }
+
+  .card {
+    width: 380px;
+    background: rgba(25, 15, 20, 0.6);
+    border-radius: 24px;
+    padding: 20px;
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform-style: preserve-3d;
+  }
+
+  .scene {
+    position: relative;
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    transform: translateZ(40px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+
+  .scene img {
+    width: 100%;
+    display: block;
+    border-radius: 16px;
+    transition: transform 0.5s ease;
+  }
+
+  /* 3D QR positioning and styling */
+  .qr-wrapper {
+    position: absolute;
+    top: 39%;
+    left: 49%;
+    transform: translate(-50%, -50%) perspective(400px) rotateX(12deg) rotateY(-5deg) translateZ(1px);
+    width: 90px;
+    height: 90px;
+    mix-blend-mode: multiply;
+    opacity: 0.85;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.5s ease;
+    pointer-events: none;
+  }
+
+  .qr-wrapper canvas {
+    width: 80px;
+    height: 80px;
+    display: block;
+    filter: blur(0.3px);
+  }
+
+  /* Hover effect for the QR wrapper matches the image scaling */
+  .card:hover .qr-wrapper {
+    transform: translate(-50%, -50%) perspective(400px) rotateX(12deg) rotateY(-5deg) translateZ(1px) scale(1.05);
+  }
+
+  .card:hover .scene img {
+    transform: scale(1.05);
+  }
+
+  /* Titles */
+  h2 {
+    color: #ff85a1;
+    margin: 25px 0 5px;
+    font-size: 1.5rem;
+    transform: translateZ(30px);
+    text-shadow: 0 2px 10px rgba(255, 77, 136, 0.5);
+    letter-spacing: 0.5px;
+  }
+
+  .scan {
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 500;
+    opacity: 0.8;
+    transform: translateZ(20px);
+    margin-bottom: 25px;
+    background: linear-gradient(90deg, #ff85a1, #ffeaef);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Action Buttons */
+  .actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    transform: translateZ(25px);
+  }
+
+  .btn {
+    padding: 14px 24px;
+    border: none;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .btn-copy {
+    background: linear-gradient(135deg, #ff4d88, #ff1f5a);
+    box-shadow: 0 5px 15px rgba(255, 31, 90, 0.4);
+  }
+
+  .share-row {
+    display: flex;
+    gap: 12px;
+  }
+
+  .btn-share {
+    flex: 1;
+  }
+
+  .whatsapp {
+    background: linear-gradient(135deg, #25D366, #128C7E);
+    box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+  }
+
+  .instagram {
+    background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    box-shadow: 0 5px 15px rgba(188, 24, 136, 0.3);
+  }
+
+  .btn:hover {
+    transform: translateY(-3px) scale(1.02);
+  }
+  
+  .btn-copy:hover {
+    box-shadow: 0 8px 25px rgba(255, 31, 90, 0.6);
+  }
+  .whatsapp:hover {
+    box-shadow: 0 8px 25px rgba(37, 211, 102, 0.5);
+  }
+  .instagram:hover {
+    box-shadow: 0 8px 25px rgba(188, 24, 136, 0.5);
+  }
+  
+  .btn:active {
+    transform: translateY(1px);
+  }
+
+  /* Notification Toast */
+  #toast {
+    position: fixed;
+    bottom: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 50px;
+    transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 1000;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  #toast.show {
+    bottom: 30px;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+
+
+<div class="card-container">
+  <div class="card" id="tiltCard" data-tilt data-tilt-glare data-tilt-max-glare="0.2" data-tilt-max="10" data-tilt-speed="400" data-tilt-perspective="1000">
+    
+    <div class="scene" id="renderScene">
+      <!-- Reference image -->
+      <img src="assets/basket.jpg" crossorigin="anonymous" id="baseImg" alt="Surprise Basket">
+      
+      <!-- 3D Stylized QR Container -->
+      <div class="qr-wrapper">
+        <canvas id="qrCanvas"></canvas>
+      </div>
+    </div>
+
+    <h2>Your Surprise is Ready 💕</h2>
+    <div class="scan">✨ Scan to reveal the magic 💖</div>
+
+    <div class="actions">
+      <button class="btn btn-copy" id="copyQR">
+        <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" height="18"><path d="M8 17.929H6c-1.105 0-2-.895-2-2V3.929c0-1.105.895-2 2-2h9c1.105 0 2 .895 2 2v2m-6 14h9c1.105 0 2-.895 2-2v-9.929c0-1.105-.895-2-2-2h-9c-1.105 0-2 .895-2 2v9.929c0 1.105.895 2 2 2z"></path></svg>
+        Copy Image
+      </button>
+
+      <div class="share-row">
+        <button class="btn btn-share whatsapp" id="waShare">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+          WhatsApp
+        </button>
+        <button class="btn btn-share instagram" id="igShare">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+          Instagram
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast">Message copied!</div>
+
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+  let currentLink = id ? `${window.location.origin}/success.html?id=${id}` : "https://example.com";
+  let qrInstance;
+
+  // Initialize Vanilla Tilt
+  VanillaTilt.init(document.querySelector(".card"), {
+    max: 12,
+    speed: 400,
+    glare: true,
+    "max-glare": 0.25,
+    perspective: 1000
+  });
+
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.innerText = msg;
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 3000);
+  }
+
+  function generateQR() {
+    // Clear old if exists to re-animate
+    const canvas = document.getElementById("qrCanvas");
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0, canvas.width, canvas.height);
+
+    qrInstance = new QRious({
+      element: canvas,
+      value: currentLink,
+      size: 300,
+      foreground: "#1a0b16",
+      background: "transparent"
+    });
+  }
+
+  generateQR(); // Init first one
+
+  // Advanced Image Generation & Copy
+  document.getElementById("copyQR").onclick = async () => {
+    try {
+      showToast("Generating high-res image... ⏳");
+      const baseImg = document.getElementById("baseImg");
+      const qrCanvas = document.getElementById("qrCanvas");
+
+      // create final canvas with high res
+      const canvas = document.createElement("canvas");
+      canvas.width = baseImg.naturalWidth || 800; // fallback if image not loaded perfectly
+      canvas.height = baseImg.naturalHeight || 800;
+      
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(baseImg, 0, 0, canvas.width, canvas.height);
+
+      // position and perspective
+      const scaleCanvas = canvas.width / 380; // relative scale based on CSS width
+      const qrSize = 90 * scaleCanvas;
+
+      const centerX = canvas.width * 0.49;
+      const centerY = canvas.height * 0.39;
+
+      const x = centerX - qrSize / 2;
+      const y = centerY - qrSize / 2;
+
+      ctx.save();
+      // Apply the same perspective magic for the generated composite image
+      ctx.translate(centerX, centerY);
+      ctx.transform(1, 0.08, 0, 0.92, 0, 0); 
+      ctx.translate(-centerX, -centerY);
+
+      // Draw QR as printed ink
+      ctx.filter = "blur(0.5px)";
+      ctx.globalAlpha = 0.85;
+      ctx.globalCompositeOperation = "multiply";
+      ctx.drawImage(qrCanvas, x, y, qrSize, qrSize);
+      ctx.restore();
+
+      // Create data string
+      const dataUrl = canvas.toDataURL("image/png", 1.0);
+
+      try {
+        const res = await fetch(dataUrl);
+        const blob = await res.blob();
+        await navigator.clipboard.write([
+          new ClipboardItem({ "image/png": blob })
+        ]);
+        showToast("Perfect copy 💖");
+      } catch {
+        const a = document.createElement("a");
+        a.download = "surprise.png";
+        a.href = dataUrl;
+        a.click();
+        showToast("Image Downloaded ⬇️");
+      }
+    } catch(err) {
+      console.error(err);
+      showToast("Failed to copy image ❌");
+    }
+  };
+
+  // WhatsApp Share
+  document.getElementById("waShare").onclick = async () => {
+    try {
+      showToast("Preparing to share... ⏳");
+      const element = document.querySelector(".card");
+      
+      // We temporarily remove tilt bounds for a perfect screenshot
+      element.vanillaTilt.destroy();
+      element.style.transform = "none";
+      
+      const canvas = await html2canvas(element, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: null
+      });
+
+      // Re-init tilt
+      VanillaTilt.init(element, {
+        max: 12,
+        speed: 400,
+        glare: true,
+        "max-glare": 0.25,
+        perspective: 1000
+      });
+
+      const dataUrl = canvas.toDataURL("image/png");
+
+      try {
+        const res = await fetch(dataUrl);
+        const blob = await res.blob();
+        await navigator.clipboard.write([
+          new ClipboardItem({"image/png": blob})
+        ]);
+      } catch(e) {} // ignore clipboard fail, continue to whatsapp
+
+      const message = `💖 Open your surprise:\n${currentLink}`;
+      window.open("https://wa.me/?text=" + encodeURIComponent(message));
+      
+      showToast("Image copied! Paste in WhatsApp ✨");
+
+    } catch(err) {
+      console.error(err);
+      showToast("Something went wrong ❌");
+    }
+  };
+
+  // Instagram Share
+  document.getElementById("igShare").onclick = () => {
+    if(navigator.share) {
+      navigator.share({
+        title: 'Your Surprise 💖',
+        text: 'Tap to reveal your surprise ✨',
+        url: currentLink
+      }).then(() => {
+        showToast("Shared successfully! 🎉");
+      }).catch((e) => {
+        console.error(e);
+      });
+    } else {
+      window.open(currentLink);
+    }
+  };
+
+});
+</script>
+</body>
+</html>
