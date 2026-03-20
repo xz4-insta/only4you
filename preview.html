@@ -250,7 +250,7 @@ document.getElementById("payBtn").onclick = async function(){
 
   try {
     // 1. Create Order on Server
-    const orderResponse = await fetch("http://localhost:3000/create-order", {
+    const orderResponse = await fetch("https://only4you-backend.onrender.com/create-order", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ plan: plan })
