@@ -19,7 +19,7 @@ const razorpay = new Razorpay({
 // 2. Initialize Firebase Admin
 // 🔑 You need to download your Service Account JSON from:
 // Firebase Console -> Project Settings -> Service Accounts -> Generate New Private Key
-const serviceAccount = require("./firebase-service-account.json");
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
