@@ -94,6 +94,21 @@ h2{
   to{ transform:rotate(360deg); }
 }
 
+.admin-bar {
+  background: linear-gradient(90deg, #FFD700, #FF69B4);
+  color: #000;
+  text-align: center;
+  padding: 8px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  position: sticky;
+  top: 0;
+  z-index: 2000;
+  display: none;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
 </style>
 </head>
 
@@ -192,52 +207,7 @@ document.getElementById("planInfo").innerText = "Selected Plan: " + planText;
 
 // ================= ADMIN BYPASS =================
 
-onAuthStateChanged(auth, (user) => {
-  
-  function checkCreatorAccess() {
-    const raw = localStorage.getItem("_u4y_preview_lock");
-    if(!raw) return false;
-    try {
-      const data = JSON.parse(raw);
-      return data.active && data.expiry > Date.now();
-    } catch(e) { return false; }
-  }
 
-  const isAdmin = checkCreatorAccess();
-
-  if ((user && user.uid === ADMIN_UID) || isAdmin) {
-    const payBtn = document.getElementById("payBtn");
-    payBtn.innerText = "✨ Creator: Direct Generate (Free)";
-    payBtn.style.background = "#FFD700";
-    payBtn.style.color = "#000";
-    payBtn.onclick = async function() {
-      const overlay = document.getElementById("overlay");
-      overlay.style.display = "flex";
-      
-      const surpriseData = JSON.parse(localStorage.getItem("surpriseData"));
-      const passcodeHash = "985ce7a08b6ce39600e12dcf6f17e3f605a9c9f4d34c1b9201f19630327f12e8";
-
-      try {
-        const response = await fetch("http://localhost:3000/verify-and-create", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...surpriseData, passcodeHash, uid: user?.uid })
-        });
-        const result = await response.json();
-        if (result.success) {
-           localStorage.removeItem("only4you_story");
-           window.location.href = "share.html?id=" + result.id;
-        } else {
-           alert("Bypass failed: " + result.error);
-           overlay.style.display = "none";
-        }
-      } catch (e) {
-        console.error(e);
-        overlay.style.display = "none";
-      }
-    };
-  }
-});
 
 document.getElementById("payBtn").onclick = async function(){
 
@@ -269,7 +239,7 @@ document.getElementById("payBtn").onclick = async function(){
         
         // 2. Verify Payment & Create Surprise on Server
         const surpriseData = JSON.parse(localStorage.getItem("surpriseData"));
-        const verifyResponse = await fetch("http://localhost:3000/verify-and-create", {
+        const verifyResponse = await fetch("https://only4you-backend.onrender.com/verify-and-create", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -311,6 +281,72 @@ document.getElementById("payBtn").onclick = async function(){
     payBtn.innerText = originalText;
   }
 };
+
+function showAdminBar() {
+  let bar = document.getElementById("adminBar");
+  if(!bar) {
+    bar = document.createElement("div");
+    bar.id = "adminBar";
+    bar.className = "admin-bar";
+    bar.innerHTML = '✨ CREATOR PREVIEW MODE ACTIVE: FREE GENERATION UNLOCKED 💎 <button onclick="logoutAdmin()" style="margin-left:15px; background:black; color:white; border:none; padding:3px 10px; border-radius:10px; cursor:pointer; font-size:0.75rem;">Exit</button>';
+    document.body.prepend(bar);
+  }
+  bar.style.display = "block";
+}
+
+window.logoutAdmin = function() {
+  localStorage.removeItem("_u4y_preview_lock");
+  location.reload();
+};
+
+onAuthStateChanged(auth, (user) => {
+  function checkCreatorAccess() {
+    const raw = localStorage.getItem("_u4y_preview_lock");
+    if(!raw) return false;
+    try {
+      const data = JSON.parse(raw);
+      return data.active && data.expiry > Date.now();
+    } catch(e) { return false; }
+  }
+
+  const isAdmin = checkCreatorAccess();
+
+  if ((user && user.uid === ADMIN_UID) || isAdmin) {
+    showAdminBar();
+    const payBtn = document.getElementById("payBtn");
+    if(payBtn) {
+      payBtn.innerText = "✨ Creator: Direct Generate (Free)";
+      payBtn.style.background = "#FFD700";
+      payBtn.style.color = "#000";
+      payBtn.onclick = async function() {
+        const overlay = document.getElementById("overlay");
+        overlay.style.display = "flex";
+        
+        const surpriseData = JSON.parse(localStorage.getItem("surpriseData"));
+        const passcodeHash = "0005e3b89a5c213d3501e4b119f4d8ee12b67c1e840c3a168f5cb82dafd27c96";
+
+        try {
+          const response = await fetch("https://only4you-backend.onrender.com/verify-and-create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ...surpriseData, passcodeHash, uid: user?.uid })
+          });
+          const result = await response.json();
+          if (result.success) {
+             localStorage.removeItem("only4you_story");
+             window.location.href = "share.html?id=" + result.id;
+          } else {
+             alert("Bypass failed: " + result.error);
+             overlay.style.display = "none";
+          }
+        } catch (e) {
+          console.error(e);
+          overlay.style.display = "none";
+        }
+      };
+    }
+  }
+});
   
 
 </script>

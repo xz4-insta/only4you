@@ -62,7 +62,7 @@ app.post("/verify-and-create", async (req, res) => {
     const data = req.body;
     const { 
       sender, receiver, message, template, plan, 
-      finalQuestion, images, voices, 
+      finalQuestion, images, voices, voice, // Added 'voice' singular
       passcodeHash, uid,
       razorpay_payment_id, razorpay_order_id, razorpay_signature
     } = data;
@@ -73,13 +73,16 @@ app.post("/verify-and-create", async (req, res) => {
     }
 
     const ADMIN_UID = "Uwtpy28RdRXyOoKbU08485YmjIn2";
-    const MASTER_HASH = "985ce7a08b6ce39600e12dcf6f17e3f605a9c9f4d34c1b9201f19630327f12e8";
+    const MASTER_HASH = "0005e3b89a5c213d3501e4b119f4d8ee12b67c1e840c3a168f5cb82dafd27c96";
     
     let isVerified = false;
 
     // 2. Admin/Passcode check (Free Bypass)
-    if (uid === ADMIN_UID || passcodeHash === MASTER_HASH) {
+    if (uid === ADMIN_UID || (passcodeHash && passcodeHash === MASTER_HASH)) {
+      console.log("✅ Creator bypass active via code match");
       isVerified = true;
+    } else {
+      console.log("❌ Master hash mismatch or no hash. Recv:", passcodeHash);
     }
 
     // 3. Razorpay Signature Verification (Paid Flow)
@@ -118,7 +121,7 @@ app.post("/verify-and-create", async (req, res) => {
       plan: plan || "48",
       finalQuestion: finalQuestion || "",
       images: images || [],
-      voices: voices || [],
+      voices: voices || (voice ? [voice] : []), // Fallback to singular voice
       createdAt: Date.now(),
       expiresAt: expiryTime,
       views: 0,

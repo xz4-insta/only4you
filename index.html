@@ -1,5 +1,3 @@
-/* eslint-disable camelcase */
-/* eslint-disable max-len */
 <!DOCTYPE html>
 <html>
 <head>
@@ -37,6 +35,12 @@ body{
   font-size:1.4rem;
   font-weight:bold;
   color:#E75480;
+  cursor:pointer;
+  transition:0.2s;
+  user-select:none;
+}
+.logo:active{
+  transform:scale(0.9);
 }
 
 .nav-links{
@@ -97,6 +101,21 @@ body{
 @keyframes fadeMenu{
   from{ opacity:0; transform:translateY(-10px); }
   to{ opacity:1; transform:translateY(0); }
+}
+
+.admin-bar {
+  background: linear-gradient(90deg, #FFD700, #FF69B4);
+  color: #000;
+  text-align: center;
+  padding: 8px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  position: sticky;
+  top: 0;
+  z-index: 2000;
+  display: none;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
 }
 
 .mobile-menu a{
@@ -597,32 +616,21 @@ if(items.length > 0) {
 
 let tapCount = 0;
 let lastTapTime = 0;
-let tapSequence = 0; // 0: initial, 1: gap detected
 
 document.querySelector(".logo").addEventListener("click", async () => {
   const now = Date.now();
   
-  // Reset if too long between taps (5s)
-  if (now - lastTapTime > 5000) {
+  // Reset count if more than 4 seconds between taps
+  if (now - lastTapTime > 4000) {
     tapCount = 0;
-    tapSequence = 0;
   }
 
   tapCount++;
   lastTapTime = now;
 
-  // First check: did we reach the middle gap?
-  if (tapCount === 5 && tapSequence === 0) {
-    // We hit 5 taps. Now user MUST wait between 1.2s and 3s for the next tap to continue.
-    setTimeout(() => {
-       if (tapCount === 5) tapSequence = 1; // Gap confirmed
-    }, 1200);
-  }
-
-  // Final check: did we hit 10 taps total with a gap after the 5th?
-  if (tapCount === 10 && tapSequence === 1) {
+  // Trigger on 7 quick taps
+  if (tapCount === 7) {
     tapCount = 0; 
-    tapSequence = 0;
 
     const code = prompt("Enter Creator Access Code ✨");
     if(!code) return;
@@ -631,15 +639,42 @@ document.querySelector(".logo").addEventListener("click", async () => {
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
     const hashHex = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
 
-    if(hashHex === "985ce7a08b6ce39600e12dcf6f17e3f605a9c9f4d34c1b9201f19630327f12e8"){
+    // MASTER_HASH for 'ONLY4YOU'
+    if(hashHex === "0005e3b89a5c213d3501e4b119f4d8ee12b67c1e840c3a168f5cb82dafd27c96"){
        const sessionData = { active: true, expiry: Date.now() + (3600 * 1000) };
        localStorage.setItem("_u4y_preview_lock", JSON.stringify(sessionData));
        alert("Creator Preview Mode Activated! ✨ Enjoy building your surprises.");
+       location.reload();
     } else {
-       window.location.href = "admin.html";
+       alert("Access Denied: Incorrect Code 🔒");
     }
   }
 });
+
+function showAdminBar() {
+  let bar = document.getElementById("adminBar");
+  if(!bar) {
+    bar = document.createElement("div");
+    bar.id = "adminBar";
+    bar.className = "admin-bar";
+    bar.innerHTML = '✨ CREATOR PREVIEW MODE ACTIVE: FREE GENERATION UNLOCKED 💎 <button onclick="logoutAdmin()" style="margin-left:15px; background:black; color:white; border:none; padding:3px 10px; border-radius:10px; cursor:pointer; font-size:0.75rem;">Exit</button>';
+    document.body.prepend(bar);
+  }
+  bar.style.display = "block";
+}
+
+window.logoutAdmin = function() {
+  localStorage.removeItem("_u4y_preview_lock");
+  location.reload();
+};
+
+const checkLock = localStorage.getItem("_u4y_preview_lock");
+if(checkLock) {
+  try {
+    const data = JSON.parse(checkLock);
+    if(data.active && data.expiry > Date.now()) showAdminBar();
+  } catch(e){}
+}
 </script>
 
 </body>
