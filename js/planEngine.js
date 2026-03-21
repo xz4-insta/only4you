@@ -180,16 +180,18 @@ if(plan === "299"){
   document.body.appendChild(badge);
 }
 /* ================= CINEMATIC LUXURY PARTICLE SYSTEM ================= */
-function spawnLuxuryParticle(){
+function spawnLuxuryParticle(data){
 
-  const symbols = ["✨","🌸","💖","🌺","⭐","🌷"];
+  const isRoseTheme = ["valentine", "anniversary"].includes(data?.template);
+  const symbols = isRoseTheme ? ["✨","🌹","💖","🌹","⭐","🌹"] : ["✨","🌸","💖","🌺","⭐","🌷"];
+  
   const el = document.createElement("div");
 
   const randomSymbol = symbols[Math.floor(Math.random()*symbols.length)];
   el.innerHTML = randomSymbol;
 
   const depth = Math.random();
-  const duration = 6 + Math.random()*8;   // ✅ DECLARE FIRST
+  const duration = 6 + Math.random()*8;
   const drift = (Math.random() - 0.5) * 200;
 
   el.style.position = "fixed";
@@ -204,7 +206,7 @@ function spawnLuxuryParticle(){
   el.style.setProperty("--drift", drift + "px");
 
   /* ✅ Decide animation AFTER duration exists */
-  if(randomSymbol === "🌸" || randomSymbol === "🌺" || randomSymbol === "🌷"){
+  if(["🌸","🌺","🌷","🌹"].includes(randomSymbol)){
     el.style.animation = `luxuryPetal ${duration}s ease-in forwards`;
   } else {
     el.style.animation = `luxuryFall ${duration}s cubic-bezier(.42,.0,.58,1) forwards`;
@@ -220,13 +222,13 @@ function spawnLuxuryParticle(){
 if(plan === "299"){
 
 setInterval(() => {
-   spawnLuxuryParticle();
+   spawnLuxuryParticle(data);
 }, 250);
 
 setInterval(()=>{
-  spawnLuxuryParticle();
+  spawnLuxuryParticle(data);
   if(Math.random() > 0.5){
-    spawnLuxuryParticle();
+    spawnLuxuryParticle(data);
   }
 }, 300);
 

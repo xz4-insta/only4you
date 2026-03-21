@@ -348,10 +348,15 @@ setTimeout(()=>heart.remove(),1000);
 };
 
 onSnapshot(ref,(docSnap)=>{
-const countEl=document.getElementById("reactionCount");
-if(countEl){
-countEl.innerText=(docSnap.data().reactions||0)+" Loves";
-}
+  if(!docSnap.exists()) return;
+  const data = docSnap.data();
+  window.currentPlan = data.plan || "48";
+  window.currentTemplate = data.template || "";
+
+  const countEl=document.getElementById("reactionCount");
+  if(countEl){
+    countEl.innerText=(data.reactions||0)+" Loves";
+  }
 });
 
 }
@@ -379,7 +384,9 @@ setTimeout(()=>{el.remove()},duration*1000);
 setInterval(()=>{
 if(window.currentPlan==="299"){
 
-const symbols=["✨","🌸","💖","🌺"];
+const isRoseTheme = ["valentine", "anniversary"].includes(window.currentTemplate);
+const symbols = isRoseTheme ? ["✨","🌹","💖","🌹"] : ["✨","🌸","💖","🌺"];
+
 const randomSymbol=symbols[Math.floor(Math.random()*symbols.length)];
 
 createFallingElement(

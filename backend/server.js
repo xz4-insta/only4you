@@ -114,7 +114,8 @@ app.post("/verify-and-create", async (req, res) => {
       finalQuestion: finalQuestion || "",
       images: images || [],
       voices: voices || (voice ? [voice] : []),
-      quiz: data.quiz || [], // ADDED THIS
+      quiz: data.quiz || [], 
+      quizAnswers: {}, // Initialize as empty object
       createdAt: Date.now(),
       expiresAt: expiryTime,
       views: 0,

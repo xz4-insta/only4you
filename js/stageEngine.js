@@ -5,14 +5,78 @@ const style = document.createElement('style');
 style.textContent = `
   .puzzle-tile {
     cursor: pointer;
-    transition: transform 0.2s, border 0.2s;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
     user-select: none;
     -webkit-user-drag: none;
-    border-radius: 4px;
+    border-radius: 8px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.2), 0 2px 5px rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-sizing: border-box;
   }
-  .puzzle-tile:hover {
-    transform: scale(0.98);
-    opacity: 0.9;
+  .puzzle-tile:active {
+    transform: scale(0.92);
+  }
+  @keyframes breakPiece {
+    0% { transform: translate(var(--tx), var(--ty)) rotate(var(--tr)) scale(0); opacity: 0; }
+    100% { transform: translate(0, 0) rotate(0) scale(1); opacity: 1; }
+  }
+  .tile-breaking {
+    animation: breakPiece 0.6s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .quiz-box {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    padding: 20px;
+    margin: 15px auto;
+    max-width: 90%;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  }
+  .quiz-opt {
+    width: 100%;
+    padding: 12px 15px !important;
+    font-size: 1rem !important;
+    margin: 0 !important;
+    white-space: normal;
+    height: auto !important;
+    line-height: 1.3;
+    border-radius: 12px !important;
+  }
+  #quizContainer {
+    max-height: 420px;
+    overflow-y: auto;
+    padding-right: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: #ff4d6d rgba(255,255,255,0.1);
+  }
+  #quizContainer::-webkit-scrollbar {
+    width: 6px;
+  }
+  #quizContainer::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.05);
+  }
+  #quizContainer::-webkit-scrollbar-thumb {
+    background-color: #ff4d6d;
+    border-radius: 10px;
+  }
+  .stage-continue-btn {
+    display: block;
+    width: 100%;
+    max-width: 300px;
+    margin: 20px auto;
+    padding: 12px 30px;
+    background: linear-gradient(90deg, #ff4d6d, #ff8fab);
+    border: none;
+    border-radius: 30px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(255,77,109,0.3);
+    transition: 0.3s;
+  }
+  .stage-continue-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(255,77,109,0.5);
   }
 `;
 document.head.appendChild(style);
@@ -499,23 +563,18 @@ HEART PARTICLES
 ========================================= */
 
 function spawnHearts(){
+  const template = window.storyData?.template || "";
+  const emoji = ["valentine", "anniversary"].includes(template) ? "🌹" : "💖";
 
-for(let i=0;i<5;i++){
-
-const heart=document.createElement("div")
-
-heart.innerHTML="💖"
-heart.className="floatHeart"
-
-heart.style.left=(window.innerWidth/2+(Math.random()*120-60))+"px"
-heart.style.top=(window.innerHeight/2)+"px"
-
-document.body.appendChild(heart)
-
-setTimeout(()=>heart.remove(),1000)
-
-}
-
+  for(let i=0;i<5;i++){
+    const heart=document.createElement("div")
+    heart.innerHTML=emoji;
+    heart.className="floatHeart"
+    heart.style.left=(window.innerWidth/2+(Math.random()*120-60))+"px"
+    heart.style.top=(window.innerHeight/2)+"px"
+    document.body.appendChild(heart)
+    setTimeout(()=>heart.remove(),1000)
+  }
 }
 
 /* =========================================
@@ -527,8 +586,12 @@ function initMemories(data){
   if(!screen) return
 
   let index=0
+  let lastTriggeredIndex = -1;
+  let hasViewedOthers = false;
   let images=data.images || []
   let puzzleActive = false;
+  let puzzleSolved = false;
+  let slideshowInterval = null;
 
   const img=document.createElement("img")
   img.style.width="100%"
@@ -536,21 +599,24 @@ function initMemories(data){
   img.style.objectFit="cover"
   img.style.borderRadius="20px"
   img.style.transition="opacity 0.4s ease"
+  img.style.opacity="1"
 
   screen.innerHTML=""
 
   if(images.length){
-    img.src=images[0]
     screen.appendChild(img)
+    updateDisplay(true); 
   }else{
+    console.log("Only4You Debug: No images found");
     screen.innerHTML="No memories yet 💔"
   }
 
-  const isSpecialTemplate = ["valentine", "epic"].includes(data.template);
+  const isSpecialTemplate = ["valentine", "epic", "anniversary"].includes(data.template);
 
   window.nextMemory=function(){
     if(!images.length || puzzleActive) return
     
+    hasViewedOthers = true;
     index++
     if(index>=images.length) index=0
     
@@ -560,34 +626,67 @@ function initMemories(data){
   window.prevMemory=function(){
     if(!images.length || puzzleActive) return
     
+    hasViewedOthers = true;
     index--
     if(index<0) index=images.length-1
     
     updateDisplay();
   }
 
-  function updateDisplay() {
-    img.style.opacity="0"
+  function updateDisplay(skipFade = false) {
+    if(!skipFade) img.style.opacity="0"
+    
+    const delay = skipFade ? 0 : 200;
     setTimeout(()=>{
       img.src=images[index]
       img.style.opacity="1"
 
       // Trigger puzzle on last image for special templates
       const continueBtn = document.querySelector("#stage3 button[onclick*='nextStage']");
-      if(continueBtn && isSpecialTemplate) {
-         continueBtn.style.display = "none";
+      if(continueBtn && isSpecialTemplate && !puzzleSolved) {
+         
+         // Only hide continue button and trigger puzzle on the FINAL image
          if(index === images.length - 1 && images.length > 0) {
-            startPuzzle();
+            continueBtn.style.display = "none";
+            
+            if(lastTriggeredIndex !== index) {
+                // Determine if we should wait longer (e.g. if they just loaded a 1-image story)
+                const isInstantShuffle = (images.length === 1 && !hasViewedOthers);
+                const gazeTime = isInstantShuffle ? 8000 : 4000; // 8s for single photo, 4s if they navigated here
+                
+                lastTriggeredIndex = index;
+                setTimeout(() => {
+                    if(index === images.length - 1 && !puzzleSolved) {
+                        startPuzzle();
+                    }
+                }, gazeTime);
+            }
+         } else {
+            // Show continue button for intermediate photos (sender/receiver can skip if they want)
+            continueBtn.style.display = "inline-block";
          }
       }
-    },200)
+    }, delay);
   }
 
   function startPuzzle() {
     puzzleActive = true;
+    if(slideshowInterval) clearInterval(slideshowInterval);
+    
+    // Create an overlay
+    const overlay = document.createElement("div");
+    overlay.style = "position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); color:white; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:100; border-radius:20px; transition:0.5s;";
+    overlay.innerHTML = `<h2 style="color:gold;">Puzzle Challenge! 🧩</h2><p>Solve this memory to continue...</p>`;
+    screen.style.position = "relative";
+    screen.appendChild(overlay);
+
     setTimeout(() => {
-      renderPuzzle(images[index]);
-    }, 1000); // Give them a second to see the full image before it shuffles
+      overlay.style.opacity = "0";
+      setTimeout(() => {
+        overlay.remove();
+        renderPuzzle(images[index]);
+      }, 500);
+    }, 2000);
   }
 
   function renderPuzzle(imgUrl) {
@@ -595,45 +694,63 @@ function initMemories(data){
     screen.style.display = "grid";
     screen.style.gridTemplateColumns = "repeat(3, 1fr)";
     screen.style.gridTemplateRows = "repeat(3, 1fr)";
-    screen.style.gap = "2px";
-    screen.style.background = "#fff";
-    screen.style.padding = "2px";
+    screen.style.gap = "4px";
+    screen.style.background = "#000";
+    screen.style.padding = "4px";
 
     const pieces = [];
     for(let i=0; i<9; i++) pieces.push(i);
     
-    // Shuffle pieces
+    // Shuffle pieces (True random for swap style)
     for (let i = pieces.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [pieces[i], pieces[j]] = [pieces[j], pieces[i]];
     }
 
+    const tiles = [];
     let selectedTile = null;
 
     pieces.forEach((pieceIdx, currentPos) => {
       const tile = document.createElement("div");
-      tile.className = "puzzle-tile";
+      tile.className = "puzzle-tile tile-breaking";
+      
+      tile.style.setProperty("--tx", (Math.random() * 400 - 200) + "px");
+      tile.style.setProperty("--ty", (Math.random() * 400 - 200) + "px");
+      tile.style.setProperty("--tr", (Math.random() * 360) + "deg");
+      tile.style.animationDelay = (currentPos * 0.05) + "s";
+
       tile.style.width = "100%";
       tile.style.height = "100%";
       tile.style.backgroundImage = `url(${imgUrl})`;
-      tile.style.backgroundSize = "300% 300%";
+      
+      // ASPECT RATIO FIX: Ensure image covers tile without extreme distortion
+      tile.style.backgroundSize = "300% 300%"; 
+      tile.style.backgroundRepeat = "no-repeat";
       
       const row = Math.floor(pieceIdx / 3);
       const col = pieceIdx % 3;
-      tile.style.backgroundPosition = `${col * 50}% ${row * 50}%`;
-      tile.dataset.correctIdx = pieceIdx;
-      tile.dataset.currentIdx = pieceIdx; // We'll update this on swap
+      
+      const xPos = col === 0 ? "0%" : col === 1 ? "50%" : "100%";
+      const yPos = row === 0 ? "0%" : row === 1 ? "50%" : "100%";
+      
+      tile.style.backgroundPosition = `${xPos} ${yPos}`;
+
+      
+      tile.dataset.pieceIdx = pieceIdx;
+      tile.dataset.currentPos = currentPos;
 
       tile.onclick = () => {
-        if(selectedTile === tile) {
+        if (selectedTile === tile) {
             tile.style.border = "none";
+            tile.style.boxShadow = "none";
             selectedTile = null;
             return;
         }
-        if(!selectedTile) {
+
+        if (!selectedTile) {
             selectedTile = tile;
             tile.style.border = "2px solid #ff4d6d";
-            tile.style.boxShadow = "0 0 10px #ff4d6d";
+            tile.style.boxShadow = "0 0 15px #ff4d6d";
         } else {
             // Swap logic
             swapTiles(selectedTile, tile);
@@ -644,56 +761,59 @@ function initMemories(data){
         }
       };
 
+      tiles.push(tile);
       screen.appendChild(tile);
     });
-  }
 
-  function swapTiles(t1, t2) {
-    const bgP1 = t1.style.backgroundPosition;
-    const idx1 = t1.dataset.correctIdx;
-    
-    t1.style.backgroundPosition = t2.style.backgroundPosition;
-    t1.dataset.correctIdx = t2.dataset.correctIdx;
-    
-    t2.style.backgroundPosition = bgP1;
-    t2.dataset.correctIdx = idx1;
-    
-    // Animate swap slightly
-    t1.style.transform = "scale(0.9)";
-    t2.style.transform = "scale(0.9)";
-    setTimeout(() => {
-        t1.style.transform = "scale(1)";
-        t2.style.transform = "scale(1)";
-    }, 100);
-  }
-
-  function checkSolved() {
-    const tiles = Array.from(screen.querySelectorAll(".puzzle-tile"));
-    const isSolved = tiles.every((tile, index) => {
-        return parseInt(tile.dataset.correctIdx) === index;
-    });
-
-    if(isSolved) {
-      puzzleActive = false; // Allow manual sliding again if they want
-      screen.style.gap = "0";
-      screen.style.padding = "0";
-      tiles.forEach(t => t.style.border = "none");
+    function swapTiles(t1, t2) {
+      const bgP1 = t1.style.backgroundPosition;
+      const idx1 = t1.dataset.pieceIdx;
       
-      // Show celebration and unlock next stage
-      const continueBtn = document.querySelector("#stage3 button[onclick*='nextStage']");
-      if(continueBtn) continueBtn.style.display = "block";
+      t1.style.backgroundPosition = t2.style.backgroundPosition;
+      t1.dataset.pieceIdx = t2.dataset.pieceIdx;
       
-      confetti({
-        particleCount: 150,
-        spread: 70,
-        origin: { y: 0.6 }
+      t2.style.backgroundPosition = bgP1;
+      t2.dataset.pieceIdx = idx1;
+      
+      t1.style.transform = "scale(0.9)";
+      t2.style.transform = "scale(0.9)";
+      setTimeout(() => {
+          t1.style.transform = "scale(1)";
+          t2.style.transform = "scale(1)";
+      }, 100);
+    }
+
+    function checkSolved() {
+      const isSolved = tiles.every((tile, index) => {
+          // In swap mode, we compare pieceIdx to its current location in DOM (index)
+          return parseInt(tile.dataset.pieceIdx) === index;
       });
+
+      if (isSolved) {
+        puzzleActive = false;
+        puzzleSolved = true;
+        screen.style.gap = "0";
+        screen.style.padding = "0";
+        tiles.forEach(t => t.style.border = "none");
+        
+        const continueBtn = document.querySelector("#stage3 button[onclick*='nextStage']");
+        if(continueBtn) {
+            continueBtn.style.display = "block";
+            continueBtn.classList.add("lovePulse");
+        }
+        
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+      }
     }
   }
 
-  // Auto slideshow (disabled if puzzle active)
-  setInterval(()=>{
-    if(!images.length || puzzleActive) return
+  // Auto slideshow
+  slideshowInterval = setInterval(()=>{
+    if(!images.length || puzzleActive || puzzleSolved) return
+    
+    // Auto-slideshow counts as viewing others for trigger logic
+    if(images.length > 1) hasViewedOthers = true;
+    
     index++
     if(index>=images.length) index=0
     updateDisplay();
@@ -831,6 +951,9 @@ FINAL CELEBRATION
 
 window.celebrate=function(){
 
+const finalQ = document.getElementById("finalQuestion");
+if(finalQ) finalQ.innerText = "FOR YOU CUTIE😘";
+
 const ring=document.getElementById("ring")
 const yesBtn=document.getElementById("yesBtn")
 const noBtn=document.getElementById("noBtn")
@@ -864,6 +987,10 @@ let quizAnswers = {}
 
 function initQuiz(data){
   if(!data.quiz || data.quiz.length === 0) return;
+  
+  // Preload existing answers to prevent overwriting during updateDoc
+  quizAnswers = data.quizAnswers || {};
+  
   const container = document.getElementById("quizContainer");
   if(!container) return;
 
@@ -872,17 +999,23 @@ function initQuiz(data){
   data.quiz.forEach((q, qIndex) => {
     const qBox = document.createElement("div");
     qBox.className = "quiz-box";
-    qBox.innerHTML = `<h3 style="margin-bottom:15px; color:#ff4d6d;">${q.question}</h3>`;
+    qBox.innerHTML = `<h3 style="margin-bottom:18px; color:#ff4d6d; font-size:1.1rem; font-family:sans-serif; line-height:1.4; letter-spacing:0.5px;">${q.question}</h3>`;
     
     const optGrid = document.createElement("div");
     optGrid.style.display = "grid";
-    optGrid.style.gap = "10px";
+    optGrid.style.gap = "12px";
 
     q.options.forEach((opt, oIndex) => {
       if(!opt.trim()) return;
       const btn = document.createElement("button");
       btn.className = "quiz-opt";
       btn.innerText = opt;
+      
+      // Restore selected state if answer already exists
+      if(quizAnswers[qIndex] === opt) {
+        btn.classList.add("selected");
+      }
+      
       btn.onclick = () => selectOption(qIndex, oIndex, btn, qBox);
       optGrid.appendChild(btn);
     });
@@ -890,6 +1023,13 @@ function initQuiz(data){
     qBox.appendChild(optGrid);
     container.appendChild(qBox);
   });
+
+  // Ensure "Final Step" button is consistent and visible
+  let nextBtn = document.querySelector("#stage5 button[onclick*='nextStage']");
+  if(nextBtn) {
+    nextBtn.className = "stage-continue-btn";
+    nextBtn.innerText = "Final Step ➡";
+  }
 }
 
 function selectOption(qIndex, oIndex, btn, qBox){
@@ -897,23 +1037,25 @@ function selectOption(qIndex, oIndex, btn, qBox){
   qBox.querySelectorAll(".quiz-opt").forEach(b => b.classList.remove("selected"));
   btn.classList.add("selected");
   
-  quizAnswers[qIndex] = btn.innerText;
-  saveQuizAnswers();
+  const answerValue = btn.innerText;
+  saveQuizAnswers(qIndex, answerValue);
   spawnHearts();
 }
 
-async function saveQuizAnswers(){
+async function saveQuizAnswers(qIndex, answerValue){
   const id = new URLSearchParams(window.location.search).get("id");
   if(!id) return;
   
   try {
     const db = getFirestore();
     const ref = doc(db, "surprises", id);
+    // Use dot-notation to update ONLY this specific question's answer
+    // This prevents race conditions and overwriting other answers
     await updateDoc(ref, {
-      quizAnswers: quizAnswers
+      [`quizAnswers.${qIndex}`]: answerValue
     });
   } catch(e) {
-    console.error("Failed to save answers:", e);
+    console.error("Failed to save answer:", e);
   }
 }
 

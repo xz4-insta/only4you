@@ -149,6 +149,21 @@ const db = getFirestore(app);
 
 const ADMIN_UID = "Uwtpy28RdRXyOoKbU08485YmjIn2";
 
+// Helper for fetch with timeout
+async function fetchWithTimeout(resource, options = {}) {
+  const { timeout = 45000 } = options;
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  try {
+    const response = await fetch(resource, { ...options, signal: controller.signal });
+    clearTimeout(id);
+    return response;
+  } catch (error) {
+    clearTimeout(id);
+    throw error;
+  }
+}
+
 const params = new URLSearchParams(window.location.search);
 const isPaid = params.get("paid");
 
@@ -234,32 +249,43 @@ document.getElementById("payBtn").onclick = async function(){
       order_id: orderData.id,
       handler: async function (response) {
         overlay.style.display = "flex";
+        const statusText = overlay.querySelector("p");
+        if(statusText) statusText.innerText = "Verifying payment... ⌛";
         
         // 2. Verify Payment & Create Surprise on Server
-        const surpriseData = JSON.parse(localStorage.getItem("surpriseData"));
-        const verifyResponse = await fetch("https://only4you-backend.onrender.com/verify-and-create", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-             ...surpriseData,
-             razorpay_payment_id: response.razorpay_payment_id,
-             razorpay_order_id: response.razorpay_order_id,
-             razorpay_signature: response.razorpay_signature,
-             uid: auth.currentUser?.uid
-          })
-        });
+        try {
+          const surpriseData = JSON.parse(localStorage.getItem("surpriseData"));
+          const verifyResponse = await fetchWithTimeout("https://only4you-backend.onrender.com/verify-and-create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+               ...surpriseData,
+               razorpay_payment_id: response.razorpay_payment_id,
+               razorpay_order_id: response.razorpay_order_id,
+               razorpay_signature: response.razorpay_signature,
+               uid: auth.currentUser?.uid
+            })
+          });
 
-        const result = await verifyResponse.json();
-        if (result.success) {
-          localStorage.removeItem("only4you_story");
-          window.location.href = "share.html?id=" + result.id;
-        } else {
-          alert("Payment Verification Failed! ❌ Please contact support.");
+          const result = await verifyResponse.json();
+          if (result.success) {
+            localStorage.removeItem("only4you_story");
+            window.location.href = "share.html?id=" + result.id;
+          } else {
+            alert("Payment Verification Failed! ❌ Please contact support.");
+            overlay.style.display = "none";
+            payBtn.disabled = false;
+            payBtn.innerText = originalText;
+          }
+        } catch (e) {
+          console.error(e);
+          alert("Verification Error. Please try again.");
           overlay.style.display = "none";
           payBtn.disabled = false;
           payBtn.innerText = originalText;
         }
       },
+
       theme: { color: "#E75480" }
     };
 
@@ -320,27 +346,33 @@ onAuthStateChanged(auth, (user) => {
       payBtn.onclick = async function() {
         const overlay = document.getElementById("overlay");
         overlay.style.display = "flex";
+        const statusText = overlay.querySelector("p");
+        if(statusText) statusText.innerText = "Waking up server (Cold Start)... ⌛";
         
-        const surpriseData = JSON.parse(localStorage.getItem("surpriseData"));
-        const passcodeHash = "0005e3b89a5c213d3501e4b119f4d8ee12b67c1e840c3a168f5cb82dafd27c96";
-        
-        // Ensure singular/plural naming consistency for media
-        const finalData = { 
-          ...surpriseData, 
-          passcodeHash, 
-          uid: user?.uid,
-          voices: surpriseData.voices || (surpriseData.voice ? [surpriseData.voice] : []),
-          quiz: surpriseData.quiz || []
-        };
-
         try {
-          const response = await fetch("https://only4you-backend.onrender.com/verify-and-create", {
+          const surpriseData = JSON.parse(localStorage.getItem("surpriseData"));
+          const passcodeHash = "0005e3b89a5c213d3501e4b119f4d8ee12b67c1e840c3a168f5cb82dafd27c96";
+          
+          if(statusText) statusText.innerText = "Securing your surprise... 💖";
+          
+          // Ensure singular/plural naming consistency for media
+          const finalData = { 
+            ...surpriseData, 
+            passcodeHash, 
+            uid: user?.uid,
+            voices: surpriseData?.voices || (surpriseData?.voice ? [surpriseData.voice] : []),
+            quiz: surpriseData?.quiz || []
+          };
+
+          const response = await fetchWithTimeout("https://only4you-backend.onrender.com/verify-and-create", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(finalData)
           });
+          
           const result = await response.json();
           if (result.success) {
+             if(statusText) statusText.innerText = "Story Prepared! Redirecting... 🚀";
              localStorage.removeItem("only4you_story");
              window.location.href = "share.html?id=" + result.id;
           } else {
@@ -348,7 +380,8 @@ onAuthStateChanged(auth, (user) => {
              overlay.style.display = "none";
           }
         } catch (e) {
-          console.error(e);
+          console.error("Save Error:", e);
+          alert("Connection Timeout or Server Error. The Render server might be waking up. Please try again in 30 seconds! ⏳");
           overlay.style.display = "none";
         }
       };
