@@ -209,6 +209,10 @@ if(stage){
 stage.classList.add("active")
 currentStage = n
 updateDots()
+
+if(n === 3 && typeof window.checkPuzzleTrigger === "function") {
+  window.checkPuzzleTrigger();
+}
 }
 /* FINAL QUESTION INJECTION */
 
@@ -731,7 +735,7 @@ function initMemories(data){
 
       // Trigger puzzle on last image for special templates
       const continueBtn = document.querySelector("#stage3 button[onclick*='nextStage']");
-      if(continueBtn && isSpecialTemplate && !puzzleSolved) {
+      if(continueBtn && isSpecialTemplate && !puzzleSolved && currentStage === 3) {
          
          // Only hide continue button and trigger puzzle on the FINAL image
          if(index === images.length - 1 && images.length > 0) {
@@ -740,22 +744,23 @@ function initMemories(data){
             if(lastTriggeredIndex !== index) {
                 // Determine if we should wait longer (e.g. if they just loaded a 1-image story)
                 const isInstantShuffle = (images.length === 1 && !hasViewedOthers);
-                const gazeTime = isInstantShuffle ? 8000 : 4000; // 8s for single photo, 4s if they navigated here
+                const gazeTime = isInstantShuffle ? 8000 : 4000; 
                 
                 lastTriggeredIndex = index;
                 setTimeout(() => {
-                    if(index === images.length - 1 && !puzzleSolved) {
+                    // Only trigger if we are STILL on the memory stage!
+                    if(index === images.length - 1 && !puzzleSolved && currentStage === 3) {
                         startPuzzle();
                     }
                 }, gazeTime);
             }
          } else {
-            // Show continue button for intermediate photos (sender/receiver can skip if they want)
             continueBtn.style.display = "inline-block";
          }
       }
     }, delay);
   }
+  window.checkPuzzleTrigger = updateDisplay;
 
   function startPuzzle() {
     puzzleActive = true;
@@ -1348,7 +1353,16 @@ window.celebrate=function(){
 
 const finalQ = document.getElementById("finalQuestion");
 if(finalQ) {
-  finalQ.innerText = "FOR YOU CUTIE😘";
+  const messages = {
+    valentine: "FOR YOU CUTIE😘",
+    forgiveness: "IM SORRY CUTIE 🥺",
+    epic: "YOU'RE MY EVERYTHING 💖",
+    anniversary: "HAPPY ANNIVERSARY MY LOVE 💍",
+    birthday: "HAPPIEST BIRTHDAY 🎂"
+  };
+  const template = window.storyData?.template || "valentine";
+  finalQ.innerText = messages[template] || "FOR YOU CUTIE😘";
+  
   finalQ.style.fontFamily = "'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
   finalQ.style.fontWeight = "bold";
 }
