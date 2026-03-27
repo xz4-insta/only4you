@@ -263,13 +263,6 @@ input[type="radio"]{
   <option value="birthday">Birthday 🎂</option>
 </select>
 
-<select id="theme">
-  <option value="default">Default Theme 🎀</option>
-  <option value="dark">Dark Elegance 🖤</option>
-  <option value="pastel">Pastel Dream 🌸</option>
-  <option value="neon">Neon Party 🪩</option>
-</select>
-
 <h3>Select Your Plan 💎</h3>
 
 <div class="plan-box selected" onclick="selectPlan(this)">
@@ -361,7 +354,6 @@ window.goToPreview = function(){
   const receiver = document.getElementById("receiver").value;
   const message = document.getElementById("message").value;
   const template = document.getElementById("template").value;
-  const theme = document.getElementById("theme")?.value || "default";
   let finalQuestion = document.getElementById("finalQuestion").value;
   const scratchMessage = document.getElementById("scratchMessage")?.value || "";
 
@@ -414,7 +406,6 @@ window.goToPreview = function(){
     receiver,
     message,
     template,
-    theme,
     plan,
     finalQuestion,
     quiz,
@@ -431,7 +422,6 @@ window.goToPreview = function(){
     "&receiver=" + encodeURIComponent(receiver) +
     "&message=" + encodeURIComponent(message) +
     "&template=" + template +
-    "&theme=" + theme +
     "&plan=" + plan +
     "&scratchMessage=" + encodeURIComponent(scratchMessage) +
     "&finalQuestion=" + encodeURIComponent(finalQuestion);

@@ -57,7 +57,7 @@ app.post("/verify-and-create", async (req, res) => {
   try {
     const data = req.body;
     const { 
-      sender, receiver, message, template, theme, plan, 
+      sender, receiver, message, template, plan, 
       finalQuestion, images, voices, voice, bgMusic, scratchMessage,
       passcodeHash, uid,
       razorpay_payment_id, razorpay_order_id, razorpay_signature
@@ -110,7 +110,6 @@ app.post("/verify-and-create", async (req, res) => {
       receiver,
       message: message || "",
       template,
-      theme: theme || "default",
       plan: plan || "48",
       finalQuestion: finalQuestion || "",
       scratchMessage: scratchMessage || "",

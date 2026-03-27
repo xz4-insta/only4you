@@ -176,7 +176,6 @@ const sender = params.get("sender");
 const receiver = params.get("receiver");
 const message = params.get("message");
 const template = params.get("template");
-const theme = params.get("theme") || "default";
 const scratchMessage = params.get("scratchMessage") || "";
 const plan = params.get("plan") || "48";
 
@@ -202,7 +201,6 @@ localStorage.setItem("surpriseData", JSON.stringify({
   receiver,
   message,
   template,
-  theme,
   plan,
   scratchMessage,
   finalQuestion,

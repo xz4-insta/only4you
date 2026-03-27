@@ -121,7 +121,6 @@ window.storyData = data
   }
 
   initProgressDots()
-  applyTheme(data.theme)
   initBGM(data)
   initLetter(data)
   initMemories(data)
@@ -138,55 +137,6 @@ showStage(1)
 
 
 /* =========================================
-THEME SYSTEM
-========================================= */
-
-function applyTheme(themeName) {
-  if (!themeName || themeName === "default") return;
-
-  let css = "";
-  if (themeName === "dark") {
-    css = `
-      body { background: #121212 !important; color: #e0e0e0 !important; }
-      .card, .stage, #letterContent { background: #1e1e1e !important; color: #e0e0e0 !important; box-shadow: 0 10px 30px rgba(0,0,0,0.8) !important; border: 1px solid #333 !important; }
-      h2, h3, .quiz-title, .lovePulse { color: #ff4d88 !important; }
-      button, .btn, .next-btn { background: #ff4d88 !important; color: #fff !important; }
-      .flap { border-top-color: #2a2a2a !important; }
-      .envelope { background: #2a2a2a !important; }
-      .voice-player { background: #2a2a2a !important; }
-      .progress-bar { background: #333 !important; }
-    `;
-  } else if (themeName === "pastel") {
-    css = `
-      body { background: linear-gradient(135deg, #fdfdfd, #e2f0cb) !important; color: #5c4b51 !important; }
-      .card, .stage, #letterContent { background: rgba(255,255,255,0.92) !important; color: #5c4b51 !important; box-shadow: 0 10px 30px rgba(92,75,81,0.1) !important; }
-      h2, h3, .quiz-title, .lovePulse { color: #ffb7b2 !important; }
-      button, .btn, .next-btn { background: #ffb7b2 !important; color: #fff !important; }
-      .flap { border-top-color: #ffdac1 !important; }
-      .envelope { background: #ffdac1 !important; }
-      .voice-player { background: #fdfdfd !important; }
-    `;
-  } else if (themeName === "neon") {
-    css = `
-      body { background: #050505 !important; color: #fff !important; }
-      .card, .stage, #letterContent { background: #111 !important; color: #fff !important; box-shadow: 0 0 20px #0ff, inset 0 0 10px #0ff !important; border: 1px solid #0ff !important; }
-      h2, h3, .quiz-title, .lovePulse { color: #0ff !important; text-shadow: 0 0 10px #0ff !important; }
-      button, .btn, .next-btn { background: transparent !important; border: 1px solid #f0f !important; color: #f0f !important; box-shadow: 0 0 10px #f0f !important; }
-      .flap { border-top-color: #222 !important; }
-      .envelope { background: #111 !important; border: 1px solid #0ff !important; }
-      .voice-player { background: #111 !important; border: 1px solid #0ff !important; }
-      .progress-dot { background: #fff !important; box-shadow: 0 0 5px #fff !important; }
-      .progress-dot.active { background: #0ff !important; box-shadow: 0 0 15px #0ff !important; }
-    `;
-  }
-
-  if (css) {
-    const style = document.createElement("style");
-    style.innerHTML = css;
-    document.head.appendChild(style);
-  }
-}
-
 /* =========================================
 BG MUSIC
 ========================================= */
