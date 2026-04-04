@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>I Miss You ☁️💙</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fireworks-js@2/dist/index.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="../js/optimization.js" type="module"></script>
+
+<style>
+body {
+  margin: 0;
+  overflow: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #e0f7fa, #ffffff, #b3e5fc);
+  background-size: 400% 400%;
+  animation: skyMove 15s ease infinite;
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+}
+
+@keyframes skyMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Floating Clouds */
+.cloud {
+  position: fixed;
+  opacity: 0.6;
+  pointer-events: none;
+  animation: cloudFloat linear infinite;
+  z-index: 1;
+}
+
+@keyframes cloudFloat {
+  from { transform: translateX(-200px); }
+  to { transform: translateX(calc(100vw + 200px)); }
+}
+
+/* ===== STAGE BASE ===== */
+.stage {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 1000;
+  padding: 20px;
+  box-sizing: border-box;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  flex-direction: column;
+}
+
+.stage.active {
+  display: flex;
+}
+
+/* Card */
+.card {
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(25px);
+  border-radius: 40px;
+  padding: 50px 30px;
+  width: 450px;
+  max-width: 90%;
+  text-align: center;
+  color: #2c3e50;
+  position: relative;
+  box-shadow:
+    0 15px 35px rgba(179,229,252,0.5),
+    0 5px 15px rgba(0,0,0,0.05);
+  animation: fadeIn 1.2s ease forwards;
+  transform-style: preserve-3d;
+  border: 1px solid rgba(255,255,255,0.4);
+  z-index: 10;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+h2, h1 {
+  font-family: 'Dancing Script', cursive;
+  font-size: 48px;
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #0288d1;
+}
+
+/* ===== BUTTON ===== */
+button {
+  padding: 14px 35px;
+  border: none;
+  border-radius: 35px;
+  margin-top: 20px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(90deg, #0288d1, #26c6da);
+  color: white;
+  box-shadow: 0 10px 25px rgba(2, 136, 209, 0.3);
+  transition: all .3s ease;
+  font-family: 'Poppins', sans-serif;
+}
+
+button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(2, 136, 209, 0.5);
+}
+
+/* ===== PAPER PLANE ===== */
+.plane-container {
+  width: 200px;
+  height: 150px;
+  margin: 20px auto;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.plane-container:hover {
+  transform: scale(1.1) rotate(-5deg);
+}
+
+.plane-svg {
+  width: 120px;
+  filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
+  animation: planeWobble 3s ease-in-out infinite;
+}
+
+@keyframes planeWobble {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(5deg); }
+}
+
+.folded-letter {
+  display: none;
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  font-family: 'Dancing Script', cursive;
+  font-size: 24px;
+  color: #333;
+  line-height: 1.4;
+  animation: unfold 0.8s ease forwards;
+}
+
+@keyframes unfold {
+  0% { transform: scaleY(0); opacity: 0; }
+  100% { transform: scaleY(1); opacity: 1; }
+}
+
+/* ===== HUG METER ===== */
+.hugLevelTag {
+  display: inline-block;
+  background: rgba(2,136,209,0.1);
+  padding: 8px 18px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 10px 0;
+  color: #0288d1;
+}
+
+.hugBar {
+  width: 300px;
+  height: 18px;
+  background: rgba(0,0,0,0.05);
+  border-radius: 20px;
+  margin: 20px auto;
+  position: relative;
+  overflow: hidden;
+}
+
+#hugFill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #26c6da, #0288d1);
+  border-radius: 20px;
+  transition: width .4s ease;
+}
+
+.hug-bubble {
+  position: absolute;
+  pointer-events: none;
+  font-size: 20px;
+  animation: floatUp 1.5s forwards;
+  z-index: 20;
+}
+
+@keyframes floatUp {
+  0% { opacity: 1; transform: translate(0,0) scale(1); }
+  100% { opacity: 0; transform: translate(var(--x), -150px) scale(1.5); }
+}
+
+/* Memories */
+#tvScreen {
+  background: white !important;
+  border: 8px solid white;
+  box-shadow: 0 15px 45px rgba(179,229,252,0.4) !important;
+}
+
+/* Dots */
+.dot.active {
+  background: #0288d1 !important;
+  box-shadow: 0 0 15px rgba(2,136,209,0.6) !important;
+}
+
+#reactionVideoBox {
+  border-color: #0288d1 !important;
+}
+
+.yes {
+  background: #0288d1 !important;
+}
+
+.no {
+  background: #e1f5fe !important;
+  color: #0288d1 !important;
+}
+</style>
+</head>
+
+<body>
+
+<!-- STAGE 1: PAPER PLANE -->
+<div class="stage active" id="stage1">
+  <div class="card">
+    <h2 id="titleText">A message for you... ☁️</h2>
+    
+    <div id="planeContainer" class="plane-container" onclick="revealLetter()">
+      <svg class="plane-svg" viewBox="0 0 512 512" fill="#0288d1">
+        <path d="M512 64L0 256l192 64 64 192L512 64z"/>
+        <path d="M192 320l256-192-256 128V320z" fill="#01579b"/>
+      </svg>
+      <div style="font-size:12px; margin-top:10px; font-weight:700; color:#0288d1; opacity:0.7">TAP TO UNFOLD ✈️</div>
+    </div>
+
+    <div class="folded-letter" id="foldedLetter">
+      {{message}}
+    </div>
+
+    <button id="beginBtn" style="display:none" onclick="nextStage()">Start Journey ➡</button>
+  </div>
+</div>
+
+<!-- STAGE 2: HUGS METER -->
+<div class="stage" id="stage2">
+  <div class="card">
+    <h2>I Miss You So Much! 💙</h2>
+    <p style="opacity:.8; font-size:14px; margin-bottom:20px;">Tap to send virtual hugs across the distance!</p>
+    
+    <div class="hugLevelTag" id="hugLevelTag">WARMING UP 🌬️</div>
+    <div class="hugBar">
+      <div id="hugFill"></div>
+    </div>
+    <div id="loveBig" style="font-size:60px; font-weight:700; color:#0288d1; margin:10px 0;">0%</div>
+    
+    <button id="hugBtn" onclick="sendHug()">🫂 Send a Hug</button>
+    <button id="continueBtn" onclick="nextStage()" style="display:none">Continue ➡</button>
+  </div>
+</div>
+
+<!-- STAGE 3: MEMORIES -->
+<div class="stage" id="stage3">
+  <div class="card">
+    <h2>Every Moment Counts ☁️</h2>
+    <div id="tvScreen" style="width:100%; height:350px; overflow:hidden; border-radius:20px; margin-top:20px;"></div>
+    <div style="margin-top:20px; display:flex; gap:10px; justify-content:center;">
+      <button onclick="prevMemory()" style="background:#e1f5fe; color:#0288d1;">⬅ Previous</button>
+      <button onclick="nextMemory()" style="background:#e1f5fe; color:#0288d1;">Next ➡</button>
+    </div>
+    <button onclick="nextStage()" style="width:100%;">Continue 💙</button>
+  </div>
+</div>
+
+<!-- STAGE 4: VOICE -->
+<div class="stage" id="stage4">
+  <div class="card">
+    <h2>Whispering Winds 🎧</h2>
+    <div id="voiceContainer" style="display:flex; flex-direction:column; gap:12px; margin-top:20px;"></div>
+    <button onclick="nextStage()" style="width:100%; margin-top:20px;">Continue 💙</button>
+  </div>
+</div>
+
+<!-- STAGE 5: QUIZ -->
+<div class="stage" id="stage5">
+  <div class="card">
+    <h2>Our Story ☁️</h2>
+    <div id="quizContainer"></div>
+    <button onclick="nextStage()" style="width:100%; margin-top:20px;">Almost there 💍</button>
+  </div>
+</div>
+
+<!-- STAGE 6: FINAL -->
+<div class="stage" id="stage6">
+  <div class="card">
+    <h2 id="finalQuestion" style="font-size:55px; line-height:1.2;"></h2>
+    <div style="font-size:100px; margin:20px 0;">✈️</div>
+    <div style="display:flex; gap:15px; justify-content:center;">
+      <button class="yes" id="yesBtn" onclick="celebrate()">YES 💙</button>
+      <button class="no" id="noBtn">NO 😅</button>
+    </div>
+  </div>
+</div>
+
+<div class="progress-dots" id="progressDots" style="position:fixed; bottom:30px; left:50%; transform:translateX(-50%); display:flex; gap:10px; z-index:2000;"></div>
+
+<script type="module">
+import { initEpicInteractions } from "../js/stageEngine.js";
+
+// Custom Miss You Logic
+window.revealLetter = function() {
+  document.getElementById("planeContainer").style.display = "none";
+  document.getElementById("titleText").innerText = "A letter for you...";
+  document.getElementById("foldedLetter").style.display = "block";
+  document.getElementById("beginBtn").style.display = "inline-block";
+}
+
+window.sendHug = function() {
+  const btn = document.getElementById("hugBtn");
+  const rect = btn.getBoundingClientRect();
+  
+  // Create multiple bubbles
+  for(let i=0; i<3; i++) {
+    const b = document.createElement("div");
+    b.className = "hug-bubble";
+    b.innerHTML = ["🫂","💨","🌬️","💙","✨"][Math.floor(Math.random()*5)];
+    b.style.left = (rect.left + rect.width/2 - 10) + "px";
+    b.style.top = (rect.top - 20) + "px";
+    b.style.setProperty("--x", (Math.random()*100 - 50) + "px");
+    document.body.appendChild(b);
+    setTimeout(() => b.remove(), 1500);
+  }
+
+  // Reuse logic from stageEngine for progress
+  if(window.increaseLove) window.increaseLove();
+}
+
+// Clouds
+function createClouds() {
+  const count = window.innerWidth < 600 ? 5 : 10;
+  for(let i=0; i<count; i++) {
+    const c = document.createElement("div");
+    c.className = "cloud";
+    c.innerHTML = "☁️";
+    c.style.fontSize = (Math.random()*40 + 40) + "px";
+    c.style.top = Math.random()*80 + "vh";
+    c.style.left = "-200px";
+    c.style.animationDuration = (Math.random()*20 + 20) + "s";
+    c.style.animationDelay = Math.random()*10 + "s";
+    document.body.appendChild(c);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  createClouds();
+  
+  if (window.location.pathname.includes("success.html")) return;
+  const saved = JSON.parse(localStorage.getItem("only4you_story")) || {};
+  
+  initEpicInteractions({
+    message: saved.message || "I really miss you! 💙",
+    images: saved.images || [],
+    voices: saved.voices || [],
+    quiz: saved.quiz || [],
+    bgMusic: saved.bgMusic,
+    plan: saved.plan,
+    finalQuestion: saved.finalQuestion || "When can I see you again? ✈️"
+  });
+
+  // Custom text for Miss You
+  const tags = ["STARTING... ❄️", "COLD FEET? 🌬️", "SENDING WARMTH 💨", "ALMOST THERE 💙", "HUG RECEIVED! 🫂"];
+  window.updateLoveText = (p) => {
+    const tag = document.getElementById("hugLevelTag");
+    if(p < 25) tag.innerText = tags[0];
+    else if(p < 50) tag.innerText = tags[1];
+    else if(p < 75) tag.innerText = tags[2];
+    else if(p < 99) tag.innerText = tags[3];
+    else tag.innerText = tags[4];
+  };
+});
+</script>
+
+</body>
+</html>

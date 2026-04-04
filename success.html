@@ -425,10 +425,12 @@ setTimeout(()=>{el.remove()},duration*1000);
 setInterval(()=>{
 if(window.currentPlan==="299"){
 
-const isRoseTheme = ["valentine", "anniversary"].includes(window.currentTemplate);
-const symbols = isRoseTheme ? ["✨","🌹","💖","🌹"] : ["✨","🌸","💖","🌺"];
+    const t = window.currentTemplate;
+    let symbols = ["✨","🌸","💖","🌺"];
+    if (["valentine", "anniversary"].includes(t)) symbols = ["✨","🌹","💖","🌹"];
+    if (t === "missyou") symbols = ["☁️","✨","☁️","💎"];
 
-const randomSymbol=symbols[Math.floor(Math.random()*symbols.length)];
+    const randomSymbol=symbols[Math.floor(Math.random()*symbols.length)];
 
 createFallingElement(
 randomSymbol,

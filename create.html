@@ -332,9 +332,10 @@ input[type="radio"]{
 <select id="template">
   <option value="valentine">Valentine 💗</option>
   <option value="forgiveness">Forgiveness 💛</option>
-  <option value="epic">Epic Love Story 💍</option>
   <option value="anniversary">Anniversary 🥂</option>
   <option value="birthday">Birthday 🎂</option>
+  <option value="missyou">Miss You ☁️ (PREMIUM)</option>
+  <option value="epic">Epic Love Story 💍 (PREMIUM)</option>
 </select>
 
 <h3>Select Your Plan 💎</h3>
@@ -528,15 +529,33 @@ window.goToPreview = function(){
 
 
 document.getElementById("template").addEventListener("change", (e) => {
+  const t = e.target.value;
   const fq = document.getElementById("finalQuestion");
-  if(e.target.value === "valentine"){
+  
+  // Auto-upgrade for Premium templates
+  if(t === "epic" || t === "missyou") {
+    const currentPlan = document.querySelector('input[name="plan"]:checked').value;
+    if(currentPlan === "48" || currentPlan === "89") {
+       if(confirm(`The ${t.toUpperCase()} template is an Exclusive Premium feature. Upgrade to Premium Love (₹169) to unlock it? ✨`)) {
+          window.autoUpgrade("169");
+       } else {
+          // Revert to valentine if they cancel
+          e.target.value = "valentine";
+          return;
+       }
+    }
+  }
+
+  if(t === "valentine"){
     fq.placeholder = "Will you be my valentine? 💖";
-  } else if(e.target.value === "forgiveness"){
+  } else if(t === "forgiveness"){
     fq.placeholder = "Can you find it in your heart to forgive me? 💛";
-  } else if(e.target.value === "anniversary"){
+  } else if(t === "anniversary"){
     fq.placeholder = "Will you spend forever with me? 💍";
-  } else if(e.target.value === "birthday"){
+  } else if(t === "birthday"){
     fq.placeholder = "Did you love your surprise? 🎁";
+  } else if(t === "missyou"){
+    fq.placeholder = "When can I see you again? ✈️";
   } else {
     fq.placeholder = "Will you be mine forever? 💍";
   }

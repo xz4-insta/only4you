@@ -564,6 +564,13 @@ body{
         <div class="iframe-placeholder" style="width:100%; height:100%; background:#f0f0f0; display:flex; align-items:center; justify-content:center;">Loading...</div>
         <iframe data-src="templates/birthday.html?preview=1"  style="display:none;"></iframe>
       </div>
+      <div class="carousel-item" onclick="rotateTo(5)">
+        <div class="iframe-placeholder" style="width:100%; height:100%; background:#e0f7fa; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#0288d1; font-weight:bold;">
+          <span>Miss You ☁️</span>
+          <span style="font-size:10px; background:#0288d1; color:white; padding:2px 6px; border-radius:10px; margin-top:5px;">PREMIUM</span>
+        </div>
+        <iframe data-src="templates/missyou.html?preview=1"  style="display:none;"></iframe>
+      </div>
     </div>
   </div>
 
@@ -727,7 +734,8 @@ const templateData = [
   { id: "forgiveness", title: "Forgiveness 💛", desc: "Soft yellow and pink tones to melt their heart." },
   { id: "epic", title: "Epic Love Story 💍", desc: "The ultimate premium multi-stage cinematic journey." },
   { id: "anniversary", title: "Anniversary 🥂", desc: "Timeless Gold & Cream class for your special day." },
-  { id: "birthday", title: "Birthday 🎂", desc: "Playful pastel rainbow to celebrate their big day!" }
+  { id: "birthday", title: "Birthday 🎂", desc: "Playful pastel rainbow to celebrate their big day!" },
+  { id: "missyou", title: "Miss You ☁️", desc: "Exclusive Premium: Sky Blue & White dreamy theme.", isPremium: true }
 ];
 
 if(items.length > 0) {
@@ -751,9 +759,10 @@ if(items.length > 0) {
   function updateCarousel() {
     carousel.style.transform = `translateZ(-${radius}px) rotateY(${-currIndex * angle}deg)`;
     
-    let normalizedIndex = ((currIndex % 5) + 5) % 5;
-    document.getElementById("activeTitle").innerText = templateData[normalizedIndex].title;
-    document.getElementById("activeDesc").innerText = templateData[normalizedIndex].desc;
+    let normalizedIndex = ((currIndex % templateData.length) + templateData.length) % templateData.length;
+    const activeData = templateData[normalizedIndex];
+    document.getElementById("activeTitle").innerHTML = activeData.title + (activeData.isPremium ? ' <span style="font-size:12px; background:#0288d1; color:white; padding:3px 8px; border-radius:10px; vertical-align:middle;">PREMIUM</span>' : '');
+    document.getElementById("activeDesc").innerText = activeData.desc;
     
     items.forEach((item, i) => {
       const iframe = item.querySelector("iframe");
@@ -788,8 +797,8 @@ if(items.length > 0) {
   }
 
   window.selectActiveTemplate = function() {
-    let normalizedIndex = ((currIndex % 5) + 5) % 5;
-    window.location.href = "create.html?template=" + templateData[normalizedIndex].id;
+    let normalizedIndex = ((currIndex % templateData.length) + templateData.length) % templateData.length;
+    window.location.href = "create.html?template=" + templateData[normalizedIndex].id + (templateData[normalizedIndex].isPremium ? "&plan=169" : "");
   };
 
   let autoPlay = setInterval(() => { rotateTo(currIndex + 1); }, 4000);
