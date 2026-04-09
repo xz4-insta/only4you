@@ -170,7 +170,7 @@ style.textContent = `
   .bokeh-particle {
     position: fixed;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,105,180,0.3) 50%, transparent 100%);
+    background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, var(--bokeh-color, rgba(255,105,180,0.3)) 50%, transparent 100%);
     pointer-events: none;
     z-index: -1;
     animation: bokehFloat linear infinite;
@@ -399,6 +399,17 @@ export function initEpicInteractions(data){
   // Actually apply the stage locking based on the plan!
   applyStageLocking(String(data.plan || "48"));
   
+  // Theme Detection
+  const template = data.template || "";
+  const root = document.documentElement;
+  if (template === "missyou") {
+    root.style.setProperty("--bokeh-color", "rgba(2, 136, 209, 0.3)");
+    root.style.setProperty("--v-color", "2, 136, 209");
+  } else {
+    root.style.setProperty("--bokeh-color", "rgba(255, 105, 180, 0.3)");
+    root.style.setProperty("--v-color", "231, 84, 128");
+  }
+
   // Force full flow for carousel regardless of plan
   if (isPreview) {
     window.allowedStages = [1, 2, 3, 4, 5, 6]; 
@@ -611,7 +622,7 @@ function createVisualizer() {
 
     for (let i = 0; i < bufferLength; i++) {
         const barHeight = (dataArray[i] / 255) * height;
-        ctx.fillStyle = `rgba(231, 84, 128, ${dataArray[i] / 255})`;
+        ctx.fillStyle = `rgba(var(--v-color, 231, 84, 128), ${dataArray[i] / 255})`;
         ctx.fillRect(x, height - barHeight, barWidth, barHeight);
         x += barWidth + 1;
     }
@@ -1165,6 +1176,7 @@ function startEmojiSnowfall() {
   if (template === "anniversary") emojis = ["🥂", "💖", "🎉", "✨", "🎈"];
   if (template === "forgiveness") emojis = ["🥺", "🙏", "❤️‍🩹", "🌧️", "🌸"];
   if (template === "epic") emojis = ["✨", "🔥", "💖", "⭐", "💫"];
+  if (template === "missyou") emojis = ["☁️", "☁️", "⛅", "🌥️", "☁️"];
 
   const spawnDelay = (typeof Optimization !== 'undefined' && Optimization.isLowEnd) ? 3000 : 700;
   
