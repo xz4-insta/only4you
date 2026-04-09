@@ -85,7 +85,7 @@ style.textContent = `
     backdrop-filter: blur(15px) !important;
     -webkit-backdrop-filter: blur(15px) !important;
     border: 1px solid rgba(255, 255, 255, 0.3) !important;
-    box-shadow: 0 8px 32px 0 rgba(231, 84, 128, 0.2) !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1) !important; /* Neutral shadow */
   }
   
   /* ================= 3D ENVELOPE ================= */

@@ -11,15 +11,15 @@
 <script src="../js/optimization.js" type="module"></script>
 
 <style>
-body {
+body, .main-wrapper {
   margin: 0;
   overflow: hidden;
   min-height: 100vh;
-  display: flex;
+  display: flex !important;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #e0f7fa, #ffffff, #b3e5fc);
+  background: linear-gradient(135deg, #e0f7fa, #ffffff, #b3e5fc) !important;
   background-size: 400% 400%;
   animation: skyMove 15s ease infinite;
   font-family: 'Poppins', sans-serif;
@@ -253,6 +253,9 @@ button:hover {
     <div class="folded-letter" id="foldedLetter">
       {{message}}
     </div>
+
+    <!-- Target for Reaction Button to prevent overlap -->
+    <div id="reactionTarget" style="margin-top: 20px;"></div>
 
     <button id="beginBtn" style="display:none" onclick="nextStage()">Start Journey ➡</button>
   </div>

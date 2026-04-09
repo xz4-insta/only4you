@@ -322,6 +322,7 @@ document.body.appendChild(wrapper);
 /* Plan system */
 
 window.currentPlan=plan;
+window.currentTemplate = data.template; // Added for falling effects
 
 // applyStageLocking(plan); // Removed legacy lock call
 
@@ -338,16 +339,18 @@ applyPlanFeatures(plan,data,isOwner,id);
 
 if(plan!=="48"){
 
+const isMissYou = data.template === "missyou";
+const themeColor = isMissYou ? "#0288d1" : "#ff4d6d";
 const reactSection=document.createElement("div");
 reactSection.style.marginTop="40px";
 
 reactSection.innerHTML=`
 <button id="reactBtn"
 style="padding:12px 25px;border:none;border-radius:30px;
-background:#ff4d6d;color:white;font-size:18px;cursor:pointer;">
-❤️ Send Love
+background:${themeColor};color:white;font-size:18px;cursor:pointer;">
+❤️ ${isMissYou ? 'Send Love' : 'Send Love'}
 </button>
-<p id="reactionCount">${data.reactions||0} Loves</p>
+<p id="reactionCount" style="color:${isMissYou ? '#0288d1' : '#ff4d6d'}; font-weight:bold;">${data.reactions||0} Loves</p>
 `;
 
 const reactionTarget = document.getElementById("reactionTarget");
