@@ -204,7 +204,7 @@
     padding:10px 14px; border-radius:12px;
   }
   .quiz-q { font-size:0.82rem; opacity:0.65; margin-bottom:3px; color:#fff; }
-  .quiz-a { font-size:0.97rem; font-weight:600; color:#ff4d6d; }
+  .quiz-a { font-size:0.97rem; font-weight:600; color: var(--primary); }
 
   /* Reaction video */
   #reactionVideoBox {
@@ -453,6 +453,21 @@ if (id) {
   onSnapshot(ref, (snap) => {
     if (!snap.exists()) return;
     const data = snap.data();
+    const template = data.template || "valentine";
+    const root = document.documentElement;
+
+    // Theme Detection
+    if (template === "missyou") {
+      root.style.setProperty("--primary", "#0288d1");
+      root.style.setProperty("--secondary", "#26c6da");
+      root.style.setProperty("--card-bg", "rgba(10, 20, 30, 0.78)");
+      root.style.setProperty("--glass-border", "rgba(2,136,209,0.18)");
+    } else {
+      root.style.setProperty("--primary", "#ff4d88");
+      root.style.setProperty("--secondary", "#ff1f5a");
+      root.style.setProperty("--card-bg", "rgba(22, 12, 18, 0.78)");
+      root.style.setProperty("--glass-border", "rgba(255, 100, 150, 0.18)");
+    }
 
     document.getElementById("reactionCount").textContent = data.reactions || 0;
     document.getElementById("reactionStats").style.display = "flex";

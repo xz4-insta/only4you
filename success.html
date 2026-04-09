@@ -379,7 +379,9 @@ reactBtn.onclick = async () => {
   const btnRect = reactBtn.getBoundingClientRect();
   for (let i = 0; i < 8; i++) {
     const heart = document.createElement("div");
-    heart.innerHTML = ["💖","💕","🌸","✨"][Math.floor(Math.random()*4)];
+    const template = window.currentTemplate;
+    const burstEmojis = template === "missyou" ? ["💙","☁️","✨","💎"] : ["💖","💕","🌸","✨"];
+    heart.innerHTML = burstEmojis[Math.floor(Math.random()*burstEmojis.length)];
     heart.style.cssText = `
       position: fixed;
       left: ${btnRect.left + btnRect.width/2 + (Math.random()*80-40)}px;

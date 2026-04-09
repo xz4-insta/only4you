@@ -209,7 +209,7 @@ h2, h1 {
   box-shadow: 0 0 15px rgba(2,136,209,0.6) !important;
 }
 
-button {
+button:not(.quiz-opt) {
   padding: 14px 40px !important;
   border: none !important;
   border-radius: 40px !important;
@@ -222,6 +222,19 @@ button {
   font-family: 'Poppins', sans-serif !important;
   box-shadow: 0 10px 30px rgba(2, 136, 209, 0.3) !important;
 }
+
+.quiz-opt.selected {
+  background: #0288d1 !important;
+  border: 2px solid #fff !important;
+  box-shadow: 0 0 25px rgba(2, 136, 209, 0.8) !important;
+  transform: scale(1.05);
+}
+
+#ring.show {
+  opacity: 1 !important;
+  transform: scale(1) !important;
+}
+
 </style>
 </head>
 
@@ -261,7 +274,7 @@ button {
     <div id="loveBig" style="font-size:60px; font-weight:700; color:#0288d1;">0%</div>
     
     <button id="loveBtn" onclick="increaseLove()">🫂 Send Hugs</button>
-    <button onclick="nextStage()" style="display:none">Continue ➡</button>
+    <button id="continueBtn" onclick="nextStage()" style="display:none">Continue ➡</button>
   </div>
 </div>
 
@@ -303,10 +316,10 @@ button {
 <div class="stage" id="stage6">
   <div class="card">
     <h2 id="finalQuestion" style="font-size:40px;"></h2>
-    <div style="font-size:80px; margin:20px 0;">✈️</div>
+    <div id="ring" style="font-size:80px; margin:20px 0; opacity:0; transform:scale(0); transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);">🥹</div>
     <div style="display:flex; gap:15px; justify-content:center;">
-      <button onclick="celebrate()" style="background:#0288d1 !important;">YES 💙</button>
-      <button style="background:#e3f2fd !important; color:#0288d1 !important; border:1px solid #0288d1 !important;">NO 😅</button>
+      <button id="yesBtn" onclick="celebrate()" style="background:#0288d1 !important;">YES 💙</button>
+      <button id="noBtn" style="background:#e3f2fd !important; color:#0288d1 !important; border:1px solid #0288d1 !important;">NO 😅</button>
     </div>
   </div>
 </div>

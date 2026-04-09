@@ -261,7 +261,7 @@ style.textContent = `
     height: 100%;
     z-index: 9999;
     pointer-events: none;
-    background: rgba(255, 105, 180, 0.05);
+    background: rgba(var(--v-color, 255, 105, 180), 0.05);
     backdrop-filter: blur(0px);
     -webkit-backdrop-filter: blur(0px);
     opacity: 0;
@@ -276,7 +276,7 @@ style.textContent = `
     width: 150vw;
     height: 6px;
     background: #fff;
-    box-shadow: 0 0 40px 15px #ff4d6d, 0 0 80px 30px #ff8fab;
+    box-shadow: 0 0 40px 15px var(--glow-primary, #ff4d6d), 0 0 80px 30px var(--glow-secondary, #ff8fab);
     border-radius: 50%;
     opacity: 0;
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
@@ -405,9 +405,13 @@ export function initEpicInteractions(data){
   if (template === "missyou") {
     root.style.setProperty("--bokeh-color", "rgba(2, 136, 209, 0.3)");
     root.style.setProperty("--v-color", "2, 136, 209");
+    root.style.setProperty("--glow-primary", "#0288d1");
+    root.style.setProperty("--glow-secondary", "#26c6da");
   } else {
     root.style.setProperty("--bokeh-color", "rgba(255, 105, 180, 0.3)");
     root.style.setProperty("--v-color", "231, 84, 128");
+    root.style.setProperty("--glow-primary", "#ff4d6d");
+    root.style.setProperty("--glow-secondary", "#ff8fab");
   }
 
   // Force full flow for carousel regardless of plan
@@ -857,9 +861,12 @@ to{opacity:1;transform:translateY(0)}
   transform: translateY(-2px);
 }
 .quiz-opt.selected {
-  background: #ff4d6d;
-  border-color: #ff8fab;
-  box-shadow: 0 0 15px rgba(255, 77, 109, 0.4);
+  background: var(--glow-primary, #ff4d6d);
+  border-color: var(--glow-secondary, #ff8fab);
+  box-shadow: 0 0 15px rgba(var(--v-color, 255, 77, 109), 0.4);
+}
+.stage-continue-btn {
+  background: linear-gradient(90deg, var(--glow-primary, #ff4d6d), var(--glow-secondary, #ff8fab)) !important;
 }
 .seek-bar::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -1136,7 +1143,8 @@ HEART PARTICLES
 
 function spawnHearts(){
   const template = window.storyData?.template || "";
-  const emoji = ["valentine", "anniversary"].includes(template) ? "🌹" : "💖";
+  let emoji = ["valentine", "anniversary"].includes(template) ? "🌹" : "💖";
+  if (template === "missyou") emoji = "💙";
 
   // Optimization: Reduce spawn count on low-end
   const count = Optimization.isLowEnd ? 1 : 5;
@@ -1607,7 +1615,7 @@ function initScratch(data) {
       <p style="opacity:0.8; margin-bottom:20px;">Use your finger to scratch and reveal!</p>
       
       <div style="position:relative; width:100%; max-width:300px; height:150px; margin:0 auto; border-radius:15px; overflow:hidden; box-shadow:0 10px 20px rgba(0,0,0,0.2);">
-        <div style="position:absolute; width:100%; height:100%; background:white; color:#ff4d6d; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:bold; padding:20px; box-sizing:border-box;">
+        <div style="position:absolute; width:100%; height:100%; background:white; color:var(--glow-primary, #ff4d6d); display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:bold; padding:20px; box-sizing:border-box;">
           ${data.scratchMessage}
         </div>
         <canvas id="scratchCanvas" width="300" height="150" style="position:absolute; top:0; left:0; width:100%; height:100%; cursor:crosshair;"></canvas>
@@ -1693,8 +1701,8 @@ function initCatchGame(data) {
       <h2 style="margin-top:0;">Catch My Heart 💖</h2>
       <p style="opacity:0.8; margin-bottom:10px;">Catch 10 falling hearts to unlock your final surprise!</p>
       
-      <div id="catchArea" style="position:relative; width:100%; height:250px; border:2px dashed rgba(255,77,136,0.5); border-radius:15px; overflow:hidden; background:rgba(255,255,255,0.02);">
-         <div id="catchScore" style="position:absolute; top:10px; right:15px; font-weight:bold; color:#ff4d6d; font-size:18px; z-index:10; background:rgba(255,255,255,0.8); padding:5px 10px; border-radius:10px;">0 / 10</div>
+      <div id="catchArea" style="position:relative; width:100%; height:250px; border:2px dashed rgba(var(--v-color, 255,77,136), 0.5); border-radius:15px; overflow:hidden; background:rgba(255,255,255,0.02);">
+         <div id="catchScore" style="position:absolute; top:10px; right:15px; font-weight:bold; color:var(--glow-primary, #ff4d6d); font-size:18px; z-index:10; background:rgba(255,255,255,0.8); padding:5px 10px; border-radius:10px;">0 / 10</div>
       </div>
 
       <button id="catchNextBtn" class="btn" onclick="nextStage()" style="display:none; width:100%; margin-top:20px;">Proceed to Finale ✨</button>
@@ -1748,7 +1756,9 @@ function initCatchGame(data) {
         `;
         
         const emoji = document.createElement("span");
-        emoji.innerHTML = isHeartbreak ? "💔" : ["💖", "💗", "💕", "💞", "💘"][Math.floor(Math.random()*5)];
+        const template = window.storyData?.template || "";
+        const heartEmojis = template === "missyou" ? ["💙", "🩵", "✨", "💎", "❄️"] : ["💖", "💗", "💕", "💞", "💘"];
+        emoji.innerHTML = isHeartbreak ? "💔" : heartEmojis[Math.floor(Math.random()*heartEmojis.length)];
         emoji.style.fontSize = "32px";
         heartContainer.appendChild(emoji);
         
@@ -1764,8 +1774,8 @@ function initCatchGame(data) {
                scoreEl.innerText = "0 / 10";
                scoreEl.style.color = "red";
                scoreEl.style.transform = "scale(1.2)";
-               setTimeout(() => {
-                  scoreEl.style.color = "#ff4d6d";
+                setTimeout(() => {
+                  scoreEl.style.color = "var(--glow-primary, #ff4d6d)";
                   scoreEl.style.transform = "scale(1)";
                }, 500);
             }
@@ -1938,7 +1948,8 @@ if(finalQ) {
     forgiveness: "IM SORRY CUTIE 🥺",
     epic: "YOU'RE MY EVERYTHING 💖",
     anniversary: "HAPPY ANNIVERSARY MY LOVE 💍",
-    birthday: "HAPPIEST BIRTHDAY 🎂"
+    birthday: "HAPPIEST BIRTHDAY 🎂",
+    missyou: "I MISS YOU SO MUCH! ✈️💙"
   };
   const template = window.storyData?.template || "valentine";
   finalQ.innerText = messages[template] || "FOR YOU CUTIE😘";
@@ -2083,7 +2094,7 @@ function initQuiz(data){
   data.quiz.forEach((q, qIndex) => {
     const qBox = document.createElement("div");
     qBox.className = "quiz-box";
-    qBox.innerHTML = `<h3 style="margin-bottom:18px; color:#ff4d6d; font-size:1.1rem; font-family:sans-serif; line-height:1.4; letter-spacing:0.5px;">${q.question}</h3>`;
+    qBox.innerHTML = `<h3 style="margin-bottom:18px; color:var(--glow-primary, #ff4d6d); font-size:1.1rem; font-family:sans-serif; line-height:1.4; letter-spacing:0.5px;">${q.question}</h3>`;
     
     const optGrid = document.createElement("div");
     optGrid.style.display = "grid";
