@@ -477,6 +477,17 @@ if (id) {
       document.getElementById("reactionVideoBox").style.display = "block";
     }
 
+    // Auto-sync social preview QR image if it doesn't exist
+    if (!data.qrImage && !window.previewSyncTriggered) {
+      window.previewSyncTriggered = true;
+      setTimeout(() => {
+        buildShareCanvas().then(canvas => {
+          syncSocialPreview(id, canvas);
+        });
+      }, 2000); // Give a small delay to ensure rendering is complete
+    }
+
+
     if (data.quiz && data.quiz.length > 0) {
       const sec = document.getElementById("quizResults");
       const box = document.getElementById("quizItems");
@@ -515,10 +526,23 @@ async function buildShareCanvas() {
   canvas.height = size;
   const ctx = canvas.getContext("2d");
   
+  const templateId = data.template || "valentine";
+  const themeColor = getThemeColor(templateId);
+
   // 1. Background gradient matching the app
   const bgGrad = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size*0.8);
-  bgGrad.addColorStop(0, "#2a0a1f");
-  bgGrad.addColorStop(1, "#0f0f13");
+  const bgMapping = {
+    valentine: ["#2a0a1f", "#0f0f13"],
+    missyou: ["#0a141e", "#050a0f"],
+    anniversary: ["#2a1b12", "#0f0a06"],
+    birthday: ["#2a141a", "#0f0a0c"],
+    forgiveness: ["#2a141a", "#0f0a0c"],
+    epic: ["#2a0a1f", "#0f0f13"]
+  };
+  const bgColors = bgMapping[templateId] || bgMapping.valentine;
+
+  bgGrad.addColorStop(0, bgColors[0]);
+  bgGrad.addColorStop(1, bgColors[1]);
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, size, size);
 
@@ -530,8 +554,8 @@ async function buildShareCanvas() {
   ctx.save();
   ctx.beginPath();
   drawHeartPath(ctx, 0, 0, size); // Draw heart filling the canvas
-  ctx.fillStyle = "#ff1f5a";
-  ctx.shadowColor = "rgba(255, 31, 90, 0.8)";
+  ctx.fillStyle = themeColor;
+  ctx.shadowColor = themeColor + "CC";
   ctx.shadowBlur = 40;
   ctx.fill();
   ctx.restore();
@@ -539,7 +563,8 @@ async function buildShareCanvas() {
   // 3. QR code
   const qrSize = Math.round(size * 0.45); // Proportionally smaller for a cleaner look
   const qrOff = document.createElement("canvas");
-  new QRious({ element: qrOff, value: directLink, size: qrSize, foreground: "#ff1f5a", background: "#ffffff", level: "H" });
+  new QRious({ element: qrOff, value: directLink, size: qrSize, foreground: themeColor, background: "#ffffff", level: "H" });
+
 
   const qrX = Math.round(cx - qrSize / 2);
   const qrY = Math.round(cy - qrSize / 2 + 8 * s);
@@ -604,6 +629,44 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.lineTo(x, y + r);
   ctx.quadraticCurveTo(x, y, x + r, y);
   ctx.closePath();
+}
+
+function getThemeColor(id) {
+  const mapping = {
+    valentine: "#ff1f5a",
+    missyou: "#0288d1",
+    anniversary: "#c19a6b",
+    birthday: "#ff6b81",
+    forgiveness: "#ff69b4",
+    epic: "#ff4d6d"
+  };
+  return mapping[id] || mapping.valentine;
+}
+
+async function syncSocialPreview(id, canvas) {
+  try {
+     const dataUrl = canvas.toDataURL("image/png");
+     const formData = new FormData();
+     formData.append("file", dataUrl);
+     formData.append("upload_preset", "only4you");
+
+     const res = await fetch("https://api.cloudinary.com/v1_1/dsziyn4tp/image/upload", {
+        method: "POST",
+        body: formData
+     });
+     const cloudData = await res.json();
+     
+     if(cloudData.secure_url) {
+        await fetch("https://only4you-backend.onrender.com/save-qr-image", {
+           method: "POST",
+           headers: { "Content-Type": "application/json" },
+           body: JSON.stringify({ id, qrUrl: cloudData.secure_url })
+        });
+        console.log("✅ Social preview synced!");
+     }
+  } catch(e) {
+     console.error("❌ Failed to sync social preview:", e);
+  }
 }
 
 async function getBlob() {

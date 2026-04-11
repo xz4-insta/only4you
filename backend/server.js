@@ -180,6 +180,28 @@ app.post("/add-reaction", async (req, res) => {
 });
 
 // --------------------------------------------------------
+// ENDPOINT: Save Themed QR Image for Social Previews
+// --------------------------------------------------------
+app.post("/save-qr-image", async (req, res) => {
+  try {
+    const { id, qrUrl } = req.body;
+    if (!id || !qrUrl) {
+      return res.status(400).json({ error: "Missing fields" });
+    }
+
+    const ref = db.collection("surprises").doc(id);
+    await ref.update({
+      qrImage: qrUrl
+    });
+
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error("QR image save failed:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// --------------------------------------------------------
 // ENDPOINT: Dynamic Open Graph Redirect for Social Sharing
 // --------------------------------------------------------
 app.get("/s/:id", async (req, res) => {
@@ -193,8 +215,9 @@ app.get("/s/:id", async (req, res) => {
     }
 
     const data = doc.data();
-    // Default romantic fallback image
-    const photo = (data.images && data.images.length > 0) ? data.images[0] : "https://images.unsplash.com/photo-1518192161663-5a0235e1c4df?q=80&w=1000&auto=format&fit=crop";
+    // Prioritize themed QR image for sharing, then fallback to memory photos, then default romantic photo
+    const photo = data.qrImage || ((data.images && data.images.length > 0) ? data.images[0] : "https://images.unsplash.com/photo-1518192161663-5a0235e1c4df?q=80&w=1000&auto=format&fit=crop");
+
 
     const title = `A Special Surprise for ${data.receiver} 🎁`;
     const desc = `Tap to reveal your romantic gift from ${data.sender} ✨`;

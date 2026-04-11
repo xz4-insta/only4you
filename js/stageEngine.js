@@ -909,23 +909,25 @@ to{opacity:1;transform:translateY(0)}
 }
 .quiz-opt {
   padding: 12px 15px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(var(--v-color, 255, 255, 255), 0.2);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  color: white;
+  background: rgba(var(--v-color, 255, 255, 255), 0.05);
+  color: var(--glow-primary, white);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   font-size: 0.95rem;
   text-align: center;
 }
 .quiz-opt:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(var(--v-color, 255, 255, 255), 0.15);
   transform: translateY(-2px);
 }
 .quiz-opt.selected {
   background: var(--glow-primary, #ff4d6d);
-  border-color: var(--glow-secondary, #ff8fab);
-  box-shadow: 0 0 15px rgba(var(--v-color, 255, 77, 109), 0.4);
+  color: white !important;
+  border: 2px solid #fff;
+  box-shadow: 0 10px 25px rgba(var(--v-color, 255, 77, 109), 0.6);
+  transform: translateY(-5px) scale(1.05);
 }
 .stage-continue-btn {
   background: linear-gradient(90deg, var(--glow-primary, #ff4d6d), var(--glow-secondary, #ff8fab)) !important;
