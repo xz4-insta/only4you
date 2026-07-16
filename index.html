@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Only4You 💖 | Create Personalized Love Surprise Pages</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💖</text></svg>">
 <meta name="description" content="Create beautiful surprise love pages with photos, music, QR sharing & special moments. Only4You makes your memories unforgettable.">
 <meta name="keywords" content="love website, surprise page, romantic website, QR love page, couple website, Only4You">
 <meta name="author" content="Only4You">
@@ -499,6 +500,33 @@ body{
 .performance-optimized .carousel-item {
   box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
 }
+
+/* ================= FOOTER ================= */
+.site-footer {
+  background: rgba(255, 246, 236, 0.95);
+  padding: 40px 20px 30px;
+  border-top: 1px solid rgba(231, 84, 128, 0.1);
+  margin-top: 60px;
+  font-size: 0.9rem;
+}
+.site-footer-links {
+  margin-bottom: 20px;
+}
+.site-footer a {
+  color: #ff4d6d;
+  text-decoration: none;
+  margin: 0 15px;
+  font-weight: 600;
+  transition: 0.3s;
+}
+.site-footer a:hover {
+  color: #ff8fab;
+}
+.site-footer p {
+  color: #7a4b5f;
+  margin-top: 15px;
+  opacity: 0.8;
+}
 </style>
 </head>
 
@@ -506,7 +534,12 @@ body{
 
 <div class="navbar">
   <div class="logo">
-    <img src="assets/logo.png" alt="Only4You" style="vertical-align: middle;" >
+    <span style="font-size: 1.5rem; font-weight: 800; color: #E75480; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 8px;">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" style="color: #ff4d6d; filter: drop-shadow(0 2px 5px rgba(255, 77, 109, 0.4));">
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+      </svg>
+      Only4You<span style="color: #FFD700; font-size: 0.8rem; vertical-align: super;">®</span>
+    </span>
   </div>
 
   <div class="nav-links">
@@ -531,8 +564,8 @@ body{
 </div>
 
 <div class="hero">
-  <h1>Create Magical Love Surprises 💖</h1>
-  <p>Design. Personalize. Surprise. Make their heart melt.</p>
+  <h1>Create a surprise they'll never forget ❤️</h1>
+  <p style="max-width: 650px; margin: 15px auto 25px; line-height: 1.6; font-size: 1.25rem;">Personalized digital memories, love letters, photos, music, and interactive surprises—all in one beautiful experience.</p>
   <button onclick="goEpic()">Start Your Epic Love Story 💍</button>
 </div>
 
@@ -921,7 +954,16 @@ if(checkLock) {
     if(data.active && data.expiry > Date.now()) showAdminBar();
   } catch(e){}
 }
-</script>
+<!-- site-footer -->
+<footer class="site-footer">
+  <div class="site-footer-links">
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="terms.html">Terms & Conditions</a>
+    <a href="refund.html">Refund Policy</a>
+    <a href="contact.html">Contact Us</a>
+  </div>
+  <p>© 2026 Only4You. All rights reserved. Designed with ❤️ in Jaipur, Rajasthan.</p>
+</footer>
 
 <script type="module">
   import { initCarousel, rotateTo, prevTemplate, nextTemplate, goToCreateTemplate } from "./js/main.js";
