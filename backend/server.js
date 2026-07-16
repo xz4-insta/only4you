@@ -28,7 +28,7 @@ const db = admin.firestore();
 // --------------------------------------------------------
 app.post("/create-order", async (req, res) => {
   try {
-    const { plan } = req.body;
+    const { plan, customAmount } = req.body;
     const amountMap = {
       "48": 4800,
       "89": 8900,
@@ -37,7 +37,10 @@ app.post("/create-order", async (req, res) => {
       "1500": 150000
     };
 
-    const amount = amountMap[plan] || 4800;
+    let amount = amountMap[plan] || 4800;
+    if (customAmount) {
+      amount = Math.round(Number(customAmount) * 100);
+    }
 
     const order = await razorpay.orders.create({
       amount: amount,

@@ -95,11 +95,11 @@ if(plan === "48"){
      169 – DEPTH + PREMIUM FEEL
   =================================================== */
 
- if(plan==="169" || plan==="299" || plan==="1500"){
+ if(plan==="169" || plan==="299" || plan==="1500" || Number(plan) >= 299){
   // BGM handling moved to stageEngine.js to prevent duplication and enable ducking.
 }
 
-if(plan === "299" || plan === "1500"){
+if(plan === "299" || plan === "1500" || Number(plan) >= 299){
 
   const card = document.querySelector(".card");
 
@@ -198,7 +198,7 @@ function spawnLuxuryParticle(data){
   }, duration * 1000);
 }
 
-if(plan === "299" || plan === "1500"){
+if(plan === "299" || plan === "1500" || Number(plan) >= 299){
 
 setInterval(() => {
    spawnLuxuryParticle(data);

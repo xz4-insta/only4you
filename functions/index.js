@@ -15,7 +15,7 @@ const razorpay = new Razorpay({
 exports.createOrder = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
     try {
-      const {plan} = req.body;
+      const {plan, customAmount} = req.body;
       const amountMap = {
         "48": 4800,
         "89": 8900,
@@ -24,7 +24,10 @@ exports.createOrder = functions.https.onRequest((req, res) => {
         "1500": 150000,
       };
 
-      const amount = amountMap[plan] || 4800;
+      let amount = amountMap[plan] || 4800;
+      if (customAmount) {
+        amount = Math.round(Number(customAmount) * 100);
+      }
 
       const order = await razorpay.orders.create({
         amount: amount,

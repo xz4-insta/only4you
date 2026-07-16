@@ -406,7 +406,7 @@ onAuthStateChanged(auth, (user) => {
       if (!masterPayBtn) {
         masterPayBtn = document.createElement("button");
         masterPayBtn.id = "masterPayBtn";
-        masterPayBtn.innerText = "Pay ₹1500 💕";
+        masterPayBtn.innerText = "Pay Custom Amount 💕";
         masterPayBtn.style.cssText = "padding:14px 35px; border:none; border-radius:30px; background:linear-gradient(45deg, #6A0DAD, #9575CD); color:white; cursor:pointer; margin-top:15px; font-size:16px; transition:0.3s; display:block; margin-left:auto; margin-right:auto;";
         masterPayBtn.onmouseover = () => masterPayBtn.style.transform = "scale(1.1)";
         masterPayBtn.onmouseout = () => masterPayBtn.style.transform = "scale(1)";
@@ -416,6 +416,14 @@ onAuthStateChanged(auth, (user) => {
       }
 
       masterPayBtn.onclick = async function() {
+        const amountStr = prompt("Enter custom payment amount (in INR):", "1500");
+        if (!amountStr) return;
+        const customAmount = parseFloat(amountStr);
+        if (isNaN(customAmount) || customAmount <= 0) {
+          alert("Please enter a valid amount!");
+          return;
+        }
+
         const overlay = document.getElementById("overlay");
         const originalText = masterPayBtn.innerText;
         
@@ -427,7 +435,7 @@ onAuthStateChanged(auth, (user) => {
           const orderResponse = await fetchWithTimeout("https://only4you-backend.onrender.com/create-order", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ plan: "1500" })
+            body: JSON.stringify({ plan: String(customAmount), customAmount: customAmount })
           });
           const orderData = await orderResponse.json();
 
@@ -436,7 +444,7 @@ onAuthStateChanged(auth, (user) => {
             amount: orderData.amount,
             currency: "INR",
             name: "Only4You 💕",
-            description: "Master Surprise - ₹1500 Plan",
+            description: "Custom Surprise - ₹" + customAmount + " Plan",
             order_id: orderData.id,
             handler: async function (response) {
               overlay.style.display = "flex";
@@ -446,14 +454,14 @@ onAuthStateChanged(auth, (user) => {
               // 2. Verify Payment & Create Surprise on Server
               try {
                 const surpriseData = JSON.parse(localStorage.getItem("surpriseData"));
-                surpriseData.plan = "1500";
+                surpriseData.plan = String(customAmount);
                 
                 const verifyResponse = await fetchWithTimeout("https://only4you-backend.onrender.com/verify-and-create", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({
                      ...surpriseData,
-                     plan: "1500",
+                     plan: String(customAmount),
                      razorpay_payment_id: response.razorpay_payment_id,
                      razorpay_order_id: response.razorpay_order_id,
                      razorpay_signature: response.razorpay_signature,
