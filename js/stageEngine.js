@@ -424,7 +424,8 @@ const stageFlow = {
 "48":[1,6],
 "89":[1,2,3,6],
 "169":[1,2,3,4,6],
-"299":[1,2,3,4,5,6]
+"299":[1,2,3,4,5,6],
+"1500":[1,2,3,4,5,6]
 }
 
 window.allowedStages = stageFlow[plan] || [1,6];
@@ -515,7 +516,7 @@ export function initEpicInteractions(data){
     if (idx !== -1 && idx !== undefined) window.allowedStages.splice(idx, 0, "scratch");
   }
 
-  if (data.plan === "169" || data.plan === "299") {
+  if (data.plan === "169" || data.plan === "299" || data.plan === "1500") {
     const idx = window.allowedStages?.indexOf(6);
     if (idx !== -1 && idx !== undefined) window.allowedStages.splice(idx, 0, "catchgame");
   }
@@ -582,7 +583,7 @@ function initBGM(data) {
   // If user provided a song, use it. 
   // If not, and the plan is premium, use the default "romantic.mp3"
   let bgSource = data.bgMusic;
-  if (!bgSource && (data.plan === "169" || data.plan === "299")) {
+  if (!bgSource && (data.plan === "169" || data.plan === "299" || data.plan === "1500")) {
       bgSource = "music/romantic.mp3";
   }
 
@@ -1847,7 +1848,7 @@ MINI-GAME: CATCH THE THEME (Stage 5.8 dynamic)
 
 
 function initCatchGame(data) {
-  if (data.plan !== "169" && data.plan !== "299") return;
+  if (data.plan !== "169" && data.plan !== "299" && data.plan !== "1500") return;
 
   const stage = document.createElement("div");
   stage.className = "stage";

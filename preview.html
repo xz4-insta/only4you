@@ -400,6 +400,104 @@ onAuthStateChanged(auth, (user) => {
           overlay.style.display = "none";
         }
       };
+
+      // 1500 button in option with free (only shown in master mode)
+      let masterPayBtn = document.getElementById("masterPayBtn");
+      if (!masterPayBtn) {
+        masterPayBtn = document.createElement("button");
+        masterPayBtn.id = "masterPayBtn";
+        masterPayBtn.innerText = "Pay ₹1500 💕";
+        masterPayBtn.style.cssText = "padding:14px 35px; border:none; border-radius:30px; background:linear-gradient(45deg, #6A0DAD, #9575CD); color:white; cursor:pointer; margin-top:15px; font-size:16px; transition:0.3s; display:block; margin-left:auto; margin-right:auto;";
+        masterPayBtn.onmouseover = () => masterPayBtn.style.transform = "scale(1.1)";
+        masterPayBtn.onmouseout = () => masterPayBtn.style.transform = "scale(1)";
+        
+        // Append it right after payBtn
+        payBtn.parentNode.insertBefore(masterPayBtn, payBtn.nextSibling);
+      }
+
+      masterPayBtn.onclick = async function() {
+        const overlay = document.getElementById("overlay");
+        const originalText = masterPayBtn.innerText;
+        
+        masterPayBtn.disabled = true;
+        masterPayBtn.innerText = "Processing... ⏳";
+
+        try {
+          // 1. Create Order on Server
+          const orderResponse = await fetchWithTimeout("https://only4you-backend.onrender.com/create-order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ plan: "1500" })
+          });
+          const orderData = await orderResponse.json();
+
+          var options = {
+            key: "rzp_live_SWd5OBd7ekZ0DB",
+            amount: orderData.amount,
+            currency: "INR",
+            name: "Only4You 💕",
+            description: "Master Surprise - ₹1500 Plan",
+            order_id: orderData.id,
+            handler: async function (response) {
+              overlay.style.display = "flex";
+              const statusText = overlay.querySelector("p");
+              if(statusText) statusText.innerText = "Verifying payment... ⌛";
+              
+              // 2. Verify Payment & Create Surprise on Server
+              try {
+                const surpriseData = JSON.parse(localStorage.getItem("surpriseData"));
+                surpriseData.plan = "1500";
+                
+                const verifyResponse = await fetchWithTimeout("https://only4you-backend.onrender.com/verify-and-create", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                     ...surpriseData,
+                     plan: "1500",
+                     razorpay_payment_id: response.razorpay_payment_id,
+                     razorpay_order_id: response.razorpay_order_id,
+                     razorpay_signature: response.razorpay_signature,
+                     uid: auth.currentUser?.uid
+                  })
+                });
+
+                const result = await verifyResponse.json();
+                if (result.success) {
+                  localStorage.removeItem("only4you_story");
+                  window.location.href = "share.html?id=" + result.id;
+                } else {
+                  alert("Payment Verification Failed! ❌ Please contact support.");
+                  overlay.style.display = "none";
+                  masterPayBtn.disabled = false;
+                  masterPayBtn.innerText = originalText;
+                }
+              } catch (e) {
+                console.error(e);
+                alert("Verification Error. Please check your internet or try refreshing. ❌");
+                overlay.style.display = "none";
+                masterPayBtn.disabled = false;
+                masterPayBtn.innerText = originalText;
+              }
+            },
+            theme: { color: "#6A0DAD" }
+          };
+
+          var rzp = new Razorpay(options);
+          rzp.open();
+          
+          rzp.on('payment.failed', function (response){
+              alert("Payment Failed! ❌ " + response.error.description);
+              masterPayBtn.disabled = false;
+              masterPayBtn.innerText = originalText;
+          });
+
+        } catch (e) {
+          console.error(e);
+          alert("Order creation failed. Please try again! ❌");
+          masterPayBtn.disabled = false;
+          masterPayBtn.innerText = originalText;
+        }
+      };
     }
   }
 });

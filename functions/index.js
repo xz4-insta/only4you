@@ -21,6 +21,7 @@ exports.createOrder = functions.https.onRequest((req, res) => {
         "89": 8900,
         "169": 16900,
         "299": 29900,
+        "1500": 150000,
       };
 
       const amount = amountMap[plan] || 4800;
@@ -87,7 +88,7 @@ exports.createSurprise = functions.https.onRequest((req, res) => {
         expiryTime = Date.now() + 24 * 60 * 60 * 1000;
       } else if (plan === "169") {
         expiryTime = Date.now() + 3 * 24 * 60 * 60 * 1000;
-      } else if (plan === "299") {
+      } else if (plan === "299" || plan === "1500") {
         expiryTime = Date.now() + 3650 * 24 * 60 * 60 * 1000; // Forever (10 years)
       }
 

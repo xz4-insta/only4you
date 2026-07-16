@@ -179,7 +179,7 @@ function checkReady(){
   if(isOnePhotoTemplate) {
     // 1 image exactly
     createBtn.disabled = uploadedImages.length !== 1;
-  } else if(selectedPlan === "299" || template === "epic") {
+  } else if(selectedPlan === "299" || selectedPlan === "1500" || template === "epic") {
     // 3-9 images
     createBtn.disabled = uploadedImages.length < 3;
   } else {
