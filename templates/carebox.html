@@ -336,16 +336,16 @@ body.cozy-mode-active .cozy-glow {
   box-shadow: inset 1px 1px 2px rgba(255,255,255,0.6);
 }
 .teddy-container .teddy-pupil {
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
 }
 .pupil-left {
-  top: 38%;
-  left: 36%;
+  top: 48.5%;
+  left: 33.5%;
 }
 .pupil-right {
-  top: 38%;
-  right: 36%;
+  top: 48.5%;
+  right: 33.5%;
 }
 
 /* ================= VIRTUAL COMFORT WORLD DASHBOARD ================= */
@@ -384,31 +384,30 @@ body.cozy-mode-active .world-badge {
 /* Navigation Stations Bar */
 .stations-bar {
   display: flex;
-  overflow-x: auto;
-  gap: 10px;
-  padding: 8px 5px;
-  scrollbar-width: none;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 6px;
+  padding: 6px 0;
   width: 100%;
   box-sizing: border-box;
 }
-.stations-bar::-webkit-scrollbar { display: none; }
 
 .station-tab {
   background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(10px);
   border: 2px solid rgba(216, 167, 177, 0.3);
-  padding: 10px 16px;
-  border-radius: 22px;
+  padding: 7px 13px;
+  border-radius: 20px;
   font-family: 'Fredoka', cursive;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   color: #5C3D2E;
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
+  justify-content: center;
+  gap: 4px;
 }
 body.cozy-mode-active .station-tab {
   background: rgba(45, 34, 53, 0.75);
