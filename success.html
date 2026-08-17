@@ -314,7 +314,9 @@ const finalHTML=templateHTML
 
 document.body.innerHTML="";
 
-wrapper.innerHTML=finalHTML;
+const wrapper = document.createElement("div");
+wrapper.className = "main-wrapper";
+wrapper.innerHTML = finalHTML;
 document.body.appendChild(wrapper);
 
 // Execute script elements in injected template (innerHTML disables script tags by default)
