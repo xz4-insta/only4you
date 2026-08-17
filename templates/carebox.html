@@ -872,9 +872,11 @@ function safeConfetti(opts) {
   }
 }
 
+let hasUnboxed = false;
 function startUnboxing() {
+  if (hasUnboxed) return;
+  hasUnboxed = true;
   const box = document.getElementById("giftBox");
-  if (box && box.classList.contains("box-opened")) return;
   if (box) box.classList.add("box-opened");
   
   setTimeout(() => {
@@ -1074,31 +1076,42 @@ window.closeDeployOverlay = closeDeployOverlay;
 window.redeemCoupon = redeemCoupon;
 window.sendMoodStatus = sendMoodStatus;
 
-// Interactive Gyro & Pointer Eye Tracking
+// Interactive Gyro & Pointer Eye Tracking (Throttled with requestAnimationFrame)
 function initTeddyEyeTracking() {
   let tiltX = 0;
   let tiltY = 0;
+  let animFrameId = null;
 
-  function applyEyeTilt(x, y) {
-    const wrappers = document.querySelectorAll(".teddy-eyes-wrapper");
-    wrappers.forEach(w => {
-      w.style.transform = `rotateX(${-y * 0.4}deg) rotateY(${x * 0.4}deg)`;
-    });
+  function scheduleApplyEyeTilt() {
+    if (animFrameId) return;
+    animFrameId = requestAnimationFrame(() => {
+      animFrameId = null;
+      const wrappers = document.querySelectorAll(".teddy-eyes-wrapper");
+      wrappers.forEach(w => {
+        w.style.transform = `rotateX(${-tiltY * 0.4}deg) rotateY(${tiltX * 0.4}deg)`;
+      });
 
-    const pupils = document.querySelectorAll(".teddy-pupil");
-    pupils.forEach(p => {
-      p.style.transform = `translate(${x * 0.45}px, ${y * 0.45}px)`;
+      const pupils = document.querySelectorAll(".teddy-pupil");
+      pupils.forEach(p => {
+        p.style.transform = `translate(${tiltX * 0.45}px, ${tiltY * 0.45}px)`;
+      });
     });
   }
 
-  // Mobile Device Orientation (Gyroscope)
-  window.addEventListener("deviceorientation", (e) => {
-    if (e.gamma !== null && e.beta !== null) {
-      tiltX = Math.max(-12, Math.min(12, e.gamma * 0.4));
-      tiltY = Math.max(-12, Math.min(12, (e.beta - 45) * 0.4));
-      applyEyeTilt(tiltX, tiltY);
+  // Mobile Device Orientation with graceful fallback
+  if (window.DeviceOrientationEvent) {
+    try {
+      window.addEventListener("deviceorientation", (e) => {
+        if (e.gamma !== null && e.beta !== null) {
+          tiltX = Math.max(-12, Math.min(12, e.gamma * 0.4));
+          tiltY = Math.max(-12, Math.min(12, (e.beta - 45) * 0.4));
+          scheduleApplyEyeTilt();
+        }
+      }, true);
+    } catch(err) {
+      console.warn("DeviceOrientation sensor unavailable:", err);
     }
-  }, true);
+  }
 
   // Desktop Pointer / Touch position tracking
   window.addEventListener("pointermove", (e) => {
@@ -1106,8 +1119,8 @@ function initTeddyEyeTracking() {
     const cy = window.innerHeight / 2;
     tiltX = Math.max(-10, Math.min(10, (e.clientX - cx) / 25));
     tiltY = Math.max(-10, Math.min(10, (e.clientY - cy) / 25));
-    applyEyeTilt(tiltX, tiltY);
-  });
+    scheduleApplyEyeTilt();
+  }, { passive: true });
 }
 
 // Init Eye Tracking & Click Delegation
