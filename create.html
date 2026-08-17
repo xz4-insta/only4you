@@ -843,7 +843,32 @@ function createRain() {
     setTimeout(() => el.remove(), duration * 1000);
   }, 400);
 }
-document.addEventListener('DOMContentLoaded', createRain);
+
+document.addEventListener('DOMContentLoaded', () => {
+  createRain();
+
+  // Auto-select template & plan from URL parameters (e.g. create.html?template=carebox&plan=169)
+  const params = new URLSearchParams(window.location.search);
+  const templateParam = params.get("template") || params.get("t");
+  const planParam = params.get("plan");
+
+  if (templateParam) {
+    const select = document.getElementById("template");
+    if (select) {
+      for (let opt of select.options) {
+        if (opt.value.toLowerCase() === templateParam.toLowerCase()) {
+          select.value = opt.value;
+          select.dispatchEvent(new Event("change"));
+          break;
+        }
+      }
+    }
+  }
+
+  if (planParam) {
+    if (window.autoUpgrade) window.autoUpgrade(planParam);
+  }
+});
 </script>
 
 <!-- site-footer -->
