@@ -776,8 +776,6 @@ body.cozy-mode-active .snack-modal {
       <div class="teddy-container" id="teddyBtn" onclick="giveHug()">
         <div class="teddy-eyes-wrapper" id="hugTeddyWrapper">
           🧸
-          <div class="teddy-pupil pupil-left"></div>
-          <div class="teddy-pupil pupil-right"></div>
         </div>
       </div>
 
@@ -1427,7 +1425,7 @@ function initTeddyEyeTracking() {
   }, { passive: true });
 }
 
-// 10 Random Heartwarming Secret Comfort Notes
+// 10 Random Heartwarming Secret Comfort Notes (Non-Repeating Shuffled Pool)
 const secretNotesList = [
   '✨ Secret Note: "You make every single day warmer, brighter, and so much sweeter!" ✨',
   '💖 Secret Note: "Reminder: You are deeply loved, appreciated, and doing amazingly well."',
@@ -1441,11 +1439,19 @@ const secretNotesList = [
   '💞 Secret Note: "You are my favorite human, today and every single day after."'
 ];
 
+let secretNotePool = [];
+
+function getRandomSecretNote() {
+  if (!secretNotePool || secretNotePool.length === 0) {
+    secretNotePool = [...secretNotesList].sort(() => Math.random() - 0.5);
+  }
+  return secretNotePool.pop();
+}
+
 function initRandomSecretNote() {
   const noteEl = document.getElementById("secretComfortNoteText");
   if (noteEl) {
-    const randomNote = secretNotesList[Math.floor(Math.random() * secretNotesList.length)];
-    noteEl.innerHTML = randomNote;
+    noteEl.innerHTML = getRandomSecretNote();
   }
 }
 initRandomSecretNote();
