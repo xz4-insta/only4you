@@ -891,8 +891,11 @@ body.cozy-mode-active .snack-modal {
       <h2>Secret Reveal Card 🎫</h2>
       <p style="opacity:0.85; font-size:0.95rem; margin-bottom: 15px;">Use your finger or cursor to scratch and reveal your secret message!</p>
 
-      <div style="background: rgba(255, 255, 255, 0.6); padding: 20px; border-radius: 20px; font-size: 1.1rem; font-weight: 700; color: #5C3D2E; border: 2px dashed #D8A7B1; position: relative; overflow: hidden; margin-bottom: 15px;" id="secretComfortNoteText">
-        ✨ Secret Note: "You make every single day warmer & brighter!" ✨
+      <div style="position: relative; width: 100%; max-width: 320px; height: 160px; margin: 0 auto 15px; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.15); border: 2px dashed #D8A7B1;">
+        <div style="position: absolute; top:0; left:0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.95); color: #5C3D2E; display: flex; align-items: center; justify-content: center; font-size: 1.02rem; font-weight: 700; padding: 18px; text-align: center; box-sizing: border-box; line-height: 1.5;" id="secretComfortNoteText">
+          ✨ Secret Note: "You make every single day warmer & brighter!" ✨
+        </div>
+        <canvas id="careScratchCanvas" width="320" height="160" style="position: absolute; top:0; left:0; width: 100%; height: 100%; cursor: crosshair; touch-action: none; z-index: 2; transition: opacity 0.6s ease;"></canvas>
       </div>
 
       <button class="btn-comfort" onclick="switchStation(5)">
@@ -1059,6 +1062,77 @@ function switchStation(index) {
 
   tabs.forEach((t, i) => t.classList.toggle("active", i === index));
   contents.forEach((c, i) => c.classList.toggle("active", i === index));
+
+  if (index === 4) {
+    setTimeout(initCareScratchCanvas, 100);
+  }
+}
+
+function initCareScratchCanvas() {
+  const canvas = document.getElementById("careScratchCanvas");
+  if (!canvas || canvas.dataset.inited) return;
+  canvas.dataset.inited = "true";
+
+  const ctx = canvas.getContext("2d");
+  
+  // Fill scratch foil with elegant dusty rose metallic gradient
+  const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+  grad.addColorStop(0, "#D8A7B1");
+  grad.addColorStop(0.5, "#C48B98");
+  grad.addColorStop(1, "#B07584");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Pattern text on foil
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "bold 16px Quicksand, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("✨ SCRATCH TO REVEAL ✨", 160, 75);
+  ctx.font = "12px Quicksand, sans-serif";
+  ctx.fillText("👇 Swipe your finger here 👇", 160, 100);
+
+  let isScratching = false;
+  let scratchCount = 0;
+  let isRevealed = false;
+
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return {
+      x: (clientX - rect.left) / rect.width * canvas.width,
+      y: (clientY - rect.top) / rect.height * canvas.height
+    };
+  }
+
+  function scratch(e) {
+    if (!isScratching) return;
+    if (e.cancelable) e.preventDefault();
+    const pos = getPos(e);
+
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, 22, 0, Math.PI * 2);
+    ctx.fill();
+
+    scratchCount++;
+    if (scratchCount > 25 && !isRevealed) {
+      isRevealed = true;
+      canvas.style.pointerEvents = "none";
+      canvas.style.opacity = "0";
+      safeConfetti({ particleCount: 65, spread: 75, origin: { y: 0.6 } });
+      if (navigator.vibrate) navigator.vibrate(40);
+    }
+  }
+
+  canvas.addEventListener("mousedown", (e) => { isScratching = true; scratch(e); });
+  canvas.addEventListener("mousemove", scratch);
+  canvas.addEventListener("mouseup", () => isScratching = false);
+  canvas.addEventListener("mouseleave", () => isScratching = false);
+
+  canvas.addEventListener("touchstart", (e) => { isScratching = true; scratch(e); }, { passive: false });
+  canvas.addEventListener("touchmove", scratch, { passive: false });
+  canvas.addEventListener("touchend", () => isScratching = false);
 }
 
 function giveHug() {
