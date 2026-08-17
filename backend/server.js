@@ -140,6 +140,31 @@ app.post("/verify-and-create", async (req, res) => {
 });
 
 // --------------------------------------------------------
+// ENDPOINT: Save Recipient Mood Status for Carebox
+// --------------------------------------------------------
+app.post("/api/save-mood", async (req, res) => {
+  try {
+    const { careboxId, mood, timestamp } = req.body;
+    if (!careboxId || !mood) {
+      return res.status(400).json({ error: "Missing fields" });
+    }
+
+    if (careboxId !== "demo") {
+      const docRef = db.collection("surprises").doc(careboxId);
+      await docRef.update({
+        lastMood: mood,
+        lastMoodAt: timestamp || Date.now()
+      });
+    }
+
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error("Save mood failed:", error);
+    res.status(500).json({ success: false, error: "Failed to save mood" });
+  }
+});
+
+// --------------------------------------------------------
 // ENDPOINT: Save Quiz Answer (bypasses Firestore rules)
 // --------------------------------------------------------
 app.post("/save-quiz-answer", async (req, res) => {

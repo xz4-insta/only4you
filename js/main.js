@@ -5,6 +5,7 @@ ONLY4YOU MAIN JS - 3D CAROUSEL & TEMPLATES
 const templates = [
   { id: "valentine", title: "Valentine 🌹", desc: "Red Velvet & Black aesthetic with romantic blooms." },
   { id: "forgiveness", title: "Forgiveness 💛", desc: "Soft yellow and pink tones to melt their heart." },
+  { id: "carebox", title: "Comfort Kit 🧸🍫", desc: "Digital Emergency Care Package for period pampering & cozy hugs.", isPremium: true },
   { id: "epic", title: "Epic Love Story 💍", desc: "The ultimate premium multi-stage cinematic journey." },
   { id: "anniversary", title: "Anniversary 🥂", desc: "Timeless Gold & Cream class for your special day." },
   { id: "birthday", title: "Birthday 🎂", desc: "Playful pastel rainbow to celebrate their big day!" },

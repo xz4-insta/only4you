@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emergency Comfort Kit 🧸🍫 | Only4You</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="../js/optimization.js" type="module"></script>
+
+<style>
+:root {
+  --cream-bg: #FFF8F0;
+  --dusty-rose: #D8A7B1;
+  --deep-cocoa: #5C3D2E;
+  --soft-lavender: #E6E6FA;
+  --warm-beige: #F5E6D3;
+  --accent-gold: #E6C280;
+  --v-color: 216, 167, 177;
+  --glow-primary: #D8A7B1;
+  --glow-secondary: #E6E6FA;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: 'Quicksand', sans-serif;
+  background: linear-gradient(135deg, #FFF8F0 0%, #F5E6D3 50%, #E6E6FA 100%);
+  min-height: 100vh;
+  color: #5C3D2E;
+  overflow-x: hidden;
+  transition: background 1.5s ease, color 1.5s ease;
+}
+
+/* Ambient Cozy Room Theme Mode */
+body.cozy-mode-active {
+  background: linear-gradient(135deg, #1A1520 0%, #2A1F33 50%, #120D17 100%) !important;
+  color: #F5E6D3 !important;
+}
+
+/* Rain Canvas Overlay for Cozy Mode */
+#rainCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+body.cozy-mode-active #rainCanvas {
+  opacity: 0.7;
+}
+
+/* Cozy Lamp Warm Radial Glow */
+.cozy-glow {
+  position: fixed;
+  top: -80px;
+  right: -80px;
+  width: 450px;
+  height: 450px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 214, 150, 0.4) 0%, rgba(255, 180, 100, 0.12) 60%, transparent 100%);
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+body.cozy-mode-active .cozy-glow {
+  opacity: 1;
+}
+
+/* ================= 3D UNBOXING ENTRANCE ================= */
+.unboxing-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #FFF8F0 0%, #F5E6D3 100%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+  transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.unboxing-overlay.dismissed {
+  opacity: 0;
+  transform: scale(1.1);
+  pointer-events: none;
+}
+
+.box-wrapper {
+  position: relative;
+  width: 240px;
+  height: 240px;
+  margin: 30px auto;
+  cursor: pointer;
+  perspective: 1000px;
+}
+.gift-box {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.box-body {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #F5E6D3, #E6E6FA);
+  border: 4px solid #D8A7B1;
+  border-radius: 28px;
+  box-shadow: 0 20px 45px rgba(92, 61, 46, 0.18);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 5rem;
+  position: relative;
+  overflow: hidden;
+}
+.box-lid {
+  position: absolute;
+  top: -12px;
+  left: -5%;
+  width: 110%;
+  height: 55px;
+  background: #D8A7B1;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  transition: transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.8s ease;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.box-ribbon {
+  width: 35px;
+  height: 100%;
+  background: #E6C280;
+  border-radius: 4px;
+}
+.box-wrapper:hover .gift-box {
+  transform: translateY(-8px) rotateX(10deg);
+}
+.box-opened .box-lid {
+  transform: translateY(-140px) rotate(-30deg);
+  opacity: 0;
+}
+.box-opened .gift-box {
+  transform: scale(1.1);
+}
+
+/* ================= VIRTUAL COMFORT WORLD DASHBOARD ================= */
+.world-container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px 15px 80px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.world-header {
+  text-align: center;
+  margin-top: 10px;
+}
+.world-badge {
+  background: rgba(216, 167, 177, 0.25);
+  color: #5C3D2E;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  display: inline-block;
+  letter-spacing: 1px;
+}
+body.cozy-mode-active .world-badge {
+  background: rgba(230, 194, 128, 0.25);
+  color: #E6C280;
+}
+
+/* Navigation Stations Bar */
+.stations-bar {
+  display: flex;
+  overflow-x: auto;
+  gap: 10px;
+  padding: 8px 5px;
+  scrollbar-width: none;
+}
+.stations-bar::-webkit-scrollbar { display: none; }
+
+.station-tab {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(216, 167, 177, 0.3);
+  padding: 10px 16px;
+  border-radius: 22px;
+  font-family: 'Fredoka', cursive;
+  font-size: 0.95rem;
+  color: #5C3D2E;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+body.cozy-mode-active .station-tab {
+  background: rgba(45, 34, 53, 0.75);
+  border-color: rgba(230, 194, 128, 0.25);
+  color: #F5E6D3;
+}
+.station-tab.active {
+  background: #D8A7B1;
+  color: white;
+  border-color: #D8A7B1;
+  box-shadow: 0 8px 20px rgba(216, 167, 177, 0.4);
+  transform: translateY(-2px);
+}
+body.cozy-mode-active .station-tab.active {
+  background: #E6C280;
+  color: #1A1520;
+  border-color: #E6C280;
+  box-shadow: 0 8px 20px rgba(230, 194, 128, 0.3);
+}
+
+/* Comfort Cards & Stations */
+.station-content {
+  display: none;
+}
+.station-content.active {
+  display: block;
+  animation: stationFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes stationFade {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.comfort-card {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 2px solid rgba(216, 167, 177, 0.4);
+  border-radius: 30px;
+  padding: 30px 22px;
+  box-shadow: 0 20px 40px rgba(92, 61, 46, 0.08);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+body.cozy-mode-active .comfort-card {
+  background: rgba(35, 28, 45, 0.88);
+  border-color: rgba(230, 194, 128, 0.3);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  color: #FFF8F0;
+}
+
+.btn-comfort {
+  background: linear-gradient(135deg, #D8A7B1, #C48B98);
+  color: white;
+  border: none;
+  padding: 14px 26px;
+  border-radius: 25px;
+  font-family: 'Fredoka', cursive;
+  font-size: 1.05rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(216, 167, 177, 0.4);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 15px;
+}
+.btn-comfort:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 12px 25px rgba(216, 167, 177, 0.6);
+}
+.btn-comfort:active { transform: scale(0.96); }
+
+/* Teddy Station */
+.teddy-container {
+  width: 170px;
+  height: 170px;
+  margin: 15px auto;
+  font-size: 7.5rem;
+  line-height: 170px;
+  cursor: pointer;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: breathing 3s ease-in-out infinite alternate;
+}
+@keyframes breathing {
+  from { transform: scale(1); }
+  to { transform: scale(1.06); }
+}
+.teddy-squish {
+  animation: squish 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+@keyframes squish {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.3) rotate(-8deg); }
+  70% { transform: scale(0.9) rotate(5deg); }
+  100% { transform: scale(1); }
+}
+
+/* Snack Station Grid */
+.snack-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+}
+.snack-item {
+  background: rgba(255, 255, 255, 0.75);
+  border: 2px solid rgba(216, 167, 177, 0.3);
+  border-radius: 20px;
+  padding: 14px 8px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+body.cozy-mode-active .snack-item {
+  background: rgba(45, 34, 53, 0.75);
+  border-color: rgba(230, 194, 128, 0.2);
+}
+.snack-item:hover {
+  transform: translateY(-5px) scale(1.05);
+  border-color: #D8A7B1;
+  box-shadow: 0 10px 20px rgba(216, 167, 177, 0.3);
+}
+
+/* Steam Animation */
+.steam-container { position: relative; display: inline-block; }
+.steam {
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  width: 8px;
+  height: 25px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 10px;
+  filter: blur(4px);
+  animation: steamRise 2.5s infinite ease-out;
+}
+.steam:nth-child(2) { left: 35%; animation-delay: 0.8s; }
+.steam:nth-child(3) { left: 65%; animation-delay: 1.5s; }
+@keyframes steamRise {
+  0% { transform: translateY(0) scaleX(1); opacity: 0; }
+  50% { opacity: 0.7; }
+  100% { transform: translateY(-30px) scaleX(2.5); opacity: 0; }
+}
+
+/* Emergency Level Station */
+.level-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px 0;
+}
+.level-btn {
+  background: rgba(255, 255, 255, 0.85);
+  border: 2px solid rgba(216, 167, 177, 0.3);
+  padding: 14px 18px;
+  border-radius: 20px;
+  text-align: left;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #5C3D2E;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+body.cozy-mode-active .level-btn {
+  background: rgba(45, 34, 53, 0.85);
+  border-color: rgba(230, 194, 128, 0.2);
+  color: #FFF8F0;
+}
+.level-btn:hover {
+  border-color: #D8A7B1;
+  background: #FFF0F3;
+}
+
+/* Signature Everything Deployment Sequence Modal */
+.deployment-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(26, 21, 32, 0.95);
+  backdrop-filter: blur(20px);
+  z-index: 10000;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #FFF8F0;
+  padding: 30px;
+  text-align: center;
+}
+.deployment-overlay.active {
+  display: flex;
+  animation: deployFade 0.5s ease forwards;
+}
+@keyframes deployFade {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.deploy-step {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 10px 0;
+  opacity: 0;
+  transform: translateY(15px);
+  transition: all 0.5s ease;
+}
+.deploy-step.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Coupon & Mood Station */
+.coupon-card {
+  background: linear-gradient(135deg, #FFF6EC, #F5E6D3);
+  border: 3px dashed #D8A7B1;
+  border-radius: 25px;
+  padding: 25px 20px;
+  margin: 15px 0;
+  position: relative;
+  box-shadow: 0 10px 25px rgba(92, 61, 46, 0.08);
+}
+body.cozy-mode-active .coupon-card {
+  background: linear-gradient(135deg, #2D2235, #1F1726);
+  border-color: #E6C280;
+}
+.coupon-title {
+  font-family: 'Fredoka', cursive;
+  color: #C48B98;
+  font-size: 1.4rem;
+  letter-spacing: 1px;
+}
+body.cozy-mode-active .coupon-title { color: #E6C280; }
+.coupon-perks {
+  text-align: left;
+  margin: 15px 0;
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+
+.mood-selector {
+  margin-top: 25px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(216, 167, 177, 0.2);
+}
+.mood-buttons {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 12px;
+}
+.mood-chip {
+  font-size: 1.8rem;
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  padding: 6px;
+}
+.mood-chip:hover { transform: scale(1.35); }
+
+/* Snack Popup Modal */
+.snack-modal {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  background: white;
+  padding: 25px;
+  border-radius: 25px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  z-index: 1000;
+  display: none;
+  opacity: 0;
+  width: 85%;
+  max-width: 320px;
+  text-align: center;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+body.cozy-mode-active .snack-modal {
+  background: #231C2D;
+  color: #FFF8F0;
+}
+.snack-modal.active {
+  display: block;
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+}
+</style>
+</head>
+
+<body>
+
+<!-- Rain Canvas for Cozy Mode -->
+<canvas id="rainCanvas"></canvas>
+<div class="cozy-glow"></div>
+
+<!-- 1. UNBOXING ENTRANCE OVERLAY -->
+<div class="unboxing-overlay" id="unboxingOverlay">
+  <div style="font-size: 0.9rem; font-weight: 700; color: #D8A7B1; letter-spacing: 1.5px; margin-bottom: 5px;">🚨 COMFORT KIT DELIVERED</div>
+  <h2 style="font-size: 2.2rem; margin-bottom: 8px;">For Someone Special 🎁</h2>
+  <p style="opacity: 0.85; max-width: 320px; font-size: 1rem; line-height: 1.5;">Someone thinks you deserve a little extra care & comfort today.</p>
+
+  <div class="box-wrapper" onclick="startUnboxing()">
+    <div class="gift-box" id="giftBox">
+      <div class="box-lid">
+        <div class="box-ribbon"></div>
+      </div>
+      <div class="box-body">🧸</div>
+    </div>
+  </div>
+
+  <button class="btn-comfort" onclick="startUnboxing()">Open Care Box ✨</button>
+</div>
+
+<!-- VIRTUAL COMFORT WORLD DASHBOARD -->
+<div class="world-container">
+  <div class="world-header">
+    <div class="world-badge" id="careReasonBadge">🌸 EMERGENCY COMFORT KIT</div>
+    <h1 style="font-size: 2rem; margin-top: 6px;" id="recipientTitle">Your Comfort World 🧸</h1>
+  </div>
+
+  <!-- Stations Bar -->
+  <div class="stations-bar">
+    <div class="station-tab active" onclick="switchStation(0)">🧸 Hugs</div>
+    <div class="station-tab" onclick="switchStation(1)">🍫 Snacks</div>
+    <div class="station-tab" onclick="switchStation(2)">☕ Cozy Room</div>
+    <div class="station-tab" onclick="switchStation(3)">🚨 Emergency</div>
+    <div class="station-tab" onclick="switchStation(4)">🌧️ Stay Here</div>
+    <div class="station-tab" onclick="switchStation(5)">🎟️ Coupon & Mood</div>
+  </div>
+
+  <!-- STATION 0: HUG STATION -->
+  <div class="station-content active" id="station0">
+    <div class="comfort-card">
+      <h2>Emergency Hug Station 🧸</h2>
+      <p style="opacity:0.85; font-size:0.95rem; margin-top:4px;">Tap the soft teddy whenever you need warmth & reassurance!</p>
+
+      <div class="teddy-container" id="teddyBtn" onclick="giveHug()">🧸</div>
+
+      <div id="hugQuote" style="font-weight: 700; font-size: 1.1rem; min-height: 48px; color: #C48B98; display: flex; align-items: center; justify-content: center;">
+        "Okay. One emergency hug delivered. 🫂"
+      </div>
+
+      <div style="background: rgba(216, 167, 177, 0.2); padding: 6px 16px; border-radius: 20px; font-size: 0.9rem; font-weight: 700; display: inline-block; margin-top: 10px;" id="hugCounter">
+        Hugs Delivered: 1
+      </div>
+      <br>
+      <button class="btn-comfort" onclick="switchStation(1)">Explore Snack Drawer 🍫➜</button>
+    </div>
+  </div>
+
+  <!-- STATION 1: SNACK STATION -->
+  <div class="station-content" id="station1">
+    <div class="comfort-card">
+      <h2>Snack Drawer 🍫🍪</h2>
+      <p style="opacity:0.85; font-size:0.95rem;">Tap any treat below for your sweet craving message!</p>
+
+      <div class="snack-grid">
+        <div class="snack-item" onclick="openSnack('Dark Chocolate 🍫', 'Sweet dark chocolate for instant happiness! You deserve all the treats today.')">
+          <span style="font-size:2.5rem;">🍫</span>
+          <span style="font-size:0.85rem; font-weight:700;">Chocolate</span>
+        </div>
+        <div class="snack-item" onclick="openSnack('Cookies 🍪', 'Warm freshly baked cookie energy coming your way right now!')">
+          <span style="font-size:2.5rem;">🍪</span>
+          <span style="font-size:0.85rem; font-weight:700;">Cookies</span>
+        </div>
+        <div class="snack-item" onclick="openSnack('Hot Cocoa ☕', 'A steaming cup of rich hot cocoa wrapped in a cozy blanket.')">
+          <span style="font-size:2.5rem;">☕</span>
+          <span style="font-size:0.85rem; font-weight:700;">Hot Cocoa</span>
+        </div>
+        <div class="snack-item" onclick="openSnack('Strawberries 🍓', 'Sweet juicy strawberries dipped in chocolate!')">
+          <span style="font-size:2.5rem;">🍓</span>
+          <span style="font-size:0.85rem; font-weight:700;">Berries</span>
+        </div>
+        <div class="snack-item" onclick="openSnack('Comfort Food 🍜', 'Warm savory noodles & comfort food to make your belly happy.')">
+          <span style="font-size:2.5rem;">🍜</span>
+          <span style="font-size:0.85rem; font-weight:700;">Noodles</span>
+        </div>
+        <div class="snack-item" onclick="openSnack('Boba Tea 🧋', 'Sweet chewy tapioca pearls in milk tea perfection.')">
+          <span style="font-size:2.5rem;">🧋</span>
+          <span style="font-size:0.85rem; font-weight:700;">Boba Tea</span>
+        </div>
+      </div>
+
+      <button class="btn-comfort" onclick="switchStation(2)">Visit Cozy Room ☕➜</button>
+    </div>
+  </div>
+
+  <!-- STATION 2: COZY ROOM -->
+  <div class="station-content" id="station2">
+    <div class="comfort-card">
+      <div style="font-size: 2.5rem; margin-bottom: 5px;">
+        <span class="steam-container">
+          ☕
+          <span class="steam"></span>
+          <span class="steam"></span>
+          <span class="steam"></span>
+        </span>
+      </div>
+      <h2>Cozy Room Ambient Mode 🌧️</h2>
+      <p style="opacity:0.85; font-size:0.95rem; margin-bottom: 15px;">Turn on rain sounds, warm lamp light, and soft relaxing atmosphere.</p>
+
+      <button class="btn-comfort" id="cozyToggleBtn" onclick="toggleCozyMode()" style="background: linear-gradient(135deg, #E6C280, #D8A7B1);">
+        🌧️ Toggle Cozy Room Mode
+      </button>
+
+      <div style="margin-top: 20px; font-size: 0.9rem; opacity: 0.8;" id="cozyStatusText">
+        Tap above to darken the room & hear soft rain...
+      </div>
+
+      <button class="btn-comfort" onclick="switchStation(3)" style="margin-top:25px;">Check Emergency Level 🚨➜</button>
+    </div>
+  </div>
+
+  <!-- STATION 3: EMERGENCY METER -->
+  <div class="station-content" id="station3">
+    <div class="comfort-card">
+      <h2>Emergency Level Meter 🚨</h2>
+      <p style="opacity:0.85; font-size:0.95rem;">Select your current emergency level today:</p>
+
+      <div class="level-list">
+        <div class="level-btn" onclick="triggerLevel('ok')">
+          <span>😌 I'm doing okay</span>
+          <span>➜</span>
+        </div>
+        <div class="level-btn" onclick="triggerLevel('comfort')">
+          <span>😐 Could use some comfort</span>
+          <span>➜</span>
+        </div>
+        <div class="level-btn" onclick="triggerLevel('snacks')">
+          <span>🥲 Please send snacks</span>
+          <span>➜</span>
+        </div>
+        <div class="level-btn" onclick="runEverythingDeployment()" style="border-color: #D8A7B1; background: rgba(216, 167, 177, 0.15);">
+          <span style="font-weight:700; color:#D8A7B1;">😭 I REQUIRE EVERYTHING!</span>
+          <span>💥</span>
+        </div>
+      </div>
+
+      <button class="btn-comfort" onclick="switchStation(4)">Read Personal Note 💌➜</button>
+    </div>
+  </div>
+
+  <!-- STATION 4: STAY HERE (PERSONAL NOTE) -->
+  <div class="station-content" id="station4">
+    <div class="comfort-card">
+      <div style="font-size: 2.5rem; margin-bottom: 8px;">🌧️🕯️</div>
+      <h2>Stay Here For A Minute...</h2>
+      <p style="opacity: 0.8; font-size: 0.85rem; margin-bottom: 15px;">No pressure to reply. Just take a deep breath and rest.</p>
+
+      <div style="background: rgba(255, 255, 255, 0.6); padding: 20px; border-radius: 20px; font-size: 1rem; line-height: 1.7; text-align: left; border: 1px solid rgba(216, 167, 177, 0.3);" id="personalNoteText">
+        "I can't magically make today's discomfort disappear, but I can definitely be here for you. Rest well, hydrate, and know that you are deeply cared for ❤️"
+      </div>
+
+      <button class="btn-comfort" onclick="switchStation(5)" style="margin-top:20px;">Claim Comfort Coupon 🎟️➜</button>
+    </div>
+  </div>
+
+  <!-- STATION 5: COUPON & MOOD TRACKER -->
+  <div class="station-content" id="station5">
+    <div class="comfort-card">
+      <h2>Your Comfort Coupon 🎟️</h2>
+
+      <div class="coupon-card">
+        <div class="coupon-title">🎟️ COMFORT COUPON</div>
+        <div class="coupon-perks">
+          🫂 1 Emergency Hug On Demand<br>
+          🍫 1 Favorite Snack Delivery<br>
+          ☕ 1 Hot Drink / Boba Treat<br>
+          🎬 1 Movie & Cozy Session<br>
+          💬 Unlimited Complaining Privileges<br>
+          😴 Permission to Ignore Everyone
+        </div>
+        <button class="btn-comfort" id="redeemBtn" onclick="redeemCoupon()" style="width: 100%;">
+          [ REDEEM COUPON 💗 ]
+        </button>
+      </div>
+
+      <!-- Mood Status Sender -->
+      <div class="mood-selector">
+        <div style="font-size:0.9rem; font-weight:700;">🌸 How are you feeling right now?</div>
+        <div class="mood-buttons">
+          <span class="mood-chip" onclick="sendMoodStatus('Fine 😌')">😌</span>
+          <span class="mood-chip" onclick="sendMoodStatus('Tired 🥱')">🥱</span>
+          <span class="mood-chip" onclick="sendMoodStatus('Irritated 😤')">😤</span>
+          <span class="mood-chip" onclick="sendMoodStatus('Emotional 🥲')">🥲</span>
+          <span class="mood-chip" onclick="sendMoodStatus('Done 🫠')">🫠</span>
+        </div>
+        <div id="moodFeedback" style="font-size:0.85rem; margin-top:8px; color:#D8A7B1; font-weight:700;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SIGNATURE EVERYTHING DEPLOYMENT OVERLAY -->
+<div class="deployment-overlay" id="deployOverlay">
+  <div style="font-size:3rem; margin-bottom:10px;">🚨</div>
+  <h2 style="font-family:'Fredoka', cursive; font-size:1.8rem; color:#D8A7B1; margin-bottom:20px;">
+    COMFORT EMERGENCY DETECTED!
+  </h2>
+
+  <div class="deploy-step" id="dStep1">🧸 Deploying Emergency Hug...</div>
+  <div class="deploy-step" id="dStep2">🍫 Deploying Chocolates & Cookies...</div>
+  <div class="deploy-step" id="dStep3">☕ Deploying Hot Cocoa & Blanket...</div>
+  <div class="deploy-step" id="dStep4">🛋️ Deploying Cozy Room Rain Mode...</div>
+  <div class="deploy-step" id="dStep5">💗 Deploying Personal Care Message...</div>
+
+  <div id="deployFinal" style="opacity:0; margin-top:25px; transition:opacity 0.8s ease;">
+    <div style="font-family:'Fredoka', cursive; font-size:2rem; color:#E6C280; margin-bottom:15px;">
+      COMFORT LEVEL: 100% 💖
+    </div>
+    <button class="btn-comfort" onclick="closeDeployOverlay()">Explore Care Package ✨</button>
+  </div>
+</div>
+
+<!-- SNACK MODAL POPUP -->
+<div class="snack-modal" id="snackModal">
+  <div id="snackTitle" style="font-family:'Fredoka', cursive; font-size:1.5rem; color:#D8A7B1; margin-bottom:8px;"></div>
+  <div id="snackBody" style="font-size:0.95rem; line-height:1.6; opacity:0.9; margin-bottom:15px;"></div>
+  <button class="btn-comfort" onclick="closeSnack()" style="padding:8px 20px; font-size:0.95rem;">Yummy! 💕</button>
+</div>
+
+<!-- Rain Audio for Cozy Mode -->
+<audio id="rainAudio" loop src="https://assets.mixkit.co/active_storage/sfx/2520/2520-preview.mp3"></audio>
+
+<script type="module">
+import { initEpicInteractions } from "../js/stageEngine.js";
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (window.location.pathname.includes("success.html")) return;
+  const saved = JSON.parse(localStorage.getItem("only4you_story")) || {};
+
+  initEpicInteractions({
+    template: "carebox",
+    message: saved.message || "I can't magically make today's discomfort disappear, but I can definitely be here for you. Rest well, hydrate, and know that you are deeply cared for ❤️",
+    images: saved.images || [],
+    voices: saved.voices || [],
+    quiz: saved.quiz || [],
+    bgMusic: saved.bgMusic,
+    plan: saved.plan || "169",
+    finalQuestion: saved.finalQuestion || "Sending you endless warm hugs & comfort today 🧸💖"
+  });
+});
+</script>
+
+<script>
+let currentStation = 0;
+let hugCount = 1;
+
+const hugQuotes = [
+  '"Okay. One emergency hug delivered. 🫂"',
+  '"Second hug deployed! You are doing so great 🧸"',
+  '"Warm squeeze incoming... take all the rest you need! ❤️"',
+  '"Unlimited hug cheat code activated! 💖"',
+  '"Sending cozy blanket & warm tea vibes ☕✨"'
+];
+
+function startUnboxing() {
+  const box = document.getElementById("giftBox");
+  box.classList.add("box-opened");
+  confetti({ particleCount: 60, spread: 70, origin: { y: 0.55 } });
+  
+  setTimeout(() => {
+    document.getElementById("unboxingOverlay").classList.add("dismissed");
+  }, 800);
+}
+
+function switchStation(index) {
+  currentStation = index;
+  const tabs = document.querySelectorAll(".station-tab");
+  const contents = document.querySelectorAll(".station-content");
+
+  tabs.forEach((t, i) => t.classList.toggle("active", i === index));
+  contents.forEach((c, i) => c.classList.toggle("active", i === index));
+}
+
+function giveHug() {
+  const teddy = document.getElementById("teddyBtn");
+  teddy.classList.remove("teddy-squish");
+  void teddy.offsetWidth;
+  teddy.classList.add("teddy-squish");
+
+  hugCount++;
+  document.getElementById("hugCounter").innerText = `Hugs Delivered: ${hugCount}`;
+  
+  const quoteIndex = (hugCount - 1) % hugQuotes.length;
+  document.getElementById("hugQuote").innerText = hugQuotes[quoteIndex];
+
+  confetti({ particleCount: 25, spread: 45, origin: { y: 0.7 } });
+  if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
+}
+
+function openSnack(title, desc) {
+  document.getElementById("snackTitle").innerText = title;
+  document.getElementById("snackBody").innerText = desc;
+  document.getElementById("snackModal").classList.add("active");
+  confetti({ particleCount: 15, spread: 50, origin: { y: 0.5 } });
+}
+
+function closeSnack() {
+  document.getElementById("snackModal").classList.remove("active");
+}
+
+let cozyActive = false;
+function toggleCozyMode() {
+  cozyActive = !cozyActive;
+  document.body.classList.toggle("cozy-mode-active", cozyActive);
+  const audio = document.getElementById("rainAudio");
+  
+  if (cozyActive) {
+    document.getElementById("cozyStatusText").innerText = "🌧️ Rainy night mode ON. Take a deep breath...";
+    audio.play().catch(() => {});
+    initRainEffect();
+  } else {
+    document.getElementById("cozyStatusText").innerText = "☀️ Cozy mode paused.";
+    audio.pause();
+  }
+}
+
+function triggerLevel(level) {
+  confetti({ particleCount: 30, spread: 60, origin: { y: 0.6 } });
+  switchStation(4);
+}
+
+function runEverythingDeployment() {
+  const overlay = document.getElementById("deployOverlay");
+  overlay.classList.add("active");
+  
+  if (!cozyActive) toggleCozyMode();
+
+  const steps = ["dStep1", "dStep2", "dStep3", "dStep4", "dStep5"];
+  steps.forEach((id, index) => {
+    setTimeout(() => {
+      document.getElementById(id).classList.add("visible");
+      confetti({ particleCount: 15, spread: 40, origin: { y: 0.6 } });
+    }, (index + 1) * 750);
+  });
+
+  setTimeout(() => {
+    document.getElementById("deployFinal").style.opacity = "1";
+    confetti({ particleCount: 80, spread: 90, origin: { y: 0.5 } });
+  }, 4500);
+}
+
+function closeDeployOverlay() {
+  document.getElementById("deployOverlay").classList.remove("active");
+  switchStation(4);
+}
+
+function redeemCoupon() {
+  const btn = document.getElementById("redeemBtn");
+  btn.innerText = "Coupon Successfully Redeemed! ❤️";
+  btn.style.background = "#E6C280";
+  btn.style.color = "#5C3D2E";
+  confetti({ particleCount: 90, spread: 80, origin: { y: 0.6 } });
+}
+
+async function sendMoodStatus(mood) {
+  document.getElementById("moodFeedback").innerText = `Sent: "${mood}" to your sender! ❤️`;
+  if (navigator.vibrate) navigator.vibrate(50);
+
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const careboxId = urlParams.get("id") || "demo";
+    await fetch("/api/save-mood", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ careboxId, mood, timestamp: Date.now() })
+    });
+  } catch(e) {
+    localStorage.setItem("carebox_last_mood", mood);
+  }
+}
+
+// Canvas Rain Effect for Cozy Mode
+function initRainEffect() {
+  const canvas = document.getElementById("rainCanvas");
+  if (!canvas || canvas.dataset.inited) return;
+  canvas.dataset.inited = "true";
+
+  const ctx = canvas.getContext("2d");
+  let width = canvas.width = window.innerWidth;
+  let height = canvas.height = window.innerHeight;
+
+  const drops = [];
+  for (let i = 0; i < 90; i++) {
+    drops.push({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      length: Math.random() * 20 + 10,
+      speed: Math.random() * 10 + 5
+    });
+  }
+
+  function drawRain() {
+    ctx.clearRect(0, 0, width, height);
+    ctx.strokeStyle = "rgba(230, 230, 250, 0.5)";
+    ctx.lineWidth = 1.5;
+    ctx.lineCap = "round";
+
+    drops.forEach(d => {
+      ctx.beginPath();
+      ctx.moveTo(d.x, d.y);
+      ctx.lineTo(d.x - 2, d.y + d.length);
+      ctx.stroke();
+
+      d.y += d.speed;
+      d.x -= 0.5;
+
+      if (d.y > height) {
+        d.y = -d.length;
+        d.x = Math.random() * width;
+      }
+    });
+
+    requestAnimationFrame(drawRain);
+  }
+
+  drawRain();
+
+  window.addEventListener("resize", () => {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  });
+}
+</script>
+
+</body>
+</html>

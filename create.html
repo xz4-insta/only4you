@@ -359,6 +359,7 @@ input[type="radio"]{
 <select id="template">
   <option value="valentine">Valentine 💗</option>
   <option value="forgiveness">Forgiveness 💛</option>
+  <option value="carebox">Comfort Kit 🧸🍫 (PREMIUM)</option>
   <option value="anniversary">Anniversary 🥂</option>
   <option value="birthday">Birthday 🎂</option>
   <option value="missyou">Miss You ☁️ (PREMIUM)</option>
@@ -491,6 +492,7 @@ window.goToPreview = function(){
   if(!finalQuestion){
     if(template === "valentine") finalQuestion = "Will you be my valentine? 💖";
     else if(template === "forgiveness") finalQuestion = "Can you find it in your heart to forgive me? 💛";
+    else if(template === "carebox") finalQuestion = "Sending you endless warm hugs & comfort today 🧸💖";
     else if(template === "anniversary") finalQuestion = "Will you spend forever with me? 💍";
     else if(template === "birthday") finalQuestion = "Did you love your surprise? 🎁";
     else finalQuestion = "Will you be mine forever? 💍";
@@ -560,7 +562,7 @@ document.getElementById("template").addEventListener("change", (e) => {
   const fq = document.getElementById("finalQuestion");
   
   // Auto-upgrade for Premium templates
-  if(t === "epic" || t === "missyou") {
+  if(t === "epic" || t === "missyou" || t === "carebox") {
     const currentPlan = document.querySelector('input[name="plan"]:checked').value;
     if(currentPlan === "48" || currentPlan === "89") {
        if(confirm(`The ${t.toUpperCase()} template is an Exclusive Premium feature. Upgrade to Premium Love (₹169) to unlock it? ✨`)) {
