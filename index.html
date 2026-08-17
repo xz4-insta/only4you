@@ -527,6 +527,20 @@ body{
   margin-top: 15px;
   opacity: 0.8;
 }
+
+/* ================= FALLING FLOWERS / EMOJIS ================= */
+.falling-element {
+  position: fixed;
+  top: -50px;
+  pointer-events: none;
+  z-index: 999;
+  animation: fallFlower linear forwards;
+  filter: drop-shadow(0 2px 5px rgba(0,0,0,0.15));
+}
+@keyframes fallFlower {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0.9; }
+  100% { transform: translateY(105vh) rotate(360deg); opacity: 0; }
+}
 </style>
 </head>
 
@@ -755,94 +769,23 @@ if (!isLowEnd) {
     document.body.appendChild(spark);
   }
 }
-/* ================= 3D CAROUSEL LOGIC ================= */
-const items = document.querySelectorAll(".carousel-item");
-const carousel = document.getElementById("templateCarousel");
-let currIndex = 0;
-const angle = 360 / items.length;
-const radius = 220; // Z translation distance
 
-const templateData = [
-  { id: "valentine", title: "Valentine 🌹", desc: "Red Velvet & Black aesthetic with romantic blooms." },
-  { id: "forgiveness", title: "Forgiveness 💛", desc: "Soft yellow and pink tones to melt their heart." },
-  { id: "epic", title: "Epic Love Story 💍", desc: "The ultimate premium multi-stage cinematic journey." },
-  { id: "anniversary", title: "Anniversary 🥂", desc: "Timeless Gold & Cream class for your special day." },
-  { id: "birthday", title: "Birthday 🎂", desc: "Playful pastel rainbow to celebrate their big day!" },
-  { id: "missyou", title: "Miss You ☁️", desc: "Exclusive Premium: Sky Blue & White dreamy theme.", isPremium: true }
-];
-
-if(items.length > 0) {
-  items.forEach((item, i) => {
-    item.style.transform = `rotateY(${i * angle}deg) translateZ(${radius}px)`;
-  });
-
-  window.rotateTo = function(index) {
-    currIndex = index;
-    updateCarousel();
-  };
-
-  window.nextTemplate = function() {
-    rotateTo(currIndex + 1);
-  };
-  
-  window.prevTemplate = function() {
-    rotateTo(currIndex - 1);
-  };
-
-  function updateCarousel() {
-    carousel.style.transform = `translateZ(-${radius}px) rotateY(${-currIndex * angle}deg)`;
-    
-    let normalizedIndex = ((currIndex % templateData.length) + templateData.length) % templateData.length;
-    const activeData = templateData[normalizedIndex];
-    document.getElementById("activeTitle").innerHTML = activeData.title + (activeData.isPremium ? ' <span style="font-size:12px; background:#0288d1; color:white; padding:3px 8px; border-radius:10px; vertical-align:middle;">PREMIUM</span>' : '');
-    document.getElementById("activeDesc").innerText = activeData.desc;
-    
-    items.forEach((item, i) => {
-      const iframe = item.querySelector("iframe");
-      const placeholder = item.querySelector(".iframe-placeholder");
-
-      if(i === normalizedIndex) {
-        item.style.opacity = "1";
-        item.style.boxShadow = "0 0 50px rgba(231,84,128,0.5)";
-        item.style.border = "4px solid #E75480";
-        
-        // Load active iframe
-        if (iframe && iframe.getAttribute("data-src")) {
-          iframe.src = iframe.getAttribute("data-src");
-          iframe.removeAttribute("data-src");
-          iframe.style.display = "block";
-          if (placeholder) placeholder.style.display = "none";
-        }
-      } else {
-        item.style.opacity = "0.3";
-        item.style.boxShadow = "none";
-        item.style.border = "4px solid #fff";
-        
-        // Unload inactive iframes (Only keep the active one loaded to save RAM)
-        if (iframe && iframe.src && iframe.src !== "about:blank") {
-          iframe.setAttribute("data-src", iframe.src);
-          iframe.src = "about:blank"; // Unload
-          iframe.style.display = "none";
-          if (placeholder) placeholder.style.display = "flex";
-        }
-      }
-    });
-  }
-
-  window.selectActiveTemplate = function() {
-    let normalizedIndex = ((currIndex % templateData.length) + templateData.length) % templateData.length;
-    window.location.href = "create.html?template=" + templateData[normalizedIndex].id + (templateData[normalizedIndex].isPremium ? "&plan=169" : "");
-  };
-
-  let autoPlay = setInterval(() => { rotateTo(currIndex + 1); }, 4000);
-
-  document.querySelector(".carousel-container").addEventListener("mouseenter", () => clearInterval(autoPlay));
-  document.querySelector(".carousel-container").addEventListener("mouseleave", () => {
-     autoPlay = setInterval(() => { rotateTo(currIndex + 1); }, 4000);
-  });
-
-  updateCarousel();
+/* ================= CONTINUOUS FLOWER RAIN ================= */
+function createRain() {
+  const elements = ['🌸', '🌹', '🌻', '💖', '✨', '🌷', '💝', '🌼', '🦋'];
+  setInterval(() => {
+    const el = document.createElement('div');
+    el.classList.add('falling-element');
+    el.innerHTML = elements[Math.floor(Math.random() * elements.length)];
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.fontSize = (Math.random() * 18 + 16) + 'px';
+    const duration = (Math.random() * 4 + 4);
+    el.style.animationDuration = duration + 's';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), duration * 1000);
+  }, 350);
 }
+document.addEventListener('DOMContentLoaded', createRain);
 
 let tapCount = 0;
 let lastTapTime = 0;

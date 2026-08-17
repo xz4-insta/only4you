@@ -166,6 +166,20 @@ h2{
   margin-top: 15px;
   opacity: 0.8;
 }
+
+/* ================= FALLING FLOWERS / EMOJIS ================= */
+.falling-element {
+  position: fixed;
+  top: -50px;
+  pointer-events: none;
+  z-index: 999;
+  animation: fallFlower linear forwards;
+  filter: drop-shadow(0 2px 5px rgba(0,0,0,0.15));
+}
+@keyframes fallFlower {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0.9; }
+  100% { transform: translateY(105vh) rotate(360deg); opacity: 0; }
+}
 </style>
 </head>
 
@@ -577,6 +591,24 @@ onAuthStateChanged(auth, (user) => {
 });
   
 
+</script>
+
+<script>
+function createRain() {
+  const elements = ['🌸', '🌹', '🌻', '💖', '✨', '🌷', '💝', '🌼', '🦋'];
+  setInterval(() => {
+    const el = document.createElement('div');
+    el.classList.add('falling-element');
+    el.innerHTML = elements[Math.floor(Math.random() * elements.length)];
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.fontSize = (Math.random() * 18 + 16) + 'px';
+    const duration = (Math.random() * 4 + 4);
+    el.style.animationDuration = duration + 's';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), duration * 1000);
+  }, 350);
+}
+document.addEventListener('DOMContentLoaded', createRain);
 </script>
 
 <!-- site-footer -->

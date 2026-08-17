@@ -32,26 +32,10 @@ const Optimization = {
     if (this.isLowEnd) {
       document.body.classList.add('performance-optimized');
       
-      // Inject global optimization styles if not already present
       if (!document.getElementById('opt-styles')) {
         const style = document.createElement('style');
         style.id = 'opt-styles';
         style.textContent = `
-          .performance-optimized *, 
-          .performance-optimized *::before, 
-          .performance-optimized *::after {
-            animation-duration: 0.1ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.1ms !important;
-            scroll-behavior: auto !important;
-          }
-          
-          /* Keep essential animations but simplify them */
-          .performance-optimized .essential-anim {
-            animation-duration: inherit !important;
-            transition-duration: inherit !important;
-          }
-
           .performance-optimized .hide-on-low-end {
             display: none !important;
           }

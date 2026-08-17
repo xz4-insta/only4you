@@ -1,45 +1,41 @@
 /* =========================================
-ONLY4YOU MAIN JS
+ONLY4YOU MAIN JS - 3D CAROUSEL & TEMPLATES
 ========================================= */
 
 const templates = [
-  { id: "valentine", name: "Valentine 💗", description: "Red Velvet & Black aesthetic" },
-  { id: "forgiveness", name: "Forgiveness 💛", description: "Deep & Meaningful" },
-  { id: "epic", name: "Epic Love Story 💍", description: "Cinematic Experience" },
-  { id: "anniversary", name: "Anniversary 🥂", description: "Elegant & Gold" },
-  { id: "birthday", name: "Birthday 🎂", description: "Fun & Colorful" }
+  { id: "valentine", title: "Valentine 🌹", desc: "Red Velvet & Black aesthetic with romantic blooms." },
+  { id: "forgiveness", title: "Forgiveness 💛", desc: "Soft yellow and pink tones to melt their heart." },
+  { id: "epic", title: "Epic Love Story 💍", desc: "The ultimate premium multi-stage cinematic journey." },
+  { id: "anniversary", title: "Anniversary 🥂", desc: "Timeless Gold & Cream class for your special day." },
+  { id: "birthday", title: "Birthday 🎂", desc: "Playful pastel rainbow to celebrate their big day!" },
+  { id: "missyou", title: "Miss You ☁️", desc: "Exclusive Premium: Sky Blue & White dreamy theme.", isPremium: true }
 ];
 
 let currIndex = 0;
 let items = [];
-
-let autoPlayInterval;
+let carousel = null;
+let autoPlayInterval = null;
+const radius = 220; // Z translation distance
 
 export function initCarousel() {
+  carousel = document.getElementById("templateCarousel");
   items = document.querySelectorAll(".carousel-item");
-  
-  // Initialize all iframes with their dataset.src and allow native loading="lazy" to handle performance
-  items.forEach(item => {
-    const iframe = item.querySelector("iframe");
-    const placeholder = item.querySelector(".iframe-placeholder");
-    if (iframe && iframe.dataset.src) {
-      iframe.onload = () => {
-         iframe.style.display = "block";
-         if (placeholder) placeholder.style.display = "none";
-      };
-      iframe.setAttribute('src', iframe.dataset.src);
-    }
+  if (!items.length || !carousel) return;
+
+  const angle = 360 / items.length;
+
+  items.forEach((item, i) => {
+    item.style.transform = `rotateY(${i * angle}deg) translateZ(${radius}px)`;
   });
 
   updateCarousel();
-  
   startAutoPlay();
-  
+
   const container = document.querySelector(".carousel-container");
   if (container) {
     container.addEventListener("mouseenter", stopAutoPlay);
     container.addEventListener("mouseleave", startAutoPlay);
-    // For mobile support, tapping the container shouldn't permanently stop it, but touchend handles it naturally or we can add touch events.
+    container.addEventListener("touchstart", stopAutoPlay, { passive: true });
   }
 }
 
@@ -53,29 +49,69 @@ function stopAutoPlay() {
 }
 
 export function updateCarousel() {
+  if (!carousel || !items.length) return;
+
+  const angle = 360 / items.length;
+  carousel.style.transform = `translateZ(-${radius}px) rotateY(${-currIndex * angle}deg)`;
+
+  let normalizedIndex = ((currIndex % templates.length) + templates.length) % templates.length;
+  const activeData = templates[normalizedIndex];
+
   const nameEl = document.getElementById("activeTitle");
   const descEl = document.getElementById("activeDesc");
 
+  if (nameEl && activeData) {
+    nameEl.innerHTML = activeData.title + (activeData.isPremium ? ' <span style="font-size:12px; background:#0288d1; color:white; padding:3px 8px; border-radius:10px; vertical-align:middle;">PREMIUM</span>' : '');
+  }
+  if (descEl && activeData) {
+    descEl.innerText = activeData.desc;
+  }
+
   items.forEach((item, i) => {
-    let diff = i - currIndex;
-    let absDiff = Math.abs(diff);
-    
-    item.style.transform = `translateX(${diff * 60}%) scale(${1 - absDiff * 0.2}) rotateY(${diff * -15}deg)`;
-    item.style.opacity = 1 - absDiff * 0.4;
-    item.style.zIndex = 10 - absDiff;
-    item.classList.toggle("active", i === currIndex);
+    const iframe = item.querySelector("iframe");
+    const placeholder = item.querySelector(".iframe-placeholder");
 
-    // Iframe loading is now handled centrally in initCarousel()
+    if (i === normalizedIndex) {
+      item.style.opacity = "1";
+      item.style.boxShadow = "0 0 50px rgba(231,84,128,0.5)";
+      item.style.border = "4px solid #E75480";
+      
+      // Load active iframe
+      if (iframe) {
+        const srcToLoad = iframe.getAttribute("data-src") || iframe.getAttribute("src");
+        if (srcToLoad && (!iframe.src || iframe.src === "about:blank" || iframe.src.endsWith("about:blank"))) {
+          iframe.onload = () => {
+            iframe.style.display = "block";
+            if (placeholder) placeholder.style.display = "none";
+          };
+          iframe.src = srcToLoad;
+          iframe.style.display = "block";
+          if (placeholder) placeholder.style.display = "none";
+        } else {
+          iframe.style.display = "block";
+          if (placeholder) placeholder.style.display = "none";
+        }
+      }
+    } else {
+      item.style.opacity = "0.35";
+      item.style.boxShadow = "none";
+      item.style.border = "4px solid #fff";
+      
+      // Unload inactive iframe to save memory
+      if (iframe && iframe.src && !iframe.src.endsWith("about:blank")) {
+        const currentSrc = iframe.getAttribute("src");
+        if (currentSrc && currentSrc !== "about:blank") {
+          iframe.setAttribute("data-src", currentSrc);
+        }
+        iframe.src = "about:blank";
+        iframe.style.display = "none";
+        if (placeholder) placeholder.style.display = "flex";
+      }
+    }
   });
-
-  if(nameEl) nameEl.innerText = templates[currIndex] ? templates[currIndex].name : "";
-  if(descEl) descEl.innerText = templates[currIndex] ? templates[currIndex].description : "";
 }
 
-
 export function rotateTo(n) {
-  if (n < 0) n = items.length - 1;
-  if (n >= items.length) n = 0;
   currIndex = n;
   updateCarousel();
 }
@@ -89,7 +125,8 @@ export function nextTemplate() {
 }
 
 export function goToCreateTemplate() {
-  if (!templates[currIndex]) return;
-  const t = templates[currIndex].id;
-  window.location.href = `create.html?template=${t}`;
+  let normalizedIndex = ((currIndex % templates.length) + templates.length) % templates.length;
+  const activeData = templates[normalizedIndex];
+  if (!activeData) return;
+  window.location.href = `create.html?template=${activeData.id}${activeData.isPremium ? "&plan=169" : ""}`;
 }
