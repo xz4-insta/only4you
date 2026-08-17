@@ -331,7 +331,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import Optimization from "./js/optimization.js";
 
 const firebaseConfig = {
@@ -525,7 +525,7 @@ if (id) {
   });
 }
 
-window.checkRecipientMood = function() {
+window.checkRecipientMood = async function() {
   const btn = document.getElementById("checkMoodBtn");
   if (btn) btn.innerText = "Checking...";
   
@@ -533,6 +533,17 @@ window.checkRecipientMood = function() {
     document.getElementById("moodStatusValue").innerText = "💗 No mood update yet";
     if (btn) btn.innerText = "🌸 Check Their Mood";
     return;
+  }
+
+  try {
+    const snap = await getDoc(doc(db, "surprises", id));
+    if (snap.exists() && snap.data().lastMood) {
+      document.getElementById("moodStatusValue").innerText = `${snap.data().lastMood} • Just now`;
+      if (btn) btn.innerText = "🌸 Check Their Mood";
+      return;
+    }
+  } catch(e) {
+    console.warn("Direct Firestore getDoc failed:", e);
   }
 
   fetch(`/api/carebox/${id}/mood`)

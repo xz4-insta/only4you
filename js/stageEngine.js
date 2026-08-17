@@ -2374,4 +2374,18 @@ async function saveQuizAnswers(qIndex, answerValue){
     console.error("❌ Failed to reach backend:", e.message);
   }
 }
+
+window.saveMoodToFirestore = async function(careboxId, mood) {
+  if (!careboxId || careboxId === "demo" || careboxId === "MOCK_ID") return;
+  try {
+    const surpriseRef = doc(db, "surprises", careboxId);
+    await updateDoc(surpriseRef, {
+      lastMood: mood,
+      lastMoodAt: Date.now()
+    });
+    console.log("✅ Mood updated directly in Firestore:", mood);
+  } catch(e) {
+    console.warn("⚠️ Direct Firestore mood update failed, API fallback will execute:", e);
+  }
+};
 

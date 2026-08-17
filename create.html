@@ -126,6 +126,27 @@ input[type="radio"]{
   box-shadow:0 0 20px rgba(231,84,128,0.4);
 }
 
+.plan-box.plan-disabled {
+  opacity: 0.35;
+  filter: grayscale(0.8);
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  position: relative;
+}
+.plan-box.plan-disabled::after {
+  content: "🔒 Locked for Comfort Kit";
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #ff8fab;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
 .plan-title {
   font-weight: bold;
   font-size: 1.1rem;
@@ -587,6 +608,12 @@ document.getElementById("template").addEventListener("change", (e) => {
 /* ===== PLAN SELECT ===== */
 
 window.selectPlan = function(element){
+  const selectedTemplate = document.getElementById("template")?.value;
+  const clickedVal = element.querySelector("input")?.value;
+  if (selectedTemplate === "carebox" && clickedVal !== "169") {
+    alert("🧸 Comfort Kit is an Exclusive Fixed ₹169 Plan!");
+    return;
+  }
   document.querySelectorAll(".plan-box").forEach(box=>box.classList.remove("selected"));
   element.classList.add("selected");
   element.querySelector("input").checked = true;
@@ -661,6 +688,19 @@ window.applyStageLock = function(){
 
   // Exclusive Carebox Lock Handling
   if (selectedTemplate === "carebox") {
+    // Lock all other plan boxes except ₹169
+    document.querySelectorAll(".plan-box").forEach(box => {
+      const val = box.querySelector("input")?.value;
+      if (val !== "169") {
+        box.classList.add("plan-disabled");
+      } else {
+        box.classList.remove("plan-disabled");
+        box.classList.add("selected");
+        const radio = box.querySelector("input");
+        if (radio) radio.checked = true;
+      }
+    });
+
     hide(imageSection);
     hide(voiceSection);
     hide(questionSection);
@@ -673,6 +713,9 @@ window.applyStageLock = function(){
     addComfortKitNotice(scratchSection);
     addComfortKitNotice(quizSection);
     return;
+  } else {
+    // Restore plan boxes for other templates
+    document.querySelectorAll(".plan-box").forEach(box => box.classList.remove("plan-disabled"));
   }
 
   // If Admin mode is active, completely unlock ALL sections!
