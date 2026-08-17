@@ -511,6 +511,23 @@ export function initEpicInteractions(data){
     createVisualizer();
     createBokehParticles();
 
+  if (template === "carebox") {
+    const qEl = document.getElementById("finalQuestion");
+    if (qEl) {
+      qEl.innerText = data.finalQuestion || "Sending you endless warm hugs & comfort today 🧸💖";
+    }
+    const noteEl = document.getElementById("personalNoteText");
+    if (noteEl && data.message) {
+      noteEl.innerText = `"${data.message}"`;
+    }
+    const titleEl = document.getElementById("recipientTitle");
+    if (titleEl && data.receiver) {
+      titleEl.innerText = `For ${data.receiver} 🧸`;
+    }
+    initBGM(data);
+    return;
+  }
+
   if (data.scratchMessage) {
     const idx = window.allowedStages?.indexOf(6);
     if (idx !== -1 && idx !== undefined) window.allowedStages.splice(idx, 0, "scratch");

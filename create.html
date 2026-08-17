@@ -563,22 +563,15 @@ document.getElementById("template").addEventListener("change", (e) => {
   
   // Auto-upgrade for Premium templates
   if(t === "epic" || t === "missyou" || t === "carebox") {
-    const currentPlan = document.querySelector('input[name="plan"]:checked').value;
-    if(currentPlan === "48" || currentPlan === "89") {
-       if(confirm(`The ${t.toUpperCase()} template is an Exclusive Premium feature. Upgrade to Premium Love (₹169) to unlock it? ✨`)) {
-          window.autoUpgrade("169");
-       } else {
-          // Revert to valentine if they cancel
-          e.target.value = "valentine";
-          return;
-       }
-    }
+    window.autoUpgrade("169");
   }
 
   if(t === "valentine"){
     fq.placeholder = "Will you be my valentine? 💖";
   } else if(t === "forgiveness"){
     fq.placeholder = "Can you find it in your heart to forgive me? 💛";
+  } else if(t === "carebox"){
+    fq.placeholder = "Sending you endless warm hugs & comfort today 🧸💖";
   } else if(t === "anniversary"){
     fq.placeholder = "Will you spend forever with me? 💍";
   } else if(t === "birthday"){
@@ -588,6 +581,8 @@ document.getElementById("template").addEventListener("change", (e) => {
   } else {
     fq.placeholder = "Will you be mine forever? 💍";
   }
+  
+  if (window.applyStageLock) window.applyStageLock();
 });
 /* ===== PLAN SELECT ===== */
 
@@ -640,17 +635,40 @@ window.autoUpgrade = function(price){
   }
 };
 
+function addComfortKitNotice(section) {
+  if (section.querySelector(".carebox-notice")) return;
+  const notice = document.createElement("div");
+  notice.className = "lock-overlay carebox-notice";
+  notice.style.background = "rgba(92, 61, 46, 0.92)";
+  notice.style.color = "#F5E6D3";
+  notice.innerHTML = `🧸 Comfort Kit is an All-in-One Care Package<br><span style="font-size:0.8rem; font-weight:normal; opacity:0.85;">(Fixed ₹169 Exclusive • Unnecessary blocks disabled)</span>`;
+  section.appendChild(notice);
+}
+
 window.applyStageLock = function(){
-  
   const planElem = document.querySelector('input[name="plan"]:checked');
   if(!planElem) return;
   const plan = planElem.value;
+  const selectedTemplate = document.getElementById("template")?.value;
+
+  document.querySelectorAll(".carebox-notice").forEach(n => n.remove());
 
   hide(imageSection);
   hide(voiceSection);
   hide(questionSection);
   hide(scratchSection);
   hide(quizSection);
+
+  // Exclusive Carebox Lock Handling
+  if (selectedTemplate === "carebox") {
+    show(questionSection);
+
+    addComfortKitNotice(imageSection);
+    addComfortKitNotice(voiceSection);
+    addComfortKitNotice(scratchSection);
+    addComfortKitNotice(quizSection);
+    return;
+  }
 
   // If Admin mode is active, completely unlock ALL sections!
   const checkLock = localStorage.getItem("_u4y_preview_lock");

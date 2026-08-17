@@ -106,9 +106,66 @@ body.cozy-mode-active .cozy-glow {
   position: relative;
   width: 240px;
   height: 240px;
-  margin: 30px auto;
+  margin: 15px auto 25px;
   cursor: pointer;
   perspective: 1000px;
+  animation: floatGiftBox 3s infinite ease-in-out;
+}
+@keyframes floatGiftBox {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.tap-hint-pill {
+  background: linear-gradient(90deg, #ff4d88, #ff8fab);
+  color: white;
+  padding: 8px 20px;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 8px 22px rgba(255, 77, 136, 0.45);
+  animation: pulseTapHint 1.6s infinite ease-in-out;
+  cursor: pointer;
+}
+@keyframes pulseTapHint {
+  0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 8px 22px rgba(255, 77, 136, 0.45); }
+  50% { transform: translateY(-6px) scale(1.06); box-shadow: 0 14px 28px rgba(255, 77, 136, 0.65); }
+}
+.box-tag {
+  position: absolute;
+  right: 16px;
+  top: 55px;
+  background: #FFF;
+  color: #5C3D2E;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border: 2px solid #E6C280;
+  z-index: 4;
+  transform: rotate(12deg);
+  transition: transform 0.6s ease, opacity 0.5s ease;
+}
+.box-opened .box-tag {
+  transform: rotate(45deg) scale(0);
+  opacity: 0;
+}
+.teddy-name-badge {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: white;
+  background: linear-gradient(90deg, #ff4d88, #d8a7b1);
+  padding: 5px 14px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  margin-top: -8px;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  border: 2px solid #FFF;
 }
 .gift-box {
   width: 100%;
@@ -591,8 +648,10 @@ body.cozy-mode-active .snack-modal {
 <!-- 1. UNBOXING ENTRANCE OVERLAY -->
 <div class="unboxing-overlay" id="unboxingOverlay">
   <div style="font-size: 0.9rem; font-weight: 700; color: #D8A7B1; letter-spacing: 1.5px; margin-bottom: 5px;">🚨 COMFORT KIT DELIVERED</div>
-  <h2 style="font-size: 2.2rem; margin-bottom: 8px;">For Someone Special 🎁</h2>
-  <p style="opacity: 0.85; max-width: 320px; font-size: 1rem; line-height: 1.5;">Someone thinks you deserve a little extra care & comfort today.</p>
+  <h2 style="font-size: 2.2rem; margin-bottom: 8px;">For {{receiver}} 🎁</h2>
+  <p style="opacity: 0.85; max-width: 320px; font-size: 1rem; line-height: 1.5;">{{sender}} thinks you deserve a little extra care & comfort today. 💖</p>
+
+  <div class="tap-hint-pill" onclick="startUnboxing()">👆 Tap Gift Box to Open ✨</div>
 
   <div class="box-wrapper" onclick="startUnboxing()">
     <div class="gift-box" id="giftBox">
@@ -602,12 +661,14 @@ body.cozy-mode-active .snack-modal {
       </div>
       <div class="box-body">
         <div class="box-body-ribbon"></div>
+        <div class="box-tag">🏷️ For {{receiver}}</div>
         <div class="box-teddy" id="boxTeddy">
           <div class="teddy-eyes-wrapper" id="unboxingTeddyWrapper">
             🧸
             <div class="teddy-pupil pupil-left"></div>
             <div class="teddy-pupil pupil-right"></div>
           </div>
+          <div class="teddy-name-badge">💖 For {{receiver}} 💖</div>
         </div>
       </div>
     </div>
@@ -620,7 +681,7 @@ body.cozy-mode-active .snack-modal {
 <div class="world-container">
   <div class="world-header">
     <div class="world-badge" id="careReasonBadge">🌸 EMERGENCY COMFORT KIT</div>
-    <h1 style="font-size: 2rem; margin-top: 6px;" id="recipientTitle">Your Comfort World 🧸</h1>
+    <h1 style="font-size: 2rem; margin-top: 6px;" id="recipientTitle">For {{receiver}} 🧸</h1>
   </div>
 
   <!-- Stations Bar -->
@@ -628,9 +689,10 @@ body.cozy-mode-active .snack-modal {
     <div class="station-tab active" onclick="switchStation(0)">🧸 Hugs</div>
     <div class="station-tab" onclick="switchStation(1)">🍫 Snacks</div>
     <div class="station-tab" onclick="switchStation(2)">☕ Cozy Room</div>
-    <div class="station-tab" onclick="switchStation(3)">🚨 Emergency</div>
-    <div class="station-tab" onclick="switchStation(4)">🌧️ Stay Here</div>
-    <div class="station-tab" onclick="switchStation(5)">🎟️ Coupon & Mood</div>
+    <div class="station-tab" onclick="switchStation(3)">🎮 Games & Quiz</div>
+    <div class="station-tab" onclick="switchStation(4)">🎫 Secret Msg</div>
+    <div class="station-tab" onclick="switchStation(5)">🎟️ Coupon</div>
+    <div class="station-tab" onclick="switchStation(6)">💖 The Promise</div>
   </div>
 
   <!-- STATION 0: HUG STATION -->
@@ -718,55 +780,41 @@ body.cozy-mode-active .snack-modal {
         Tap above to darken the room & hear soft rain...
       </div>
 
-      <button class="btn-comfort" onclick="switchStation(3)" style="margin-top:25px;">Check Emergency Level 🚨➜</button>
+      <button class="btn-comfort" onclick="switchStation(3)" style="margin-top:25px;">Play Games & Quiz 🎮➜</button>
     </div>
   </div>
 
-  <!-- STATION 3: EMERGENCY METER -->
+  <!-- STATION 3: GAMES & QUIZ -->
   <div class="station-content" id="station3">
     <div class="comfort-card">
-      <h2>Emergency Level Meter 🚨</h2>
-      <p style="opacity:0.85; font-size:0.95rem;">Select your current emergency level today:</p>
+      <h2>Games & Couple Quiz 🎮💖</h2>
+      <p style="opacity:0.85; font-size:0.95rem; margin-bottom: 15px;">Tap the falling hearts to catch love points!</p>
 
-      <div class="level-list">
-        <div class="level-btn" onclick="triggerLevel('ok')">
-          <span>😌 I'm doing okay</span>
-          <span>➜</span>
-        </div>
-        <div class="level-btn" onclick="triggerLevel('comfort')">
-          <span>😐 Could use some comfort</span>
-          <span>➜</span>
-        </div>
-        <div class="level-btn" onclick="triggerLevel('snacks')">
-          <span>🥲 Please send snacks</span>
-          <span>➜</span>
-        </div>
-        <div class="level-btn" onclick="runEverythingDeployment()" style="border-color: #D8A7B1; background: rgba(216, 167, 177, 0.15);">
-          <span style="font-weight:700; color:#D8A7B1;">😭 I REQUIRE EVERYTHING!</span>
-          <span>💥</span>
-        </div>
+      <div id="catchgameContainer" style="background: rgba(255,255,255,0.4); padding: 15px; border-radius: 20px; margin-bottom: 15px;">
+        <div style="font-weight:700; font-size:1.1rem; margin-bottom:8px;">Catch The Love 💖</div>
+        <p style="font-size:0.85rem; opacity:0.8; margin-bottom:10px;">Catch falling hearts on the screen!</p>
+        <button class="btn-comfort" onclick="runEverythingDeployment()" style="font-size:0.85rem; padding:8px 16px;">Deploy Heart Party 💖</button>
       </div>
 
-      <button class="btn-comfort" onclick="switchStation(4)">Read Personal Note 💌➜</button>
+      <button class="btn-comfort" onclick="switchStation(4)">Scratch Secret Msg 🎫➜</button>
     </div>
   </div>
 
-  <!-- STATION 4: STAY HERE (PERSONAL NOTE) -->
+  <!-- STATION 4: SECRET MSG (SCRATCH-OFF) -->
   <div class="station-content" id="station4">
     <div class="comfort-card">
-      <div style="font-size: 2.5rem; margin-bottom: 8px;">🌧️🕯️</div>
-      <h2>Stay Here For A Minute...</h2>
-      <p style="opacity: 0.8; font-size: 0.85rem; margin-bottom: 15px;">No pressure to reply. Just take a deep breath and rest.</p>
+      <h2>Secret Reveal Card 🎫</h2>
+      <p style="opacity:0.85; font-size:0.95rem; margin-bottom: 15px;">Use your finger or cursor to scratch and reveal your secret message!</p>
 
-      <div style="background: rgba(255, 255, 255, 0.6); padding: 20px; border-radius: 20px; font-size: 1rem; line-height: 1.7; text-align: left; border: 1px solid rgba(216, 167, 177, 0.3);" id="personalNoteText">
-        "I can't magically make today's discomfort disappear, but I can definitely be here for you. Rest well, hydrate, and know that you are deeply cared for ❤️"
+      <div style="background: rgba(255, 255, 255, 0.6); padding: 20px; border-radius: 20px; font-size: 1.1rem; font-weight: 700; color: #5C3D2E; border: 2px dashed #D8A7B1; position: relative; overflow: hidden; margin-bottom: 15px;">
+        ✨ Secret Note: "You make every single day warmer & brighter!" ✨
       </div>
 
-      <button class="btn-comfort" onclick="switchStation(5)" style="margin-top:20px;">Claim Comfort Coupon 🎟️➜</button>
+      <button class="btn-comfort" onclick="switchStation(5)">Claim Comfort Coupon 🎟️➜</button>
     </div>
   </div>
 
-  <!-- STATION 5: COUPON & MOOD TRACKER -->
+  <!-- STATION 5: COMFORT COUPON & MOOD TRACKER -->
   <div class="station-content" id="station5">
     <div class="comfort-card">
       <h2>Your Comfort Coupon 🎟️</h2>
@@ -797,6 +845,29 @@ body.cozy-mode-active .snack-modal {
           <span class="mood-chip" onclick="sendMoodStatus('Done 🫠')">🫠</span>
         </div>
         <div id="moodFeedback" style="font-size:0.85rem; margin-top:8px; color:#D8A7B1; font-weight:700;"></div>
+      </div>
+
+      <button class="btn-comfort" onclick="switchStation(6)" style="margin-top:20px;">Read Comfort Promise 💖➜</button>
+    </div>
+  </div>
+
+  <!-- STATION 6: THE PROMISE -->
+  <div class="station-content" id="station6">
+    <div class="comfort-card">
+      <div style="font-size: 2.5rem; margin-bottom: 8px;">🌧️🕯️</div>
+      <h2>Stay Here For A Minute...</h2>
+      <p style="opacity: 0.8; font-size: 0.85rem; margin-bottom: 15px;">No pressure to reply. Just take a deep breath and rest.</p>
+
+      <div style="background: rgba(255, 255, 255, 0.6); padding: 20px; border-radius: 20px; font-size: 1rem; line-height: 1.7; text-align: left; border: 1px solid rgba(216, 167, 177, 0.3);" id="personalNoteText">
+        "I can't magically make today's discomfort disappear, but I can definitely be here for you. Rest well, hydrate, and know that you are deeply cared for ❤️"
+      </div>
+
+      <div style="margin-top: 10px; font-weight: 700; text-align: right; color: #D8A7B1; font-size: 0.95rem;">
+        — With all my care, {{sender}} 💌
+      </div>
+
+      <div style="margin-top: 15px; font-weight: 700; font-size: 1.05rem; color: #C48B98; padding: 12px; background: rgba(216, 167, 177, 0.15); border-radius: 15px;" id="finalQuestion">
+        Sending you endless warm hugs & comfort today 🧸💖
       </div>
     </div>
   </div>
