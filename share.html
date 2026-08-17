@@ -480,7 +480,7 @@ if (id) {
     document.getElementById("reactionStats").style.display = "flex";
 
     // Carebox Mood Status Display (Realtime + Fetch)
-    if (template === "carebox") {
+    if (template === "carebox" || data.lastMood) {
       const moodPanel = document.getElementById("moodSenderPanel");
       if (moodPanel) moodPanel.style.display = "block";
       if (data.lastMood) {

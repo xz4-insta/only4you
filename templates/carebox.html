@@ -22,6 +22,14 @@
   --glow-secondary: #E6E6FA;
 }
 
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden !important;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -35,7 +43,7 @@ body {
   background: linear-gradient(135deg, #FFF8F0 0%, #F5E6D3 50%, #E6E6FA 100%);
   min-height: 100vh;
   color: #5C3D2E;
-  overflow-x: hidden;
+  overflow-x: hidden !important;
   transition: background 1.5s ease, color 1.5s ease;
 }
 
@@ -64,10 +72,10 @@ body.cozy-mode-active #rainCanvas {
 /* Cozy Lamp Warm Radial Glow */
 .cozy-glow {
   position: fixed;
-  top: -80px;
-  right: -80px;
-  width: 450px;
-  height: 450px;
+  top: -60px;
+  right: -60px;
+  width: 320px;
+  height: 320px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(255, 214, 150, 0.4) 0%, rgba(255, 180, 100, 0.12) 60%, transparent 100%);
   pointer-events: none;
@@ -84,7 +92,8 @@ body.cozy-mode-active .cozy-glow {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
+  width: 100% !important;
+  max-width: 100vw !important;
   height: 100vh;
   background: linear-gradient(135deg, #FFF8F0 0%, #F5E6D3 100%);
   z-index: 9999;
@@ -93,8 +102,10 @@ body.cozy-mode-active .cozy-glow {
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 20px;
-  transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 20px 15px;
+  box-sizing: border-box !important;
+  transition: opacity 0.8s ease, transform 0.8s ease, visibility 0.8s;
+  overflow-x: hidden !important;
 }
 .unboxing-overlay.dismissed {
   opacity: 0;
@@ -339,18 +350,21 @@ body.cozy-mode-active .cozy-glow {
 
 /* ================= VIRTUAL COMFORT WORLD DASHBOARD ================= */
 .world-container {
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 20px 15px 80px;
+  width: 100% !important;
+  max-width: 460px !important;
+  margin: 0 auto !important;
+  padding: 15px 12px 60px !important;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   gap: 20px;
+  box-sizing: border-box !important;
 }
 
 .world-header {
   text-align: center;
   margin-top: 10px;
+  width: 100%;
 }
 .world-badge {
   background: rgba(216, 167, 177, 0.25);
@@ -374,6 +388,8 @@ body.cozy-mode-active .world-badge {
   gap: 10px;
   padding: 8px 5px;
   scrollbar-width: none;
+  width: 100%;
+  box-sizing: border-box;
 }
 .stations-bar::-webkit-scrollbar { display: none; }
 
@@ -392,6 +408,7 @@ body.cozy-mode-active .world-badge {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-shrink: 0;
 }
 body.cozy-mode-active .station-tab {
   background: rgba(45, 34, 53, 0.75);
@@ -415,6 +432,7 @@ body.cozy-mode-active .station-tab.active {
 /* Comfort Cards & Stations */
 .station-content {
   display: none;
+  width: 100%;
 }
 .station-content.active {
   display: block;
@@ -427,12 +445,14 @@ body.cozy-mode-active .station-tab.active {
 }
 
 .comfort-card {
+  width: 100% !important;
+  box-sizing: border-box !important;
   background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
   border: 2px solid rgba(216, 167, 177, 0.4);
   border-radius: 30px;
-  padding: 30px 22px;
+  padding: 25px 16px;
   box-shadow: 0 20px 40px rgba(92, 61, 46, 0.08);
   text-align: center;
   position: relative;
@@ -1035,9 +1055,13 @@ function giveHug() {
   const counterEl = document.getElementById("hugCounter");
   if (counterEl) counterEl.innerText = `Hugs Delivered: ${hugCount}`;
   
-  const quoteIndex = (hugCount - 1) % hugQuotes.length;
   const quoteEl = document.getElementById("hugQuote");
-  if (quoteEl) quoteEl.innerText = hugQuotes[quoteIndex];
+  if (hugCount >= 9) {
+    if (quoteEl) quoteEl.innerText = '"Now give me hugs in real life when we meet! 🫂❤️"';
+  } else {
+    const quoteIndex = (hugCount - 1) % hugQuotes.length;
+    if (quoteEl) quoteEl.innerText = hugQuotes[quoteIndex];
+  }
 
   safeConfetti({ particleCount: 25, spread: 45, origin: { y: 0.7 } });
   if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
@@ -1059,19 +1083,91 @@ function closeSnack() {
 }
 
 let cozyActive = false;
+let rainAudioCtx = null;
+let rainGainNode = null;
+let rainNoiseNode = null;
+
+function startRainSynth() {
+  try {
+    if (!rainAudioCtx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      rainAudioCtx = new AudioCtx();
+    }
+    if (rainAudioCtx.state === "suspended") {
+      rainAudioCtx.resume();
+    }
+
+    const bufferSize = 2 * rainAudioCtx.sampleRate;
+    const noiseBuffer = rainAudioCtx.createBuffer(1, bufferSize, rainAudioCtx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      b0 = 0.99886 * b0 + white * 0.0555179;
+      b1 = 0.99332 * b1 + white * 0.0750759;
+      b2 = 0.96900 * b2 + white * 0.1538520;
+      b3 = 0.86650 * b3 + white * 0.3104856;
+      b4 = 0.55000 * b4 + white * 0.5329522;
+      b5 = -0.7616 * b5 - white * 0.0168980;
+      output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+      output[i] *= 0.11;
+      b6 = white * 0.115926;
+    }
+
+    rainNoiseNode = rainAudioCtx.createBufferSource();
+    rainNoiseNode.buffer = noiseBuffer;
+    rainNoiseNode.loop = true;
+
+    rainGainNode = rainAudioCtx.createGain();
+    rainGainNode.gain.setValueAtTime(0.18, rainAudioCtx.currentTime);
+
+    const filter = rainAudioCtx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(900, rainAudioCtx.currentTime);
+
+    rainNoiseNode.connect(filter);
+    filter.connect(rainGainNode);
+    rainGainNode.connect(rainAudioCtx.destination);
+
+    rainNoiseNode.start(0);
+  } catch(e) {
+    console.warn("Rain audio synthesis failed:", e);
+  }
+}
+
+function stopRainSynth() {
+  if (rainNoiseNode) {
+    try {
+      rainNoiseNode.stop();
+      rainNoiseNode.disconnect();
+    } catch(e) {}
+    rainNoiseNode = null;
+  }
+}
+
 function toggleCozyMode() {
   cozyActive = !cozyActive;
   document.body.classList.toggle("cozy-mode-active", cozyActive);
   const audio = document.getElementById("rainAudio");
   const statusEl = document.getElementById("cozyStatusText");
-  
+  const bgm = document.querySelector("audio:not(#rainAudio)") || window.bgmAudio;
+
   if (cozyActive) {
-    if (statusEl) statusEl.innerText = "🌧️ Rainy night mode ON. Take a deep breath...";
+    if (statusEl) statusEl.innerText = "🌧️ Rainy night mode ON. BGM dimmed & soft rain playing...";
+    if (bgm) {
+      if (bgm._origVol === undefined) bgm._origVol = bgm.volume || 1;
+      bgm.volume = 0.2;
+    }
     if (audio) audio.play().catch(() => {});
+    startRainSynth();
     initRainEffect();
   } else {
     if (statusEl) statusEl.innerText = "☀️ Cozy mode paused.";
+    if (bgm) {
+      bgm.volume = bgm._origVol !== undefined ? bgm._origVol : 1;
+    }
     if (audio) audio.pause();
+    stopRainSynth();
   }
 }
 
@@ -1126,11 +1222,38 @@ async function sendMoodStatus(mood) {
   const urlParams = new URLSearchParams(window.location.search);
   const careboxId = urlParams.get("id") || "demo";
 
-  // Direct Firestore client update
+  // 1. Direct Firestore client update via ESM import
+  try {
+    const { getFirestore, doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+    const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js");
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyBdp7U014kNZzYB4MD9Sqn7MuuCjLWcdxI",
+      authDomain: "only4you-55c34.firebaseapp.com",
+      projectId: "only4you-55c34",
+      storageBucket: "only4you-55c34.appspot.com",
+      messagingSenderId: "1051434083700",
+      appId: "1:1051434083700:web:95d52d9fc79ccdba983821"
+    };
+
+    const app = getApps().length > 0 ? getApps()[0] : initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const ref = doc(db, "surprises", careboxId);
+    await updateDoc(ref, {
+      lastMood: mood,
+      lastMoodAt: Date.now()
+    });
+    console.log("✅ Mood updated directly in Firestore:", mood);
+  } catch(err) {
+    console.warn("Direct Firestore update in sendMoodStatus:", err);
+  }
+
+  // 2. Local fallback if window.saveMoodToFirestore exists
   if (window.saveMoodToFirestore) {
     window.saveMoodToFirestore(careboxId, mood);
   }
 
+  // 3. API fallback
   try {
     await fetch("/api/save-mood", {
       method: "POST",
