@@ -128,9 +128,14 @@ body.cozy-mode-active .cozy-glow {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: 5rem;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
+}
+.box-teddy {
+  font-size: 5.5rem;
+  transition: transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease;
+  transform: translateY(20px) scale(0.5);
+  opacity: 0;
 }
 .box-lid {
   position: absolute;
@@ -141,7 +146,7 @@ body.cozy-mode-active .cozy-glow {
   background: #D8A7B1;
   border-radius: 20px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-  transition: transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.8s ease;
+  transition: transform 1s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.8s ease;
   z-index: 5;
   display: flex;
   align-items: center;
@@ -157,11 +162,48 @@ body.cozy-mode-active .cozy-glow {
   transform: translateY(-8px) rotateX(10deg);
 }
 .box-opened .box-lid {
-  transform: translateY(-140px) rotate(-30deg);
+  transform: translateY(-220px) rotate(-45deg) scale(0.5);
   opacity: 0;
 }
-.box-opened .gift-box {
-  transform: scale(1.1);
+.box-opened .box-teddy {
+  animation: teddyPop 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes teddyPop {
+  0% { transform: translateY(40px) scale(0.4); opacity: 0; }
+  60% { transform: translateY(-75px) scale(1.4) rotate(-8deg); opacity: 1; }
+  85% { transform: translateY(-55px) scale(1.2) rotate(4deg); }
+  100% { transform: translateY(-65px) scale(1.3) rotate(0deg); opacity: 1; }
+}
+
+/* Interactive Gyro Eye Tracking Styles */
+.teddy-eyes-wrapper {
+  position: relative;
+  display: inline-block;
+  perspective: 600px;
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease-out;
+}
+.teddy-pupil {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  background: #2C1810;
+  border-radius: 50%;
+  transition: transform 0.08s ease-out;
+  pointer-events: none;
+  box-shadow: inset 1px 1px 2px rgba(255,255,255,0.6);
+}
+.teddy-container .teddy-pupil {
+  width: 9px;
+  height: 9px;
+}
+.pupil-left {
+  top: 38%;
+  left: 36%;
+}
+.pupil-right {
+  top: 38%;
+  right: 36%;
 }
 
 /* ================= VIRTUAL COMFORT WORLD DASHBOARD ================= */
@@ -533,7 +575,15 @@ body.cozy-mode-active .snack-modal {
       <div class="box-lid">
         <div class="box-ribbon"></div>
       </div>
-      <div class="box-body">🧸</div>
+      <div class="box-body">
+        <div class="box-teddy" id="boxTeddy">
+          <div class="teddy-eyes-wrapper" id="unboxingTeddyWrapper">
+            🧸
+            <div class="teddy-pupil pupil-left"></div>
+            <div class="teddy-pupil pupil-right"></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -563,7 +613,13 @@ body.cozy-mode-active .snack-modal {
       <h2>Emergency Hug Station 🧸</h2>
       <p style="opacity:0.85; font-size:0.95rem; margin-top:4px;">Tap the soft teddy whenever you need warmth & reassurance!</p>
 
-      <div class="teddy-container" id="teddyBtn" onclick="giveHug()">🧸</div>
+      <div class="teddy-container" id="teddyBtn" onclick="giveHug()">
+        <div class="teddy-eyes-wrapper" id="hugTeddyWrapper">
+          🧸
+          <div class="teddy-pupil pupil-left"></div>
+          <div class="teddy-pupil pupil-right"></div>
+        </div>
+      </div>
 
       <div id="hugQuote" style="font-weight: 700; font-size: 1.1rem; min-height: 48px; color: #C48B98; display: flex; align-items: center; justify-content: center;">
         "Okay. One emergency hug delivered. 🫂"
@@ -784,14 +840,25 @@ const hugQuotes = [
   '"Sending cozy blanket & warm tea vibes ☕✨"'
 ];
 
+function safeConfetti(opts) {
+  if (typeof confetti === "function") {
+    try { confetti(opts); } catch(e) { console.warn("Confetti ignored:", e); }
+  }
+}
+
 function startUnboxing() {
   const box = document.getElementById("giftBox");
-  box.classList.add("box-opened");
-  confetti({ particleCount: 60, spread: 70, origin: { y: 0.55 } });
+  if (box && box.classList.contains("box-opened")) return;
+  if (box) box.classList.add("box-opened");
   
   setTimeout(() => {
-    document.getElementById("unboxingOverlay").classList.add("dismissed");
-  }, 800);
+    safeConfetti({ particleCount: 75, spread: 80, origin: { y: 0.5 } });
+  }, 350);
+
+  setTimeout(() => {
+    const overlay = document.getElementById("unboxingOverlay");
+    if (overlay) overlay.classList.add("dismissed");
+  }, 1500);
 }
 
 function switchStation(index) {
@@ -805,29 +872,37 @@ function switchStation(index) {
 
 function giveHug() {
   const teddy = document.getElementById("teddyBtn");
-  teddy.classList.remove("teddy-squish");
-  void teddy.offsetWidth;
-  teddy.classList.add("teddy-squish");
+  if (teddy) {
+    teddy.classList.remove("teddy-squish");
+    void teddy.offsetWidth;
+    teddy.classList.add("teddy-squish");
+  }
 
   hugCount++;
-  document.getElementById("hugCounter").innerText = `Hugs Delivered: ${hugCount}`;
+  const counterEl = document.getElementById("hugCounter");
+  if (counterEl) counterEl.innerText = `Hugs Delivered: ${hugCount}`;
   
   const quoteIndex = (hugCount - 1) % hugQuotes.length;
-  document.getElementById("hugQuote").innerText = hugQuotes[quoteIndex];
+  const quoteEl = document.getElementById("hugQuote");
+  if (quoteEl) quoteEl.innerText = hugQuotes[quoteIndex];
 
-  confetti({ particleCount: 25, spread: 45, origin: { y: 0.7 } });
+  safeConfetti({ particleCount: 25, spread: 45, origin: { y: 0.7 } });
   if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
 }
 
 function openSnack(title, desc) {
-  document.getElementById("snackTitle").innerText = title;
-  document.getElementById("snackBody").innerText = desc;
-  document.getElementById("snackModal").classList.add("active");
-  confetti({ particleCount: 15, spread: 50, origin: { y: 0.5 } });
+  const tEl = document.getElementById("snackTitle");
+  const bEl = document.getElementById("snackBody");
+  const mEl = document.getElementById("snackModal");
+  if (tEl) tEl.innerText = title;
+  if (bEl) bEl.innerText = desc;
+  if (mEl) mEl.classList.add("active");
+  safeConfetti({ particleCount: 15, spread: 50, origin: { y: 0.5 } });
 }
 
 function closeSnack() {
-  document.getElementById("snackModal").classList.remove("active");
+  const mEl = document.getElementById("snackModal");
+  if (mEl) mEl.classList.remove("active");
 }
 
 let cozyActive = false;
@@ -835,57 +910,64 @@ function toggleCozyMode() {
   cozyActive = !cozyActive;
   document.body.classList.toggle("cozy-mode-active", cozyActive);
   const audio = document.getElementById("rainAudio");
+  const statusEl = document.getElementById("cozyStatusText");
   
   if (cozyActive) {
-    document.getElementById("cozyStatusText").innerText = "🌧️ Rainy night mode ON. Take a deep breath...";
-    audio.play().catch(() => {});
+    if (statusEl) statusEl.innerText = "🌧️ Rainy night mode ON. Take a deep breath...";
+    if (audio) audio.play().catch(() => {});
     initRainEffect();
   } else {
-    document.getElementById("cozyStatusText").innerText = "☀️ Cozy mode paused.";
-    audio.pause();
+    if (statusEl) statusEl.innerText = "☀️ Cozy mode paused.";
+    if (audio) audio.pause();
   }
 }
 
 function triggerLevel(level) {
-  confetti({ particleCount: 30, spread: 60, origin: { y: 0.6 } });
+  safeConfetti({ particleCount: 30, spread: 60, origin: { y: 0.6 } });
   switchStation(4);
 }
 
 function runEverythingDeployment() {
   const overlay = document.getElementById("deployOverlay");
-  overlay.classList.add("active");
+  if (overlay) overlay.classList.add("active");
   
   if (!cozyActive) toggleCozyMode();
 
   const steps = ["dStep1", "dStep2", "dStep3", "dStep4", "dStep5"];
   steps.forEach((id, index) => {
     setTimeout(() => {
-      document.getElementById(id).classList.add("visible");
-      confetti({ particleCount: 15, spread: 40, origin: { y: 0.6 } });
+      const stepEl = document.getElementById(id);
+      if (stepEl) stepEl.classList.add("visible");
+      safeConfetti({ particleCount: 15, spread: 40, origin: { y: 0.6 } });
     }, (index + 1) * 750);
   });
 
   setTimeout(() => {
-    document.getElementById("deployFinal").style.opacity = "1";
-    confetti({ particleCount: 80, spread: 90, origin: { y: 0.5 } });
+    const finalEl = document.getElementById("deployFinal");
+    if (finalEl) finalEl.style.opacity = "1";
+    safeConfetti({ particleCount: 80, spread: 90, origin: { y: 0.5 } });
   }, 4500);
 }
 
 function closeDeployOverlay() {
-  document.getElementById("deployOverlay").classList.remove("active");
+  const overlay = document.getElementById("deployOverlay");
+  if (overlay) overlay.classList.remove("active");
   switchStation(4);
 }
 
 function redeemCoupon() {
   const btn = document.getElementById("redeemBtn");
-  btn.innerText = "Coupon Successfully Redeemed! ❤️";
-  btn.style.background = "#E6C280";
-  btn.style.color = "#5C3D2E";
-  confetti({ particleCount: 90, spread: 80, origin: { y: 0.6 } });
+  if (btn) {
+    btn.innerText = "Coupon Successfully Redeemed! ❤️";
+    btn.style.background = "#E6C280";
+    btn.style.color = "#5C3D2E";
+  }
+  safeConfetti({ particleCount: 90, spread: 80, origin: { y: 0.6 } });
 }
 
 async function sendMoodStatus(mood) {
-  document.getElementById("moodFeedback").innerText = `Sent: "${mood}" to your sender! ❤️`;
+  const fbEl = document.getElementById("moodFeedback");
+  if (fbEl) fbEl.innerText = `Sent: "${mood}" to your sender! ❤️`;
   if (navigator.vibrate) navigator.vibrate(50);
 
   try {
@@ -952,6 +1034,64 @@ function initRainEffect() {
     height = canvas.height = window.innerHeight;
   });
 }
+
+// Expose all handlers to global window scope
+window.startUnboxing = startUnboxing;
+window.switchStation = switchStation;
+window.giveHug = giveHug;
+window.openSnack = openSnack;
+window.closeSnack = closeSnack;
+window.toggleCozyMode = toggleCozyMode;
+window.triggerLevel = triggerLevel;
+window.runEverythingDeployment = runEverythingDeployment;
+window.closeDeployOverlay = closeDeployOverlay;
+window.redeemCoupon = redeemCoupon;
+window.sendMoodStatus = sendMoodStatus;
+
+// Interactive Gyro & Pointer Eye Tracking
+function initTeddyEyeTracking() {
+  let tiltX = 0;
+  let tiltY = 0;
+
+  function applyEyeTilt(x, y) {
+    const wrappers = document.querySelectorAll(".teddy-eyes-wrapper");
+    wrappers.forEach(w => {
+      w.style.transform = `rotateX(${-y * 0.4}deg) rotateY(${x * 0.4}deg)`;
+    });
+
+    const pupils = document.querySelectorAll(".teddy-pupil");
+    pupils.forEach(p => {
+      p.style.transform = `translate(${x * 0.45}px, ${y * 0.45}px)`;
+    });
+  }
+
+  // Mobile Device Orientation (Gyroscope)
+  window.addEventListener("deviceorientation", (e) => {
+    if (e.gamma !== null && e.beta !== null) {
+      tiltX = Math.max(-12, Math.min(12, e.gamma * 0.4));
+      tiltY = Math.max(-12, Math.min(12, (e.beta - 45) * 0.4));
+      applyEyeTilt(tiltX, tiltY);
+    }
+  }, true);
+
+  // Desktop Pointer / Touch position tracking
+  window.addEventListener("pointermove", (e) => {
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
+    tiltX = Math.max(-10, Math.min(10, (e.clientX - cx) / 25));
+    tiltY = Math.max(-10, Math.min(10, (e.clientY - cy) / 25));
+    applyEyeTilt(tiltX, tiltY);
+  });
+}
+
+// Auto-unboxing in preview mode & eye tracking init
+document.addEventListener("DOMContentLoaded", () => {
+  initTeddyEyeTracking();
+  const isPreview = window.location.search && new URLSearchParams(window.location.search).get('preview') === '1';
+  if (isPreview) {
+    setTimeout(() => { startUnboxing(); }, 600);
+  }
+});
 </script>
 
 </body>

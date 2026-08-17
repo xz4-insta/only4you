@@ -274,6 +274,13 @@
       Loves Received
     </div>
 
+    <!-- Recipient Care Status Panel (for Carebox) -->
+    <div id="moodSenderPanel" style="display:none; margin: 15px 0; padding: 14px; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--glass-border); border-radius: 18px; font-size: 0.9rem; font-weight: 700; color: #fff; text-align: center;">
+      <div style="font-size:0.85rem; opacity:0.8; letter-spacing:0.5px;">Recipient Care Status 🌸</div>
+      <div id="moodStatusValue" style="font-size: 1.15rem; margin: 8px 0; color: #ff8fab;">💗 No mood update yet</div>
+      <button id="checkMoodBtn" onclick="checkRecipientMood()" style="background: linear-gradient(90deg,#ff4d6d,#ff8fab); color: white; border: none; padding: 7px 18px; border-radius: 20px; font-size: 0.82rem; cursor: pointer; font-weight: 600; transition: 0.3s;">🌸 Check Their Mood</button>
+    </div>
+
     <div id="reactionVideoBox">
       <h3>📸 Secret Reaction Caught!</h3>
       <video id="reactionPlayer" controls></video>
@@ -472,6 +479,15 @@ if (id) {
     document.getElementById("reactionCount").textContent = data.reactions || 0;
     document.getElementById("reactionStats").style.display = "flex";
 
+    // Carebox Mood Status Display (Realtime + Fetch)
+    if (template === "carebox") {
+      const moodPanel = document.getElementById("moodSenderPanel");
+      if (moodPanel) moodPanel.style.display = "block";
+      if (data.lastMood) {
+        document.getElementById("moodStatusValue").innerText = `${data.lastMood} • Just now`;
+      }
+    }
+
     if (data.reaction) {
       document.getElementById("reactionPlayer").src = data.reaction;
       document.getElementById("reactionVideoBox").style.display = "block";
@@ -505,9 +521,32 @@ if (id) {
           <div class="quiz-a">${ans || '<span style="opacity:0.5;font-weight:normal;font-size:0.8rem">Waiting... ⏳</span>'}</div>`;
         box.appendChild(el);
       });
-    }
   });
 }
+
+window.checkRecipientMood = function() {
+  const btn = document.getElementById("checkMoodBtn");
+  if (btn) btn.innerText = "Checking...";
+  
+  if (!id || id === "MOCK_ID") {
+    document.getElementById("moodStatusValue").innerText = "💗 No mood update yet";
+    if (btn) btn.innerText = "🌸 Check Their Mood";
+    return;
+  }
+
+  fetch(`/api/carebox/${id}/mood`)
+    .then(r => r.json())
+    .then(resData => {
+      if (resData.success && resData.mood) {
+        document.getElementById("moodStatusValue").innerText = `${resData.mood} • Just now`;
+      } else {
+        document.getElementById("moodStatusValue").innerText = "💗 No mood update yet";
+      }
+      if (btn) btn.innerText = "🌸 Check Their Mood";
+    }).catch(() => {
+      if (btn) btn.innerText = "🌸 Check Their Mood";
+    });
+};
 
 // ── Vanilla Tilt ──────────────────────────────────────────
 if (!Optimization.isLowEnd) {
