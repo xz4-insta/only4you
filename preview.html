@@ -198,6 +198,12 @@ h2{
     <div class="trust-item">💳 UPI / Cards / Net</div>
   </div>
 
+  <!-- Sender Mood Tracker Panel (for Carebox) -->
+  <div id="moodSenderPanel" style="display:none; margin: 15px 0; padding: 12px; background: rgba(216, 167, 177, 0.15); border-radius: 16px; font-size: 0.9rem; font-weight: 700; color: #5C3D2E;">
+    <div>Recipient Care Status 🌸</div>
+    <div id="moodStatusValue" style="font-size: 1.1rem; margin-top: 4px; color: #C48B98;">Awaiting response... ☁️</div>
+  </div>
+
   <button id="payBtn">Pay & Unlock 💕</button>
 </div>
 
@@ -289,6 +295,21 @@ localStorage.setItem("surpriseData", JSON.stringify({
 
 document.getElementById("title").innerText = "For " + receiver;
 document.getElementById("msg").innerText = message;
+
+if (template === "carebox") {
+  const panel = document.getElementById("moodSenderPanel");
+  if (panel) panel.style.display = "block";
+  const careboxId = params.get("id");
+  if (careboxId) {
+    fetch(`/api/carebox/${careboxId}/mood`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && data.mood) {
+          document.getElementById("moodStatusValue").innerText = `${data.mood} • Just now`;
+        }
+      }).catch(() => {});
+  }
+}
 
 const planText = {
   "48": "💌 Mini Surprise – ₹48",

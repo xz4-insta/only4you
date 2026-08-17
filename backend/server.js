@@ -165,6 +165,33 @@ app.post("/api/save-mood", async (req, res) => {
 });
 
 // --------------------------------------------------------
+// ENDPOINT: Get Recipient Mood Status for Carebox (Sender View)
+// --------------------------------------------------------
+app.get("/api/carebox/:careboxId/mood", async (req, res) => {
+  try {
+    const { careboxId } = req.params;
+    if (!careboxId || careboxId === "demo") {
+      return res.status(200).json({ success: true, mood: null, timestamp: null });
+    }
+
+    const doc = await db.collection("surprises").doc(careboxId).get();
+    if (!doc.exists) {
+      return res.status(404).json({ success: false, error: "Surprise not found" });
+    }
+
+    const data = doc.data();
+    res.status(200).json({
+      success: true,
+      mood: data.lastMood || null,
+      timestamp: data.lastMoodAt || null
+    });
+  } catch (error) {
+    console.error("Get mood failed:", error);
+    res.status(500).json({ success: false, error: "Failed to retrieve mood" });
+  }
+});
+
+// --------------------------------------------------------
 // ENDPOINT: Save Quiz Answer (bypasses Firestore rules)
 // --------------------------------------------------------
 app.post("/save-quiz-answer", async (req, res) => {
