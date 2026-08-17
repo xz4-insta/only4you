@@ -1110,14 +1110,19 @@ function initTeddyEyeTracking() {
   });
 }
 
-// Auto-unboxing in preview mode & eye tracking init
-document.addEventListener("DOMContentLoaded", () => {
-  initTeddyEyeTracking();
-  const isPreview = window.location.search && new URLSearchParams(window.location.search).get('preview') === '1';
-  if (isPreview) {
-    setTimeout(() => { startUnboxing(); }, 600);
+// Init Eye Tracking & Click Delegation
+initTeddyEyeTracking();
+
+document.addEventListener("click", (e) => {
+  if (e.target.closest("#giftBox") || e.target.closest(".box-wrapper") || e.target.closest(".unboxing-overlay .btn-comfort")) {
+    startUnboxing();
   }
 });
+
+const isPreview = window.location.search && new URLSearchParams(window.location.search).get('preview') === '1';
+if (isPreview) {
+  setTimeout(() => { startUnboxing(); }, 600);
+}
 </script>
 
 </body>
