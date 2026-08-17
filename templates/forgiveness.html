@@ -458,6 +458,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   const saved = JSON.parse(localStorage.getItem("only4you_story")) || {};
 
   initEpicInteractions({
+    template: "forgiveness",
     message: saved.message || "I'm so sorry... 🕊️",
     images: saved.images || [],
     voices: saved.voices || [],

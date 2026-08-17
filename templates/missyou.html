@@ -333,5 +333,25 @@ button:not(.quiz-opt) {
 
 <div id="progressDots"></div>
 
+<script type="module">
+import { initEpicInteractions } from "../js/stageEngine.js";
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (window.location.pathname.includes("success.html")) return;
+  const saved = JSON.parse(localStorage.getItem("only4you_story")) || {};
+
+  initEpicInteractions({
+    template: "missyou",
+    message: saved.message || "I miss you every single second ☁️",
+    images: saved.images || [],
+    voices: saved.voices || [],
+    quiz: saved.quiz || [],
+    bgMusic: saved.bgMusic,
+    plan: saved.plan || "169",
+    finalQuestion: saved.finalQuestion || "When can I see you again? ✈️"
+  });
+});
+</script>
+
 </body>
 </html>

@@ -384,6 +384,7 @@ button:hover {
     const saved = JSON.parse(localStorage.getItem("only4you_story")) || {};
 
     initEpicInteractions({
+      template: "epic",
       message: saved.message || "You are my greatest adventure... 📖❤️",
       images: saved.images || [],
       voices: saved.voices || [],

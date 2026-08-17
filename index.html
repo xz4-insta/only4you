@@ -785,7 +785,11 @@ function createRain() {
     setTimeout(() => el.remove(), duration * 1000);
   }, 350);
 }
-document.addEventListener('DOMContentLoaded', createRain);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', createRain);
+} else {
+  createRain();
+}
 
 let tapCount = 0;
 let lastTapTime = 0;

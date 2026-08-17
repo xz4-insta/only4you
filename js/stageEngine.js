@@ -532,10 +532,13 @@ export function initEpicInteractions(data){
   initProposalGame()
   initTransitions()
 
-    showStage(1)
+    showStage(1);
 
     // Start Auto-Cycle if in preview mode
     if (isPreview) {
+      setTimeout(() => {
+        if (typeof window.openLetter === "function") window.openLetter();
+      }, 500);
       startPreviewAutoCycle();
     }
   });
@@ -563,12 +566,11 @@ function cycleNextStage() {
   tvStaticTransition(() => {
     showStage(next);
     
-    // Extra fix: If we loop back to Stage 1, click to open the letter automatically
+    // Extra fix: If we loop back to Stage 1, open the letter automatically
     if (next === 1) {
       setTimeout(() => {
-        const letter = document.getElementById("letter");
-        if (letter) letter.click();
-      }, 1000);
+        if (typeof window.openLetter === "function") window.openLetter();
+      }, 500);
     }
   });
 }
