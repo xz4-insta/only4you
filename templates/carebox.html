@@ -681,7 +681,7 @@ body.cozy-mode-active .snack-modal {
 <div class="world-container">
   <div class="world-header">
     <div class="world-badge" id="careReasonBadge">🌸 EMERGENCY COMFORT KIT</div>
-    <h1 style="font-size: 2rem; margin-top: 6px;" id="recipientTitle">For {{receiver}} 🧸</h1>
+    <h1 style="font-size: 2rem; margin-top: 6px;" id="recipientTitle">Your Comfort World 🧸</h1>
   </div>
 
   <!-- Stations Bar -->
@@ -806,7 +806,7 @@ body.cozy-mode-active .snack-modal {
       <h2>Secret Reveal Card 🎫</h2>
       <p style="opacity:0.85; font-size:0.95rem; margin-bottom: 15px;">Use your finger or cursor to scratch and reveal your secret message!</p>
 
-      <div style="background: rgba(255, 255, 255, 0.6); padding: 20px; border-radius: 20px; font-size: 1.1rem; font-weight: 700; color: #5C3D2E; border: 2px dashed #D8A7B1; position: relative; overflow: hidden; margin-bottom: 15px;">
+      <div style="background: rgba(255, 255, 255, 0.6); padding: 20px; border-radius: 20px; font-size: 1.1rem; font-weight: 700; color: #5C3D2E; border: 2px dashed #D8A7B1; position: relative; overflow: hidden; margin-bottom: 15px;" id="secretComfortNoteText">
         ✨ Secret Note: "You make every single day warmer & brighter!" ✨
       </div>
 
@@ -1193,6 +1193,29 @@ function initTeddyEyeTracking() {
     scheduleApplyEyeTilt();
   }, { passive: true });
 }
+
+// 10 Random Heartwarming Secret Comfort Notes
+const secretNotesList = [
+  '✨ Secret Note: "You make every single day warmer, brighter, and so much sweeter!" ✨',
+  '💖 Secret Note: "Reminder: You are deeply loved, appreciated, and doing amazingly well."',
+  '🧸 Secret Note: "No matter how tough today feels, I\'m always right here in your corner."',
+  '🌟 Secret Note: "Take a deep breath. You don\'t have to figure everything out today."',
+  '🍫 Secret Note: "You deserve all the sweetness and gentle care in the world today!"',
+  '🌸 Secret Note: "Your smile is literally my favorite thing in the whole world."',
+  '☕ Secret Note: "Wrapped in my thoughts, sending you the warmest, softest virtual hug."',
+  '🌙 Secret Note: "Rest well tonight knowing someone is super proud of you."',
+  '💌 Secret Note: "Whatever happens, remember I\'m always just one tap away from you."',
+  '💞 Secret Note: "You are my favorite human, today and every single day after."'
+];
+
+function initRandomSecretNote() {
+  const noteEl = document.getElementById("secretComfortNoteText");
+  if (noteEl) {
+    const randomNote = secretNotesList[Math.floor(Math.random() * secretNotesList.length)];
+    noteEl.innerHTML = randomNote;
+  }
+}
+initRandomSecretNote();
 
 // Init Eye Tracking & Click Delegation
 initTeddyEyeTracking();

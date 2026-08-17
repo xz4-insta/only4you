@@ -661,10 +661,15 @@ window.applyStageLock = function(){
 
   // Exclusive Carebox Lock Handling
   if (selectedTemplate === "carebox") {
-    show(questionSection);
+    hide(imageSection);
+    hide(voiceSection);
+    hide(questionSection);
+    hide(scratchSection);
+    hide(quizSection);
 
     addComfortKitNotice(imageSection);
     addComfortKitNotice(voiceSection);
+    addComfortKitNotice(questionSection);
     addComfortKitNotice(scratchSection);
     addComfortKitNotice(quizSection);
     return;
