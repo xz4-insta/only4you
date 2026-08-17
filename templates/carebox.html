@@ -976,8 +976,11 @@ body.cozy-mode-active .snack-modal {
   <button class="btn-comfort" onclick="closeSnack()" style="padding:8px 20px; font-size:0.95rem;">Yummy! 💕</button>
 </div>
 
-<!-- Rain Audio for Cozy Mode -->
-<audio id="rainAudio" loop src="https://assets.mixkit.co/active_storage/sfx/2520/2520-preview.mp3"></audio>
+<!-- Rain Audio for Cozy Mode (Organic Rain Sound) -->
+<audio id="rainAudio" loop preload="auto">
+  <source src="https://actions.google.com/sounds/v1/weather/rain_heavy_loud.ogg" type="audio/ogg">
+  <source src="https://assets.mixkit.co/active_storage/sfx/2520/2520-preview.mp3" type="audio/mp3">
+</audio>
 
 <script type="module">
 import { initEpicInteractions } from "../js/stageEngine.js";
@@ -1083,91 +1086,50 @@ function closeSnack() {
 }
 
 let cozyActive = false;
-let rainAudioCtx = null;
-let rainGainNode = null;
-let rainNoiseNode = null;
-
-function startRainSynth() {
-  try {
-    if (!rainAudioCtx) {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      rainAudioCtx = new AudioCtx();
-    }
-    if (rainAudioCtx.state === "suspended") {
-      rainAudioCtx.resume();
-    }
-
-    const bufferSize = 2 * rainAudioCtx.sampleRate;
-    const noiseBuffer = rainAudioCtx.createBuffer(1, bufferSize, rainAudioCtx.sampleRate);
-    const output = noiseBuffer.getChannelData(0);
-    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
-    for (let i = 0; i < bufferSize; i++) {
-      const white = Math.random() * 2 - 1;
-      b0 = 0.99886 * b0 + white * 0.0555179;
-      b1 = 0.99332 * b1 + white * 0.0750759;
-      b2 = 0.96900 * b2 + white * 0.1538520;
-      b3 = 0.86650 * b3 + white * 0.3104856;
-      b4 = 0.55000 * b4 + white * 0.5329522;
-      b5 = -0.7616 * b5 - white * 0.0168980;
-      output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
-      output[i] *= 0.11;
-      b6 = white * 0.115926;
-    }
-
-    rainNoiseNode = rainAudioCtx.createBufferSource();
-    rainNoiseNode.buffer = noiseBuffer;
-    rainNoiseNode.loop = true;
-
-    rainGainNode = rainAudioCtx.createGain();
-    rainGainNode.gain.setValueAtTime(0.18, rainAudioCtx.currentTime);
-
-    const filter = rainAudioCtx.createBiquadFilter();
-    filter.type = "lowpass";
-    filter.frequency.setValueAtTime(900, rainAudioCtx.currentTime);
-
-    rainNoiseNode.connect(filter);
-    filter.connect(rainGainNode);
-    rainGainNode.connect(rainAudioCtx.destination);
-
-    rainNoiseNode.start(0);
-  } catch(e) {
-    console.warn("Rain audio synthesis failed:", e);
-  }
-}
-
-function stopRainSynth() {
-  if (rainNoiseNode) {
-    try {
-      rainNoiseNode.stop();
-      rainNoiseNode.disconnect();
-    } catch(e) {}
-    rainNoiseNode = null;
-  }
-}
 
 function toggleCozyMode() {
   cozyActive = !cozyActive;
   document.body.classList.toggle("cozy-mode-active", cozyActive);
-  const audio = document.getElementById("rainAudio");
+  
+  let rainAudio = document.getElementById("rainAudio");
+  if (!rainAudio) {
+    rainAudio = document.createElement("audio");
+    rainAudio.id = "rainAudio";
+    rainAudio.loop = true;
+    rainAudio.src = "https://actions.google.com/sounds/v1/weather/rain_heavy_loud.ogg";
+    document.body.appendChild(rainAudio);
+  }
+
   const statusEl = document.getElementById("cozyStatusText");
   const bgm = document.querySelector("audio:not(#rainAudio)") || window.bgmAudio;
 
   if (cozyActive) {
-    if (statusEl) statusEl.innerText = "🌧️ Rainy night mode ON. BGM dimmed & soft rain playing...";
+    if (statusEl) statusEl.innerText = "🌧️ Rainy night mode ON. Soft Piano (30%) & Rain (70%) active...";
+    
+    // 1. Soft Piano BGM set to 30% Volume (0.3)
     if (bgm) {
-      if (bgm._origVol === undefined) bgm._origVol = bgm.volume || 1;
-      bgm.volume = 0.2;
+      if (bgm._origVol === undefined) bgm._origVol = bgm.volume || 1.0;
+      bgm.volume = 0.3;
     }
-    if (audio) audio.play().catch(() => {});
-    startRainSynth();
+
+    // 2. Real Organic Rain Audio set to 70% Volume (0.7)
+    rainAudio.volume = 0.7;
+    rainAudio.play().catch(e => console.warn("Rain audio play failed:", e));
+
     initRainEffect();
   } else {
     if (statusEl) statusEl.innerText = "☀️ Cozy mode paused.";
+    
+    // Restore BGM to 100% Volume (1.0)
     if (bgm) {
-      bgm.volume = bgm._origVol !== undefined ? bgm._origVol : 1;
+      bgm.volume = bgm._origVol !== undefined ? bgm._origVol : 1.0;
     }
-    if (audio) audio.pause();
-    stopRainSynth();
+    
+    // Pause Rain Audio completely
+    if (rainAudio) {
+      rainAudio.pause();
+      rainAudio.currentTime = 0;
+    }
   }
 }
 
