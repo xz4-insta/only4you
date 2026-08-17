@@ -469,7 +469,7 @@ body.cozy-mode-active .comfort-card {
   background: linear-gradient(135deg, #D8A7B1, #C48B98);
   color: white;
   border: none;
-  padding: 14px 26px;
+  padding: 13px 24px;
   border-radius: 25px;
   font-family: 'Fredoka', cursive;
   font-size: 1.05rem;
@@ -480,8 +480,11 @@ body.cozy-mode-active .comfort-card {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
   gap: 8px;
-  margin-top: 15px;
+  margin: 15px auto 0 !important;
+  max-width: 95%;
+  box-sizing: border-box;
 }
 .btn-comfort:hover {
   transform: translateY(-3px) scale(1.03);
@@ -787,7 +790,9 @@ body.cozy-mode-active .snack-modal {
         Hugs Delivered: 1
       </div>
       <br>
-      <button class="btn-comfort" onclick="switchStation(1)">Explore Snack Drawer 🍫➜</button>
+      <button class="btn-comfort" onclick="switchStation(1)">
+        <span>Explore Snack Drawer</span> <span>🍫 ➜</span>
+      </button>
     </div>
   </div>
 
@@ -824,7 +829,9 @@ body.cozy-mode-active .snack-modal {
         </div>
       </div>
 
-      <button class="btn-comfort" onclick="switchStation(2)">Visit Cozy Room ☕➜</button>
+      <button class="btn-comfort" onclick="switchStation(2)">
+        <span>Visit Cozy Room</span> <span>☕ ➜</span>
+      </button>
     </div>
   </div>
 
@@ -850,7 +857,9 @@ body.cozy-mode-active .snack-modal {
         Tap above to darken the room & hear soft rain...
       </div>
 
-      <button class="btn-comfort" onclick="switchStation(3)" style="margin-top:25px;">Play Games & Quiz 🎮➜</button>
+      <button class="btn-comfort" onclick="switchStation(3)">
+        <span>Play Games & Quiz</span> <span>🎮 ➜</span>
+      </button>
     </div>
   </div>
 
@@ -870,7 +879,9 @@ body.cozy-mode-active .snack-modal {
         </div>
       </div>
 
-      <button class="btn-comfort" onclick="switchStation(4)" style="margin-top: 15px;">Scratch Secret Msg 🎫➜</button>
+      <button class="btn-comfort" onclick="switchStation(4)">
+        <span>Scratch Secret Msg</span> <span>🎫 ➜</span>
+      </button>
     </div>
   </div>
 
@@ -884,7 +895,9 @@ body.cozy-mode-active .snack-modal {
         ✨ Secret Note: "You make every single day warmer & brighter!" ✨
       </div>
 
-      <button class="btn-comfort" onclick="switchStation(5)">Claim Comfort Coupon 🎟️➜</button>
+      <button class="btn-comfort" onclick="switchStation(5)">
+        <span>Claim Comfort Coupon</span> <span>🎟️ ➜</span>
+      </button>
     </div>
   </div>
 
@@ -921,7 +934,9 @@ body.cozy-mode-active .snack-modal {
         <div id="moodFeedback" style="font-size:0.85rem; margin-top:8px; color:#D8A7B1; font-weight:700;"></div>
       </div>
 
-      <button class="btn-comfort" onclick="switchStation(6)" style="margin-top:20px;">Read Comfort Promise 💖➜</button>
+      <button class="btn-comfort" onclick="switchStation(6)">
+        <span>Read Comfort Promise</span> <span>💖 ➜</span>
+      </button>
     </div>
   </div>
 
