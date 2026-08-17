@@ -71,8 +71,13 @@ export function updateCarousel() {
     const iframe = item.querySelector("iframe");
     const placeholder = item.querySelector(".iframe-placeholder");
 
+    let rawDiff = Math.abs(i - normalizedIndex);
+    let diff = Math.min(rawDiff, templates.length - rawDiff);
+
     if (i === normalizedIndex) {
       item.style.opacity = "1";
+      item.style.zIndex = "100";
+      item.style.pointerEvents = "auto";
       item.style.boxShadow = "0 0 50px rgba(231,84,128,0.5)";
       item.style.border = "4px solid #E75480";
       
@@ -93,7 +98,9 @@ export function updateCarousel() {
         }
       }
     } else {
-      item.style.opacity = "0.35";
+      item.style.opacity = diff === 1 ? "0.4" : "0.15";
+      item.style.zIndex = String(10 - diff);
+      item.style.pointerEvents = "none";
       item.style.boxShadow = "none";
       item.style.border = "4px solid #fff";
       
